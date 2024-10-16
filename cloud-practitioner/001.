@@ -1,0 +1,44 @@
+Cloud Computing:
+
+Definition: Using remote servers hosted on the internet to store, manage, and process data, rather than using local servers or personal computers.
+
+
+On-Premise vs Cloud Providers
+
+On-Premise:
+You own the servers (hardware and software).
+You hire and manage IT staff for server maintenance and configurations.
+You pay or rent real estate to house the physical servers (data centers).
+You take full responsibility for any risks (hardware failures, maintenance, etc.).
+
+Cloud Providers (AWS, GCP, Azure):
+The cloud provider owns and maintains the servers.
+They hire IT professionals to monitor and maintain servers.
+Cloud providers rent the real estate (data centers) to house servers.
+Shared responsibility model: You are responsible for configuring the cloud services and deploying code, while the provider handles the rest.
+
+Advantages of Cloud Computing Over On-Premise:
+Trade Capital Expense for Variable Expense:
+
+On-prem requires large upfront investment in data centers and servers.
+Cloud providers allow you to pay on-demand, only for the resources you use.
+Benefit from Massive Economies of Scale:
+
+With cloud computing, the costs are shared among hundreds of thousands of customers.
+This leads to significant cost savings that are not possible with on-prem solutions.
+Stop Guessing Capacity:
+
+No need to over-provision servers for potential future use.
+Cloud providers allow you to scale resources up or down based on actual demand.
+Increased Speed and Agility:
+
+Cloud computing enables quick deployment of resources (within minutes).
+No need to wait for weeks or months for on-premise IT setup.
+Stop Spending on Data Centers:
+
+Cloud providers handle the physical data center operations (servers, IT staff, maintenance).
+You can focus more on your customers and less on infrastructure management.
+Go Global in Minutes:
+
+Cloud allows you to deploy applications across multiple global regions with minimal effort.
+This improves customer experience by reducing latency at lower costs.
