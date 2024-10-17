@@ -402,3 +402,12 @@ federal security and regulatory requirements.
 AWS Account: Users need to have an AWS account that has been approved for GovCloud access. This may involve providing information about 
 the organization and its intended use of the services.
 
+
+
+YOU CAN RESTRICT THE AWS FROM LOOTING THE POOR YOU
+BY GOING TO budget and set a email when the spending goes high.
+
+AND THEN YOU CAN USE CLOUDWATCH AND CREATE TOPIC AND SET THE ALARAM AND THEN NEXT AND ACCPET IT IN YOUR GMAIL
+
+
+YOU CAN DO MFA, TO MAKE SURE NO BODY TAKES ADVANTAGE
