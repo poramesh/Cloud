@@ -1,0 +1,184 @@
+Docker is virtualization software that simplifies developing and deploying applications.
+It packages applications into containers, which include:
+>Application code
+>Libraries and dependencies
+>Runtime and environment configuration
+Containers make sharing and distributing applications easier.
+
+Development Before Docker:
+
+Developers had to install services (like databases) directly on their operating system.
+Different OS (Mac, Windows, etc.) required different installation processes.
+Installing services was tedious and prone to errors, especially with multiple services.
+Complex applications with many services required manual installation and configuration for each service on each developer's machine.
+
+Benefits of Docker and Containers:
+  
+No need to install services directly on the operating system.
+Docker packages services in isolated containers.
+You can start services with a single Docker command instead of manual installation.
+The Docker command is the same across all operating systems (Mac, Windows, Linux).
+For multiple services, you only need to run one command per container.
+Standardizes the development environment, reducing errors and setup complexity.
+You can run different versions of the same application without conflicts.
+Focus on development rather than environment setup.
+Improving Deployment with Containers:
+
+Before Docker, deployments required developers to:
+  
+Create a package (like a jar file for Java)
+Provide instructions for configuring and installing the application on the server.
+With containers, deployments are easier and standardized, as the container includes everything the application needs to run.
+
+
+Docker vs. Virtual Machines (VMs):
+
+Docker is a virtualization tool that simplifies running applications by packaging them into containers.
+Both Docker and virtual machines (VMs) are virtualization technologies, but they virtualize different layers of the operating system.
+
+Operating System Layers:
+
+Kernel Layer:
+The kernel communicates with the hardware (e.g., CPU, memory, storage).
+It allocates system resources to applications.
+
+Applications Layer:
+This layer runs on top of the kernel and includes the apps users interact with.
+
+How Docker and VMs Virtualize the OS:
+
+Docker virtualizes only the applications layer of the operating system.
+Containers run on the host system’s kernel.
+Docker doesn't need its own kernel, which makes its images smaller and faster to start.
+
+VMs virtualize the entire operating system, including the kernel and applications layer.
+VMs have their own kernel, which makes them heavier and slower to start compared to Docker containers.
+A VM image can be several gigabytes, while a Docker image is usually much smaller (a few megabytes).
+
+Key Differences Between Docker and Virtual Machines:
+
+Size:
+Docker images are smaller (usually a few megabytes) because they only include the application layer.
+VM images are larger (several gigabytes) since they include the whole OS, including the kernel.
+
+Startup Time:
+Docker containers start quickly (in milliseconds) as they reuse the host's kernel.
+VMs take longer to boot (minutes) since they have to start up their own kernel.
+
+Compatibility:
+VMs allow running any OS on any host OS (e.g., running a Linux VM on a Windows host).
+Docker, on the other hand, can only run containers compatible with the host’s kernel. This means you can't directly run Linux-based Docker containers on a Windows host.
+
+Running Linux-Based Docker Containers on Windows/Mac:
+Docker was initially built for Linux and many popular services have Linux-based containers.
+Docker made it possible to run Linux containers on Windows and Mac using Docker Desktop.
+Docker Desktop uses a hypervisor layer with a lightweight Linux distribution to provide the necessary Linux kernel, allowing Linux-based containers to run on Windows/Mac.
+
+
+Docker Desktop Installation:
+
+Docker Desktop allows you to run Linux-based images on Windows or Mac.
+
+It includes several components:
+
+Docker Engine: The core service that enables containerization.
+Command Line Interface (CLI): Allows you to execute Docker commands.
+Graphical User Interface (GUI): Provides a user-friendly way to manage containers and images.
+
+You can download Docker Desktop from the official Docker website. Make sure to:
+
+Check the system requirements based on your operating system (Windows, Mac with Intel, or Apple Silicon).
+Follow the installation steps to set up Docker Desktop on your machine.
+
+Docker Images and Containers:
+
+Docker Image:
+A Docker image is a package that contains everything needed to run an application, including:
+The application code.
+The required environment configuration (OS application layer, tools like Node.js, npm, etc.).
+Optional configurations such as environment variables, directories, or files.
+Think of it as an artifact, similar to a ZIP or JAR file, but with more detailed application environment setup.
+
+Docker Container:
+A container is a running instance of a Docker image.
+When you start a Docker image, it becomes a container, allowing the application to run on the host OS in its pre-configured environment.
+From one Docker image, you can create and run multiple containers.
+
+Managing Images and Containers:
+You can manage Docker images and containers using:
+>The graphical user interface (GUI) in Docker Desktop.
+>The command line interface (CLI) to run commands like:
+   docker images: Lists all locally available images.
+   docker ps: Lists running containers.
+
+Docker Registries:
+Docker Registries store Docker images online.
+Official images for services like Redis, MongoDB, and others are available in Docker's public registries, which can be easily downloaded and used.
+Official images are often created by the companies that develop the services or the Docker community.
+You can pull these images from Docker registries to run containers for databases, log collectors, and other services.
+
+
+Docker Hub Overview
+Docker Hub is the largest Docker registry, hosting both official and user-contributed images.
+Official Images: These are verified and maintained by Docker in collaboration with technology creators (like Redis or Nginx) and security experts.
+Docker Hub allows users to browse and search for images without requiring registration.
+
+Tags and Versions
+Image Tags: Docker images are versioned through tags. For instance, you can find various tags (versions) for images like Redis, Postgres, or Nginx.
+Latest Tag: When no version is specified, Docker pulls the latest tag, which corresponds to the most recent version of the image.
+
+Pulling and Running Images
+docker pull: Used to download images locally from Docker Hub.
+Command: docker pull nginx:1.23 will pull version 1.23 of the Nginx image.
+If no version is specified (docker pull nginx), it defaults to the latest version.
+
+Container Creation
+docker run: This command is used to create and run containers from Docker images.
+Example: docker run nginx:1.23 creates a container from Nginx 1.23 image.
+Running the container without specifying a tag will default to the latest version.
+Running containers in detached mode (-d flag) allows the terminal to remain free and prevents logs from blocking it.
+
+Viewing and Managing Containers
+docker ps: Shows the running containers. Use docker ps -a to list all containers, including stopped ones.
+Container ID: Every container has a unique ID and name. Docker generates random names for containers, which you can also specify manually.
+
+Container Logs
+docker logs <container_id>: Retrieves logs from the running container, useful for debugging.
+Port Binding
+Containers often run in an isolated network, so to access them, port binding is necessary.
+  For example, Nginx runs on port 80 inside the container. 
+  To bind it to a port accessible from the host machine, you can use:
+  
+  docker run -d -p 9000:80 nginx (binds container’s port 80 to localhost port 9000).
+
+After this, accessing localhost:9000 in a browser will display the Nginx welcome page.
+
+Starting and Stopping Containers
+
+docker stop <container_id>: Stops a running container.
+docker start <container_id>: Starts a previously stopped container.
+
+Multiple Containers with Different Versions
+Docker makes it easy to run multiple versions of the same service simultaneously. For example, by pulling different Redis versions and creating multiple containers, 
+you can run different Redis versions side by side.
+
+Detached Mode (-d)
+Running containers in detached mode allows them to run in the background without blocking the terminal, making it convenient for managing services.
+
+Docker Containers vs. Images
+Images: A Docker image is a snapshot containing the application and its environment.
+Containers: Containers are running instances of images.
+Every time you run a new container, Docker creates a new container ID, even if the image is the same.
+
+Common Commands
+docker pull <image_name>[ ]: Pulls an image from Docker Hub.
+docker run <image_name>[ ]: Runs a container from the specified image.
+docker ps: Lists running containers.
+docker ps -a: Lists all containers (running or stopped).
+docker stop <container_id>: Stops a running container.
+docker start <container_id>: Starts a stopped container.
+docker logs <container_id>: Fetches logs from the container.
+docker run -d -p <host_port>:<container_port> <image_name>: Runs a container with port binding.
+
+
+
