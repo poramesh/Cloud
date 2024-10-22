@@ -3,6 +3,12 @@
 An IP address (Internet Protocol address) is a numerical label assigned to devices connected to a network.
 It allows computers to communicate with each other over the internet or a private network.
 
+Class	IP Range	Default Subnet Mask	Total Networks	Total Hosts per Network
+A	1.0.0.0 to 126.255.255.255	255.0.0.0 or /8	126	16,777,214
+B	128.0.0.0 to 191.255.255.255	255.255.0.0 or /16	16,384	65,534
+C	192.0.0.0 to 223.255.255.255	255.255.255.0 or /24	2,097,152	254
+
+
 
 IP addresses come in two main types:
 
@@ -225,6 +231,115 @@ The broadcast address plays a crucial role in facilitating communication within 
 device to communicate with all other devices simultaneously. However, it is important to manage and limit broadcasts
 to prevent network overload and maintain performance.
 
+
+
+
+Classless Inter-Domain Routing (CIDR) is a method for allocating IP addresses and routing Internet Protocol packets. 
+It was introduced to replace the older system based on classful network design, which had become inefficient due to 
+the growing number of networks and limited available IP addresses. Here’s a detailed breakdown of CIDR:
+
+Flexible Subnetting:
+
+CIDR allows the division of IP address spaces into variable-length subnets. This means organizations can allocate IP addresses more 
+efficiently according to their needs, rather than being restricted to fixed class boundaries (Class A, B, C).
+
+
+Notation:
+
+CIDR uses a notation called slash notation. An IP address is followed by a slash and a number, which indicates the number
+of bits used for the network prefix.
+Example: In 192.168.1.0/24, the /24 indicates that the first 24 bits are used for the network portion, and the 
+remaining 8 bits are available for host addresses.
+
+
+Aggregation:
+
+CIDR enables route aggregation (or supernetting), which allows multiple IP networks to be represented by a single IP address prefix. This reduces 
+the size of routing tables in routers and improves routing efficiency.
+
+For example, the CIDR block 192.168.0.0/22 encompasses the IP range from 192.168.0.0 to 192.168.3.255.
+
+IP Address Efficiency:
+
+CIDR helps mitigate the problem of IP address exhaustion by allowing ISPs and organizations to use address space more efficiently. Instead
+of being assigned a whole class of addresses, they can be given just the number they need.
+
+Subnetting Example:
+
+If an organization has a CIDR block of 10.0.0.0/16, it means the network portion is 16 bits long, leaving 16 bits for host addresses.
+This organization can create subnets such as:
+10.0.1.0/24 (256 addresses)
+10.0.2.0/24 (256 addresses)
+Each subnet can host up to 254 devices.
+
+
+
+
+Example Scenario
+
+Suppose an organization, TechCorp, has been assigned the CIDR block 192.168.0.0/24. This means:
+
+Network Address: 192.168.0.0
+
+CIDR Notation: /24 indicates that the first 24 bits are used for the network portion, while the remaining 8 bits are used for host addresses.
+
+Breakdown of the CIDR Block
+
+Subnet Mask:
+
+The CIDR notation /24 corresponds to a subnet mask of 255.255.255.0.
+In binary, the subnet mask would look like this:
+
+11111111.11111111.11111111.00000000
+
+The 1s represent the network part, and the 0s represent the host part.
+
+IP Address Range:
+
+The total number of possible addresses for this subnet can be calculated as 2^n. where n is the number of host bits.
+n=8 (32 total bits - 24 network bits = 8 host bits)
+Total addresses = 2^8 = 256 but only 254 can be assigned to hosts (one address is reserved for the network and one for the broadcast address)
+
+Host IP Range:
+
+Valid host IP addresses for this subnet are from 192.168.0.1 to 192.168.0.254.
+
+The first address (192.168.0.0) is reserved as the network address, and the last address (192.168.0.255) is reserved as the broadcast address.
+
+Subnetting Example
+
+Now, if TechCorp needs to divide its network into smaller subnets for different departments (e.g., HR, IT, and Marketing), 
+it can further subnet the 192.168.0.0/24 into smaller CIDR blocks.
+
+Example of Subnetting
+
+Subnet 1 for HR:
+CIDR Block: 192.168.0.0/26
+Subnet Mask: 255.255.255.192
+Valid IP Range: 192.168.0.1 to 192.168.0.62
+Network Address: 192.168.0.0
+Broadcast Address: 192.168.0.63
+Total Addresses: 64 (62 usable for hosts)
+
+Subnet 2 for IT:
+CIDR Block: 192.168.0.64/26
+Subnet Mask: 255.255.255.192
+Valid IP Range: 192.168.0.65 to 192.168.0.126
+Network Address: 192.168.0.64
+Broadcast Address: 192.168.0.127
+Total Addresses: 64 (62 usable for hosts)
+
+Subnet 3 for Marketing:
+
+CIDR Block: 192.168.0.128/26
+Subnet Mask: 255.255.255.192
+Valid IP Range: 192.168.0.129 to 192.168.0.190
+Network Address: 192.168.0.128
+Broadcast Address: 192.168.0.191
+Total Addresses: 64 (62 usable for hosts)
+
+Unused Addresses:
+The remaining addresses (192.168.0.192 to 192.168.0.255) can be allocated for future expansion or other purposes.
 
 
 
