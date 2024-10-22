@@ -1,0 +1,207 @@
+Public IP Address
+
+A Public IP address is an IP address that is globally unique and routable over the internet.
+These addresses are assigned by an internet service provider (ISP) and can be accessed by any
+device connected to the internet. They are used to identify devices on the global internet, 
+allowing them to communicate with other public IP addresses.
+
+Key Points:
+>Publicly Routable: Public IPs are accessible over the internet.
+>Uniqueness: Each public IP must be unique across the internet.
+>Assigned by ISPs: They are typically assigned by your ISP and are limited in number because they 
+are allocated and regulated by organizations like IANA (Internet Assigned Numbers Authority).
+
+Examples of Public IP:
+8.8.8.8 (Google's DNS server)
+54.239.28.85 (an example AWS public IP)
+
+Cost and Availability:
+>Public IP addresses are considered scarce resources, especially IPv4 addresses 
+(due to the limited number of available IPv4 addresses).
+>They may be purchased or leased from ISPs and cloud providers like AWS, and there could b
+e associated costs (e.g., Elastic IPs in AWS have costs if not in use).
+>Subnetting and Private IP Assignment
+Yes, subnetting involves assigning private IP addresses within an internal network (like a corporate
+LAN or a VPC in the cloud). Subnetting helps divide a large IP network into smaller segments 
+or subnets, each with its own range of IP addresses.
+
+Private IP Addresses:
+
+Private IPs are used within private networks and cannot be routed on the public internet. Devices with private IPs
+can communicate within the same private network but need a device like a router or a NAT (Network Address Translation)
+gateway to communicate with the public internet.
+The ranges of private IP addresses fall within Class A, Class B, and Class C networks.
+
+How Subnetting Works with Private IP Addresses:
+
+When you create a private network, for example, a VPC (Virtual Private Cloud) on AWS or a local corporate LAN, you typically:
+
+Choose a CIDR block: This determines the overall range of IP addresses that your network will use. 
+For example, 10.0.0.0/16 means you're using a Class A private IP range, where IP addresses
+will span from 10.0.0.0 to 10.0.255.255.
+
+Divide the network into subnets: Using subnetting, you split the larger network into smaller subnetworks.
+Each subnet gets a subset of the available IP addresses. For example:
+
+10.0.1.0/24 for one subnet.
+10.0.2.0/24 for another subnet.
+
+Assign private IP addresses: Devices within the subnets (e.g., EC2 instances, routers, etc.) 
+get assigned private IP addresses from the available range within their respective subnet. These IPs are used for internal communication.
+
+Example of Subnetting:
+
+Let’s say you have a VPC with a CIDR block of 10.0.0.0/16:
+
+You might create three subnets:
+Public Subnet: 10.0.1.0/24 (256 addresses) -----> MORE EXAPLANATIO BELOW
+Private Subnet 1: 10.0.2.0/24 (256 addresses)
+Private Subnet 2: 10.0.3.0/24 (256 addresses)
+
+In this setup, the subnetting allows you to assign private IP addresses to the devices in each subnet, 
+but none of these private IP addresses can be directly accessed from the internet
+without some intermediary (like NAT or a public IP).
+
+Private IP Assignment with Subnetting:
+
+A private IP (such as 10.0.1.10) is typically assigned dynamically using DHCP (Dynamic Host Configuration Protocol) 
+or manually (static assignment).
+Each subnet has a unique range of IP addresses defined by its CIDR block, and devices within the subnet get IPs from this range.
+
+Summary
+Public IPs are globally routable on the internet, unique, and assigned by ISPs or cloud providers.
+Private IPs are used within private networks and can't be routed on the public internet.
+Subnetting is a way of dividing a larger network into smaller sub-networks and involves
+assigning private IP addresses within each subnet to internal devices.
+
+
+Public Subnet with Private IP Addresses:
+
+
+Even though a public subnet allows communication with the internet, the IP addresses assigned within the subnet
+are still private IP addresses. This is because:
+
+Private IP Addresses are used within the VPC for internal communication between resources (e.g., EC2 instances, databases, etc.).
+
+A public subnet simply means that instances (like EC2 instances) within this subnet can access the internet directly,
+but they are still assigned private IP addresses within the VPC's CIDR range (e.g., 10.0.1.0/24).
+
+For example:
+The public subnet might be 10.0.1.0/24, and an instance within this subnet could have a private IP like 10.0.1.5.
+
+Why Public Subnets Use Private IP Addresses?
+
+Internal Communication:
+The private IP addresses (e.g., 10.0.1.5) allow communication between resources within the VPC. 
+For example, an instance in the public subnet can communicate with an instance in a private subnet 
+(e.g., 10.0.2.5) without needing to go through the internet.
+
+Security and Control:
+
+Even in a public subnet, the instances are not directly exposed to the internet by default. They are still 
+protected by security groups and network access control lists (ACLs).
+Public access is only allowed through an Internet Gateway (IGW), which is attached to the public subnet.
+
+Public Internet Access:
+
+>What makes it a public subnet is that instances within it can access the internet directly via the Internet Gateway (IGW).
+>If an instance in the public subnet needs to be accessible from the internet (e.g., a web server), 
+it can be assigned an Elastic IP (EIP) or a Public IP address.
+>This public IP will map to the instance's private IP for external traffic. For example, an Elastic IP 
+of 54.239.28.85 might be assigned to the instance with private IP 10.0.1.5. Traffic from the internet can now reach the
+instance via the public IP, but the instance will still use its private IP for internal VPC communication.
+
+Why Use Public Subnets in a Network?
+Public subnets are used when you have resources that need to communicate with the internet. 
+For example:
+Web Servers: If you host a website, the web server must be in a public subnet so that it can be accessed by users on the internet.
+NAT Gateways: In a private subnet setup, you need a NAT Gateway in a public subnet so that instances in private subnets can access the internet.
+
+
+Summary of Key Concepts:
+
+Public Subnet: A subnet that has a route to an Internet Gateway (IGW), allowing instances within it to communicate with the internet.
+Instances in a public subnet are still assigned private IP addresses for internal VPC communication.
+
+Private Subnet: A subnet that does not have direct access to the internet. Instances in this subnet are isolated from the
+internet unless they use a NAT Gateway for outbound traffic.
+
+Elastic IP or Public IP: If an instance in a public subnet needs to be accessible from the internet (e.g., web server),
+it is assigned a public IP (like an Elastic IP) which maps to its private IP.
+
+
+MORE DOUBTS CLEARED
+
+When you host a website, you need your web server to be reachable by users over the internet. A public subnet 
+enables this by allowing the web server to have direct internet access. 
+Let’s break down how this works:
+
+What Does It Mean?
+
+A web server is the machine (physical or virtual, like an AWS EC2 instance) that hosts your website, serving 
+content like HTML, images, CSS, etc.
+
+The web server must be in a public subnet so that users from anywhere on the internet can send requests 
+(e.g., visiting your website) and get responses (like viewing your homepage).
+
+How Does It Work?
+
+Web Server in a Public Subnet:
+
+Your web server (EC2 instance) is deployed in a public subnet within a Virtual Private Cloud (VPC).
+A public subnet is defined as a subnet that is connected to the internet through an Internet Gateway (IGW).
+The EC2 instance in this subnet gets a private IP address (e.g., 10.0.1.5) to communicate internally within the VPC.
+
+
+Assign a Public IP Address:
+
+To make your web server accessible over the internet, it is assigned a public IP address 
+or an Elastic IP (e.g., 52.10.45.123).
+This public IP is mapped to the instance’s private IP via a network address translation (NAT) mechanism.
+
+Route Through the Internet Gateway:
+
+The public subnet is associated with a route table that has a route to the Internet Gateway (IGW), which
+allows traffic to flow between the internet and the public subnet.
+When users access your website by entering your domain name or the public IP (52.10.45.123), their 
+requests are routed through the internet to the Internet Gateway, which then forwards them to
+the web server's private IP (10.0.1.5).
+
+
+Security Configuration:
+Security groups and Network Access Control Lists (ACLs) are used to secure the traffic.
+For a web server, the security group typically allows inbound traffic on port 80 (HTTP) or
+port 443 (HTTPS) so that users can access the website.
+For example, you may configure your security group to allow incoming traffic from anywhere (0.0.0.0/0) on port 80 for HTTP requests.
+
+
+Traffic Flow Example:
+User Request:
+A user opens their browser and types in www.example.com (which is mapped to your web server’s public IP: 52.10.45.123).
+
+Routing:
+The request travels over the internet and reaches your VPC’s Internet Gateway.
+The Internet Gateway routes the traffic to the public subnet where your web server is hosted.
+The request is then forwarded to your web server’s private IP (e.g., 10.0.1.5).
+
+Response:
+Your web server processes the request and sends back the appropriate content (like the homepage of the website) to the user.
+The response is routed back through the Internet Gateway to the user’s browser.
+
+
+Why Use a Public Subnet for Web Servers?
+
+Direct Internet Access: A public subnet allows your web server to receive traffic directly from the internet. 
+This is essential for any website or service that needs to be publicly accessible.
+
+Static Public IP: You can assign a static Elastic IP to your web server, so it has a fixed address that users can always reach.
+
+Security: Although the server is publicly accessible, you can still control who can access it
+by configuring the security group rules to allow traffic only on necessary ports (e.g., HTTP, HTTPS) and block other ports.
+
+Summary:
+Hosting a web server in a public subnet allows users from the internet to access it.
+The web server is assigned a private IP for internal communication but is reachable via its public IP through an Internet Gateway.
+Security configurations (like security groups) ensure that only the required traffic (e.g., web traffic) is allowed to reach the server
+
+
