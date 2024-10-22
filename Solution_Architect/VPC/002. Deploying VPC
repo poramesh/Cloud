@@ -1,0 +1,117 @@
+
+Deploying subnets across multiple Availability Zones (AZs) in AWS is a common practice when setting up a Virtual Private Cloud (VPC).
+Here's a step-by-step guide on how you can create subnets in different AZs to achieve high availability and resilience.
+
+Steps to Deploy Subnets Across Multiple AZs in AWS:
+
+1. Create a VPC (if not already created)
+
+A Virtual Private Cloud (VPC) is a logically isolated section of the AWS cloud where you define your
+network, including subnets, routing, and security.
+
+Go to the VPC Dashboard in the AWS Management Console.
+>Click Create VPC.
+>Set the following:
+>Name tag: Give your VPC a name (e.g., my-vpc).
+>IPv4 CIDR block: Specify a range of IP addresses in CIDR notation (e.g., 10.0.0.0/16), 
+which allows you to create subnets later.
+>Leave other settings as default or customize based on your needs.
+
+
+
+2. Create Subnets in Different Availability Zones
+
+Once you have a VPC, you can create multiple subnets in different AZs.
+
+In the VPC Dashboard, go to Subnets and click Create Subnet.
+Fill in the following details:
+>VPC: Select the VPC you created (e.g., my-vpc).
+>Subnet name: Name the subnet based on the AZ (e.g., my-subnet-az1).
+>Availability Zone: Choose an AZ for this subnet (e.g., us-east-1a).
+>IPv4 CIDR block: Enter a range of IP addresses for this subnet (e.g., 10.0.1.0/24).
+>Click Create.
+
+Repeat this process to create subnets in other AZs:
+
+Subnet 2:
+>Name: my-subnet-az2
+>Availability Zone: us-east-1b
+>CIDR Block: 10.0.2.0/24
+
+Subnet 3:
+>Name: my-subnet-az3
+>Availability Zone: us-east-1c
+>CIDR Block: 10.0.3.0/24
+
+This creates three subnets, each in a different AZ, which enhances redundancy and availability.
+
+
+
+3. Configure Route Tables for Subnets
+
+You need to ensure that traffic can flow correctly in and out of your subnets by 
+associating them with route tables.
+
+Go to Route Tables in the VPC Dashboard.
+
+If there's no default route table, create one or use the existing one.
+Associate each subnet with the route table:
+>Select the route table, go to Subnet Associations, and click Edit Subnet Associations.
+>Choose the subnets you want to associate with this route table.
+>If you're setting up public subnets, make sure the route table has a route to an Internet Gateway.
+
+
+
+4. Attach an Internet Gateway (for Public Subnets)
+
+If you want some subnets to have public internet access (for example, public-facing web servers),
+you'll need to attach an Internet Gateway to your VPC.
+
+In the VPC Dashboard, go to Internet Gateways.
+>Click Create Internet Gateway, give it a name, and click Create.
+>Once created, Attach to VPC (select your VPC).
+>After attaching, update your route table:
+
+Add a route to the Internet Gateway (0.0.0.0/0 -> igw-<id>) to allow outbound internet traffic for your public subnets.
+
+
+
+5. Set Up Security Groups and Network ACLs
+
+Security Groups: These act as virtual firewalls for your EC2 instances. You can configure inbound
+and outbound rules based on your application needs.
+Network ACLs: These control traffic at the subnet level. You can configure them to provide additional 
+security by allowing or denying specific IP traffic.
+Ensure that the security groups and ACLs are configured properly for your subnets and instances based
+on their roles (e.g., web server, database server).
+
+
+
+
+6. Launch Instances in Different Subnets
+
+Once your subnets are set up, you can launch EC2 instances across these subnets in different AZs:
+
+Go to the EC2 Dashboard.
+>Click Launch Instance and configure the instance settings.
+>Choose the Subnet you want to launch the instance in (you’ll see the AZ associated with each subnet).
+
+By spreading your instances across the subnets in different AZs, you ensure that even if one AZ goes down,
+your other instances in different AZs can continue operating.
+
+
+
+Key Points to Remember:
+
+Public vs. Private Subnets: You can create both public and private subnets in different AZs. Public subnets will have
+access to the internet via an Internet Gateway, while private subnets might use a NAT Gateway for secure outbound internet access.
+Resilience and Redundancy: Distributing resources across multiple AZs ensures that failure in one zone doesn’t take down
+your entire application. It’s a key part of high-availability architecture.
+Load Balancer: Consider using an Elastic Load Balancer (ELB) to balance traffic across instances in multiple AZs.
+
+
+Conclusion:
+To deploy subnets across multiple AZs, you simply create separate subnets in different AZs 
+within the same VPC. This multi-AZ setup enhances fault tolerance and availability for your 
+applications by ensuring they continue running even if one AZ fails.
+
