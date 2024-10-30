@@ -3,10 +3,10 @@
 An IP address (Internet Protocol address) is a numerical label assigned to devices connected to a network.
 It allows computers to communicate with each other over the internet or a private network.
 
-Class	IP Range	Default Subnet Mask	Total Networks	Total Hosts per Network
-A	1.0.0.0 to 126.255.255.255	255.0.0.0 or /8	126	16,777,214
-B	128.0.0.0 to 191.255.255.255	255.255.0.0 or /16	16,384	65,534
-C	192.0.0.0 to 223.255.255.255	255.255.255.0 or /24	2,097,152	254
+Class	        IP Range	             Default Subnet Mask	      Total Networks	  Total Hosts per Network
+A	     1.0.0.0 to 126.255.255.255 	   255.0.0.0 or /8	         126	             16,777,214
+B	     128.0.0.0 to 191.255.255.255	   255.255.0.0 or /16	       16,384	           65,534
+C	     192.0.0.0 to 223.255.255.255	   255.255.255.0 or /24	     2,097,152	       254
 
 
 
@@ -64,7 +64,8 @@ This public IP allows devices and servers on the internet to recognize and commu
 
 Public IP Address Usage:
 Web Servers: A web server hosting a website like example.com has a public IP address so users worldwide can access it.
-Home Internet Connection: Your ISP assigns your router a public IP, which allows your home network to communicate with external servers and services on the internet.
+Home Internet Connection: Your ISP assigns your router a public IP, which allows your home network to communicate with external servers
+and services on the internet.
 
 Dynamic vs. Static Public IP:
 Dynamic Public IP: Most users have dynamic public IPs, which change periodically and are assigned by ISPs.
