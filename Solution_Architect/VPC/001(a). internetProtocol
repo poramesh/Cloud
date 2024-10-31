@@ -12,6 +12,52 @@ C	     192.0.0.0 to 223.255.255.255	   255.255.255.0 or /24	     2,097,152	     
 
 IP addresses come in two main types:
 
+
+IP addresses, both public and private, are assigned by different entities and mechanisms:
+
+Public IP Addresses:
+
+Assigned by Internet Service Providers (ISPs): Public IP   are allocated to organizations by ISPs, who get
+these addresses from larger regional organizations called Regional Internet Registries (RIRs).
+
+RIRs (like ARIN, APNIC, RIPE NCC) manage the distribution of public IP addresses within specific
+geographic regions. They are overseen by the Internet Assigned Numbers Authority (IANA), a department 
+of ICANN (Internet Corporation for Assigned Names and Numbers).
+
+Private IP Addresses:
+
+Assigned by local network devices: Private IP addresses are generally assigned within private networks,
+either manually or by a Dynamic Host Configuration Protocol (DHCP) server in a router or firewall.
+
+DHCP can automatically allocate and manage IP addresses within the private address ranges defined 
+by IANA (e.g., 192.168.0.0/16, 172.16.0.0/12, 10.0.0.0/8).
+
+In cloud environments like AWS, private and public IP addresses for virtual instances (e.g., EC2)
+are managed by the cloud provider's infrastructure.
+
+   :::::::
+:::EXAMPLE:::
+   ::::::
+
+Public IP Address:
+Example: 203.0.113.42
+
+This type of IP address is accessible over the internet and is assigned by an ISP. It allows devices to
+communicate with external networks, like accessing websites or services hosted on the internet.
+
+Private IP Address:
+Example: 192.168.1.15
+
+This IP address is only accessible within a private network, like a home or corporate LAN. It’s assigned 
+by a router or DHCP server within the network and cannot be reached directly from outside the network without special configurations.
+
+Private IP addresses typically fall within these reserved ranges:
+10.0.0.0 – 10.255.255.255
+172.16.0.0 – 172.31.255.255
+192.168.0.0 – 192.168.255.255
+
+
+
 1. Private IP Address: 
 
 Private IP addresses are used within internal networks like homes, offices, or enterprises, allowing devices to communicate with each other locally
@@ -81,6 +127,47 @@ a local network to communicate over the internet.
 MY ipV4 adress of the internt network is 192.168.0.11 whereas the public ip is 82.17.73.93
 
 
+IP address 82.17.73.93 likely belongs to a specific device connected to the internet, as it is a public IP address.
+Public IPs are assigned by an ISP to a device like a router or modem, which may connect multiple devices to the internet.
+
+This IP address typically represents the public-facing address of a network. For instance:
+
+In a home network, 82.17.73.93 might be assigned to a household’s router. All devices (phones, laptops, tablets) connected to 
+that router would share this public IP when accessing the internet.
+
+In an office or organization, it could represent the network's external IP, covering multiple devices inside.
+Individual devices behind the router are assigned private IP addresses, so while the network has a single public IP
+(like 82.17.73.93), each device within it has a unique private IP, allowing them to communicate within the LAN and 
+share the single public IP for internet access.
+
+
+
+
+
+
+
+who provides my private ip adress?
+Your private IP address is typically provided by your router through a process called Dynamic Host Configuration Protocol (DHCP). Here’s how it works:
+
+DHCP on Your Router:
+
+When a device (like a phone, laptop, or computer) connects to your network, it requests an IP address.
+The router, which serves as a DHCP server, assigns a private IP from a predefined range (e.g., 192.168.0.0/16 or 10.0.0.0/8).
+This private IP allows your device to communicate within your Local Area Network (LAN) but is not accessible from outside the network.
+
+Manual Assignment (Static IP):
+
+Alternatively, you can manually assign a private IP address, known as a static IP, to a device within your network. However, 
+the IP should be within the private IP range managed by your router to avoid conflicts.
+
+This private IP address setup is typically done by the router automatically, without any manual input, making it convenient
+for most home and small office networks.
+
+
+
+
+
+
 
 
 
@@ -93,6 +180,7 @@ Each octet is 8 bits (binary), with possible values ranging from 0 to 255 in dec
 
 
 Importance of Structure
+
 Subnetting: Understanding the octets is crucial for subnetting, where parts of an IP address are designated for the network ID and host ID.
 Routing: Routers use the octets to determine how to route packets between networks.
 Classification: The structure aids in identifying whether an IP address is public or private based on its value.
