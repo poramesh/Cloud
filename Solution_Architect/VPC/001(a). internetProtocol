@@ -147,6 +147,7 @@ share the single public IP for internet access.
 
 
 who provides my private ip adress?
+
 Your private IP address is typically provided by your router through a process called Dynamic Host Configuration Protocol (DHCP). Here’s how it works:
 
 DHCP on Your Router:
