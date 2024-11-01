@@ -1,0 +1,81 @@
+What is a Public IP Address?
+
+Definition: A public IP address is an IP address that is accessible over the internet. It allows devices on the 
+internet to communicate with the resource associated with that IP address.
+
+Use in AWS: In AWS, public IP addresses are typically assigned to EC2 instances (Elastic Compute Cloud) or 
+other resources that need to be directly accessible from the internet. This allows users to reach
+those resources using their public IP addresses.
+
+Key Points About Public IPs in AWS:
+
+Assignment: Public IP addresses can be assigned dynamically or statically.
+
+Dynamic Public IP: Automatically assigned to an instance when it's launched and may change if the instance is stopped and restarted.
+
+Elastic IP: A static public IP address that you can allocate to your AWS account and associate with an instance. This remains the 
+same even if you stop or start the instance.
+
+Access: Resources with public IPs can be accessed directly from anywhere on the internet, given the correct security
+group settings and permissions.
+
+Usage: Commonly used for hosting websites, APIs, or any service that requires direct internet access.
+
+
+
+
+
+
+
+
+Overview of Domain Registration and Hosting
+
+Domain Registration:
+
+When you purchase a domain name from a registrar (like Google Domains), you pay a fee for the domain name, which grants
+you ownership for a specified period (usually a year).
+
+The registrar provides you with a way to manage DNS settings, including pointing the domain to specific servers.
+
+Pointing the Domain to Your Server:
+
+Once you have your domain, you need to configure its DNS settings to point to your server’s IP address.
+In the case of Replit, you would have received a public IP address for your Replit server (or a domain name provided by Replit) and
+added this information to your Google Domain DNS settings.
+
+This usually involves creating an A record in your DNS configuration that links your domain (or subdomain) to the server’s IP address.
+
+
+How This Compares to AWS
+
+If you were to do something similar on AWS, the steps would involve using Route 53 for domain management and EC2 for
+hosting, as outlined in the previous response. The key differences are:
+
+Registration: In Google Domains, you register and manage your domain in one place. In AWS, you can do this
+using Route 53, which also provides DNS services.
+
+Hosting: Replit likely abstracts away much of the server management, making it easier for users to deploy
+applications without needing to configure an instance. In AWS, you would typically launch an EC2 instance
+and set up your application there, which can be more complex but also offers more control.
+
+
+Example Scenario with Google Domains and Replit
+
+Here’s a simplified example of how your previous experience might have looked:
+
+Purchase Domain:
+
+You buy www.example.com from Google Domains.
+
+Get IP Address:
+
+You set up your application on Replit, which gives you a public IP address or a domain to access your application (like replit.com).
+
+DNS Configuration:
+
+In Google Domains, you go to the DNS settings for www.example.com.
+You create an A record pointing www.example.com to the IP address you received from Replit.
+
+Access Your Application:
+
+When users enter www.example.com in their browser, they are directed to your application hosted on Replit.
