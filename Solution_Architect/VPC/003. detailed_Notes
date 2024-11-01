@@ -13,6 +13,53 @@ in different AZs for redundancy and availability.
 Subnets: A subnet is a range of IP addresses within the VPC. Each subnet is tied to a single AZ 
 and cannot span multiple AZs. You can create multiple subnets in the same AZ.
 
+____________________
+
+Example Scenario
+Let’s say you have a VPC with a CIDR block (IP address range) of 10.0.0.0/16. This range allows 65,536 IP addresses in total,
+which you can divide into smaller subnets within this VPC. Each subnet you create will be associated with a specific Availability Zone (AZ) in the region.
+
+Steps to Create Subnets
+
+Subnet 1 - Public Subnet:
+
+CIDR Block: 10.0.1.0/24 (provides 256 IP addresses)
+Availability Zone: us-east-1a
+Purpose: Can be used for public-facing resources, like web servers.
+Internet Gateway: This subnet might have an internet gateway attached to allow public access.
+
+Subnet 2 - Private Subnet:
+
+CIDR Block: 10.0.2.0/24 (provides 256 IP addresses)
+Availability Zone: us-east-1b
+Purpose: Used for private resources, like database servers, which do not need direct internet access.
+NAT Gateway: Typically, a NAT gateway is used to provide outbound internet access while keeping it private.
+
+Subnet 3 - Additional Private Subnet:
+
+CIDR Block: 10.0.3.0/24 (provides 256 IP addresses)
+Availability Zone: us-east-1a (same AZ as Subnet 1)
+Purpose: Additional subnet for internal services, perhaps for scaling up resources in the same AZ.
+
+This subnet includes a total of 256 IP addresses (from 10.0.3.0 to 10.0.3.255), but usable IP addresses
+for devices are typically from 10.0.3.1 to 10.0.3.254. IPs are often reserved in the following ways:
+
+10.0.3.0 – Network Address (identifies the subnet itself)
+10.0.3.1 – First usable IP (often assigned to the router or gateway)
+10.0.3.255 – Broadcast Address (used to communicate with all devices on the subnet)
+
+
+Key Points
+Single AZ per Subnet: Subnet 1 is tied to us-east-1a, and Subnet 2 is tied to us-east-1b. Each subnet can only be 
+associated with one AZ, providing isolation in case of an AZ failure.
+
+Multiple Subnets per AZ: You can have multiple subnets within the same AZ (like Subnet 1 and Subnet 3 both in us-east-1a).
+
+Segmentation: By dividing the VPC into subnets, you can manage traffic flow and security separately for public and private resources.
+
+
+___________________
+
 VPC Router: A virtual router that manages the traffic within the VPC. You configure it using
 route tables.
 
