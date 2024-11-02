@@ -1,0 +1,233 @@
+Amazon Virtual Private Cloud (VPC)
+
+A VPC is a logically isolated section of the AWS cloud where you can launch AWS resources in a virtual network that you define.
+
+
+Core Concepts:
+
+Region: VPCs are created within a specific AWS region and cannot span across multiple regions.
+
+
+Availability Zones (AZs): Each VPC is associated with multiple AZs, allowing you to create subnets 
+in different AZs for redundancy and availability.
+
+Subnets: A subnet is a range of IP addresses within the VPC. Each subnet is tied to a single AZ 
+and cannot span multiple AZs. You can create multiple subnets in the same AZ.
+
+
+INSIDE REGION WE GOT VPC AND INSIDE VPC WE define AZ, INSIDE AVAILABILITY ZONE WE GOT PRIVATE SUBNET AND PUBLIC SUBNET.
+
+you can install EC2 instance in this subnet.
+
+
+VPC router takes care of routing within vpc and outside of vpc. the route table will make data conenction happen and sent to right place.
+if we need internet, it will be attached to the igw.
+
+Example Route Table Entry
+Destination	Target	Description
+10.0.0.0/16	local	Routes traffic within the VPC
+0.0.0.0/0	igw-abc12345	Routes traffic to the Internet Gateway
+
+1. Destination
+What It Is: The destination specifies the range of IP addresses (known as a CIDR block) to which traffic should be directed.
+Example:
+10.0.0.0/16: This means all IP addresses within the range 10.0.x.x will match this route.
+0.0.0.0/0: This matches all IP addresses, indicating any traffic going outside the VPC (i.e., to the internet).
+
+2. Target
+What It Is: The target specifies where to send the traffic that matches the destination. It could point
+to an Internet Gateway (for external access), a NAT Gateway, a peering connection, a local route, or other network resources.
+Example:
+local: Allows traffic within the VPC to communicate internally without leaving the VPC.
+igw-abc12345: An Internet Gateway, used to route traffic from the VPC to the internet.
+nat-xyz67890: A NAT Gateway, used to route traffic from private subnets to the internet in a secure way.
+
+
+
+
+
+         +----------------- AWS REGION -----------------+
+         |                                             |
+         |               +----------- VPC -----------+  |
+         |               |                           |  |
+         |               |      +----------+        |  |
+         |               |      |  AZ 1    |        |  |
+         |               |      |          |        |  |
+         |               |      | +------+ |        |  |
+         |               |      | |Public| |        |  |
+         |               |      | |Subnet| |        |  |
+         |               |      | +------+ |        |  |
+         |               |      |          |        |  |
+         |               |      | +------+ |        |  |
+         |               |      | |Private| |       |  |
+         |               |      | |Subnet | |       |  |
+         |               |      | +------+ |        |  |
+         |               |      |          |        |  |
+         |               |      +----------+        |  |
+         |               |                           |  |
+         |               |                           |  |
+         |               |      +----------+        |  |
+         |               |      |  AZ 2    |        |  |
+         |               |      |          |        |  |
+         |               |      | +------+ |        |  |
+         |               |      | |Public| |        |  |
+         |               |      | |Subnet| |        |  |
+         |               |      | +------+ |        |  |
+         |               |      |          |        |  |
+         |               |      | +------+ |        |  |
+         |               |      | |Private| |       |  |
+         |               |      | |Subnet | |       |  |
+         |               |      | +------+ |        |  |
+         |               |                           |  |
+         |               +---------------------------+  |
+         |                                             |
+         +---------------------------------------------+
+
+                       Legend:
+                       AZ = Availability Zone
+                       VPC = Virtual Private Cloud
+
+
+____________________
+
+Example Scenario
+Let’s say you have a VPC with a CIDR block (IP address range) of 10.0.0.0/16. This range allows 65,536 IP addresses in total,
+which you can divide into smaller subnets within this VPC. Each subnet you create will be associated with a specific Availability Zone (AZ) in the region.
+
+Steps to Create Subnets
+
+Subnet 1 - Public Subnet:
+
+CIDR Block: 10.0.1.0/24 (provides 256 IP addresses)
+Availability Zone: us-east-1a
+Purpose: Can be used for public-facing resources, like web servers.
+Internet Gateway: This subnet might have an internet gateway attached to allow public access.
+
+Subnet 2 - Private Subnet:
+
+CIDR Block: 10.0.2.0/24 (provides 256 IP addresses)
+Availability Zone: us-east-1b
+Purpose: Used for private resources, like database servers, which do not need direct internet access.
+NAT Gateway: Typically, a NAT gateway is used to provide outbound internet access while keeping it private.
+
+Subnet 3 - Additional Private Subnet:
+
+CIDR Block: 10.0.3.0/24 (provides 256 IP addresses)
+Availability Zone: us-east-1a (same AZ as Subnet 1)
+Purpose: Additional subnet for internal services, perhaps for scaling up resources in the same AZ.
+
+This subnet includes a total of 256 IP addresses (from 10.0.3.0 to 10.0.3.255), but usable IP addresses
+for devices are typically from 10.0.3.1 to 10.0.3.254. IPs are often reserved in the following ways:
+
+10.0.3.0 – Network Address (identifies the subnet itself)
+10.0.3.1 – First usable IP (often assigned to the router or gateway)
+10.0.3.255 – Broadcast Address (used to communicate with all devices on the subnet)
+
+
+Key Points
+Single AZ per Subnet: Subnet 1 is tied to us-east-1a, and Subnet 2 is tied to us-east-1b. Each subnet can only be 
+associated with one AZ, providing isolation in case of an AZ failure.
+
+Multiple Subnets per AZ: You can have multiple subnets within the same AZ (like Subnet 1 and Subnet 3 both in us-east-1a).
+
+Segmentation: By dividing the VPC into subnets, you can manage traffic flow and security separately for public and private resources.
+
+
+MULTIPLE VPC:
+
+                   +------------------- AWS REGION -------------------+
+                   |                                                 |
+                   |               +----------- VPC 1 -----------+    |
+                   |               | CIDR: 10.0.0.0/16           |    |
+                   |               |                             |    |
+                   |               | +-------- AZ 1 ---------+   |    |
+                   |               | |                       |   |    |
+                   |               | | Public Subnet         |   |    |
+                   |               | | CIDR: 10.0.1.0/24     |   |    |
+                   |               | |-----------------------|   |    |
+                   |               | | Private Subnet        |   |    |
+                   |               | | CIDR: 10.0.2.0/24     |   |    |
+                   |               | +-----------------------+   |    |
+                   |               | +-------- AZ 2 ---------+   |    |
+                   |               | |                       |   |    |
+                   |               | | Public Subnet         |   |    |
+                   |               | | CIDR: 10.0.3.0/24     |   |    |
+                   |               | |-----------------------|   |    |
+                   |               | | Private Subnet        |   |    |
+                   |               | | CIDR: 10.0.4.0/24     |   |    |
+                   |               +-------------------------+    |
+                   |                                                 |
+                   |               +----------- VPC 2 -----------+    |
+                   |               | CIDR: 10.1.0.0/16           |    |
+                   |               |                             |    |
+                   |               | +-------- AZ 1 ---------+   |    |
+                   |               | |                       |   |    |
+                   |               | | Public Subnet         |   |    |
+                   |               | | CIDR: 10.1.1.0/24     |   |    |
+                   |               | |-----------------------|   |    |
+                   |               | | Private Subnet        |   |    |
+                   |               | | CIDR: 10.1.2.0/24     |   |    |
+                   |               | +-----------------------+   |    |
+                   |               | +-------- AZ 2 ---------+   |    |
+                   |               | |                       |   |    |
+                   |               | | Public Subnet         |   |    |
+                   |               | | CIDR: 10.1.3.0/24     |   |    |
+                   |               | |-----------------------|   |    |
+                   |               | | Private Subnet        |   |    |
+                   |               | | CIDR: 10.1.4.0/24     |   |    |
+                   +-------------------------------------------------+
+
+We can create multiple vpc in the same region.
+
+___________________
+
+
+
+
+
+VPC Router: A virtual router that manages the traffic within the VPC. You configure it using
+route tables.
+
+Route Tables: Used to define the paths for routing traffic. You specify destinations and targets
+for your traffic.
+
+Subnet: A segment of a VPC;s IP address range where you can place groups of isolated resources.
+
+Internet Gateway: Allows communication between instances in your VPC and the internet. There is
+only one Internet Gateway per VPC, and it is used for both outbound (egress) and
+inbound (ingress) traffic.
+
+Egress-Only Internet Gateway: Used with IPv6 to allow outbound traffic only (no inbound).
+
+NAT Instances/Gateways: Allow instances in a private subnet to access the internet
+while preventing inbound traffic from the internet.
+
+NAT Instance: Enables internet access for EC2 instances in private subnets managed (by you).
+
+NAT Gateway: Enables internet access for EC2 instances in private subnets managed (by AWS).
+
+VPC Endpoints: Enable you to connect to AWS services without needing an Internet Gateway or NAT.
+(or) Private connection to public AWS services
+
+Peering connections: direct connection between two VPCs
+
+VPN Connections: Allow you to securely connect your on-premises network to your VPC using 
+a Virtual Private Gateway and Customer Gateway.
+
+Customer Gateway: Customer side of a VPN connection.
+
+Direct Connect: A service that enables you to establish a dedicated network connection from 
+your premises to AWS. it is high speed, high bandwidth. it is a private network conenction.
+
+Security Groups: Act as a virtual firewall for your instances to control inbound and
+outbound traffic at the instance level.(instance-level firewall)
+
+Network ACLs: Subnet-level firewalls that control traffic moving in and out of a subnet.
+(subnet-level firewall)
+
+
+
+VPC IS ANALAGUOS TO HAVING YOUR OWN DATA CENTER INSIDE YOUR AWS CLOUD.
+
+
+
