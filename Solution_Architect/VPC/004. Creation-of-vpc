@@ -1,0 +1,261 @@
+Guidelines for CIDR Block Selection
+
+
+>Size: Choose CIDR block sizes between /16 => 256*256 (65,536 addresses) and /28 => last four bits (16 addresses).
+
+>Non-Overlapping: Ensure the CIDR block does not overlap with existing CIDR blocks in your VPC.
+
+>RFC 1918 Ranges: It is recommended to use private IP address ranges defined in RFC 1918
+(e.g., 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16) for your VPC.
+
+Private IP addresses typically fall within these reserved ranges:
+10.0.0.0 – 10.255.255.255
+172.16.0.0 – 172.31.255.255
+192.168.0.0 – 192.168.255.255
+
+yiur vpc must be /16 or smaller, for example: 10.0.0.0/16
+your vpc must be /16 or smaller, for example: 172.31.0.0/16
+your vpc can be smaller, for example 192.168.0.0/20
+
+>You cannot increase or decrease the size of an existing CIDR block, so you have to get it right from the beginning.
+
+>The first four and last IP is not available for use.
+
+>Default VPC: AWS automatically creates a default VPC in each region, which includes a subnet in each AZ.
+The default subnets are public.
+
+
+
+
+VPC CIDR blocks and subnets:
+
+
+VPC CIDR block: 10.0.0.0
+/16 subnet mask: 255 255 0 0
+
+=> 10.0.0.0/16
+
+the subnets can be 10.0.1.0/24, 10.0.2.0/24, 10.0.3.0/24
+
+subnet mask is 255.255.255.0
+
+each 254 potential host. take 5 away from the number!
+
+VPC subnets have a longer subnet mask than the CIDR block by using the additional bits from the host portion.
+
+
+
+ADDITIONAL CONSIDERATION:
+
+>ensure you have enough networks and hosts.
+>bigger cidr blocks are typically better and more flexible.
+>smaller subnets are okay fro most use cases
+>consider deploying thr application tiers per subnet
+>split your HA resources across subnets in different azs
+>vpc peering requires non oeverlapping cidr blocks. AVOID THIS AS MUCH AS POSSIBLE.
+
+
+
+
+
+
+
+Subnet Planning:
+
+When designing subnets, ensure you have enough networks and hosts. It's essential to set the CIDR block
+correctly from the start, as it cannot be changed later.
+Larger CIDR blocks are preferable because they provide more flexibility for future growth.
+Smaller subnets are suitable for most cases, especially if you don't need thousands of instances per subnet.
+
+Application Tier Deployment:
+
+Consider separating application tiers into different subnets for better organization and security. 
+For example, you might use separate subnets for front-end and back-end applications.
+
+High Availability:
+
+Deploy subnets across multiple Availability Zones (AZs) to enhance availability and resilience. 
+Each AZ should have its own subnet.
+
+
+
+
+
+VPC Peering:
+
+VPC peering allows you to connect multiple VPCs to route traffic directly between them using private IP addresses.
+Ensure that CIDR blocks do not overlap across peered VPCs.
+
+
+Example CIDR Configuration
+
+CIDR Block: 10.0.0.0/16
+IPV4 CIDR BLOCK  SUBNET NAME    AVAILABILTIY ZONE   Route Table  Auto assign publiv IP v4
+10.0.0.0/24      Public-1A         us-east-1a        MAIN               YES
+10.0.1.0/24      Public-1B         us-east-1b        MAIN               YeS
+10.0.2.0/24      Private-1A        us-east-1a        private-RT         No
+10.0.3.0/24      Private-1B        us-east-1b        priavate-RT        NO
+
+
+
+Tools for Planning Subnets
+Utilize online tools to visualize and plan CIDR blocks and subnetting. These tools can help calculate subnets
+based on the required number of hosts.
+
+
+
+
+
+
+
+
+VPC Wizard Options
+
+This are the different type of VPC that we create
+
+VPC with a Single Public Subnet:
+Easy setup with a public subnet connected to an internet gateway.
+
+VPC with Public and Private Subnets: 
+Includes both subnets and a NAT gateway for internet access for private instances.
+
+VPC with Public and Private Subnets + VPN Access: 
+This option requires a VPN device on your corporate side for secure access.
+
+VPC with Private Subnet Only + VPN Access: 
+Focuses on private networking without internet access, ideal for sensitive applications.
+
+We need to provied the VPN address here to allow the network.
+
+
+
+
+
+
+
+
+
+Custom VPC Creation Steps
+
+1.Go to the VPC dashboard and select "Create VPC."
+2. Enter the name, CIDR block, and other settings (leave tenancy as default unless dedicated hardware is needed and IPV6 as none for now).
+
+this will create VPC with generated vpc-id to identify that VPC.
+
+3. click on actions and seelct Enable DNS hostnames for your EC2 instances for name of EC2.
+
+
+Create subnets by specifying the VPC, names, and CIDR blocks for each subnet.
+
+1. Choose an Availability Zone:
+
+Select your desired Availability Zone, such as US East (N. Virginia) - us-east-1a.
+
+2. Define CIDR Blocks:
+
+Choose appropriate CIDR blocks for your public and private subnets:
+
+Public Subnet 1A: 10.0.1.0/24
+Public Subnet 1B: 10.0.2.0/24
+Private Subnet 1A: 10.0.3.0/24
+Private Subnet 1B: 10.0.4.0/24
+
+3. Creating Subnets:
+
+Go to VPC Dashboard → Subnets → Create Subnet.
+For each subnet, specify the name, Availability Zone, and CIDR block.
+Ensure you repeat this for all four subnets, ensuring that Public and Private subnets are in their respective Availability Zones.
+
+4. Modify Auto-assign Public IP Settings:
+
+Navigate to the public subnets.
+Select Actions → Modify auto-assign IP settings and enable auto-assignment of public IPv4 addresses.
+
+
+Creating Route Tables
+
+1. Create Route Table for Private Subnets:
+
+Go to Route Tables → Create Route Table.
+Name it (e.g., PrivateRT) and associate it with your VPC.
+Save the changes.
+
+2. clikc on Associate Private Subnets:
+
+Select your newly created route table.
+Go to Subnet Associations → Edit subnet associations.
+Select Private Subnet 1A and Private Subnet 1B, and save.
+
+3. Main Route Table for Public Subnet
+
+The main route table automatically associates with the public subnets. Verify that there are no explicit
+associations with the private subnets.
+
+
+
+
+Internet Gateway Configuration
+
+1. Create Internet Gateway:
+
+Go to Internet Gateways → Create Internet Gateway.
+Name it (e.g., MyInternetGateway) and create it.
+
+2. Attach to VPC:
+
+After creation, select your internet gateway and choose Actions → Attach to VPC. Select your VPC.
+
+3. Update Main Route Table:
+
+Go to the main route table, select Routes → Edit routes.
+Add a route with the destination 0.0.0.0/0 and select the internet gateway as the target. Save the changes.
+
+
+
+
+
+NAT Gateway Creation
+
+1. Create NAT Gateway:
+
+Go to NAT Gateways → Create NAT Gateway.
+Name it (e.g., MyNatGW), select a public subnet (e.g., Public Subnet 1A), allocate an elastic IP, and create it.
+(Nat gateway always go in public subnet)
+and clikc on allocate elastic IP allocation ID, it generates some elastic id. aste!
+
+this wont work until we update the route table!
+
+2. Update Route Table for Private Subnets:
+
+Select the route table for private subnets.
+Go to Routes → Edit routes → Add route.
+Specify 0.0.0.0/0 as the destination and select the NAT gateway ID. Save the changes.
+
+now our private subnet can connect to the internet
+
+
+
+Security Groups Configuration
+
+
+1. Create a Security Group:
+
+Go to Security Groups → Create Security Group.
+Name it (e.g., PublicWebSG), provide a description, and select your VPC.
+
+2. Configure Inbound and Outbound Rules:
+
+For outbound rules, the default is to allow all traffic.
+For inbound rules, add a rule to allow all traffic from any source (this will be refined later). Create the security group.
+
+__________________________________________________________________________________________________
+Launch EC2 Instances
+
+Ensure you have the AMI ID of the desired Amazon Linux 2 instance (specific to your region).
+Ensure the instance type (e.g., t2.micro) and security group IDs are noted.
+___________________________________________________________________________
+
+
+
+
+
