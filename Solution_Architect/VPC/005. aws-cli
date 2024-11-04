@@ -275,54 +275,54 @@ it will display
 this instance is in the subment with id: subent-07e3qr32r
 
 
-Network Access Control Lists (ACLs)
+connect bettwen ec2 isntances.
+
+conenct to one of the instance taht is public1A isntance.
+
+get the private adress of pubic1B instance - 10.0.2.25
+
+on the console
+
+[ec2-user@ip-10-0-1-159 ~]$ ping 10.0.2.25
+
+this responds, it proves connectiiityi.
+
+lets see we connect to private subent
+
+get the private adress of private1a instance - 10.0.4.148
 
 
-1. Level of Application: Applied at the subnet level.
-2. Traffic Control: Filters inbound (ingress) and outbound (egress) traffic for the entire subnet.
-3. Stateless: Rules for incoming traffic do not automatically apply to outgoing traffic.
-You must define both inbound and outbound rules explicitly.
-4. Rules: Each rule consists of:
-Rule number (priority)
-Protocol (e.g., TCP, UDP, ICMP)
-Port range (if applicable)
-Source or destination CIDR block
-Allow or deny action
-5. Default Behavior: By default, a new ACL denies all inbound and outbound traffic until rules are added.
+[ec2-user@ip-10-0-1-159 ~]$ ping 10.0.4.148
+
+we get icmp response
 
 
-Security Groups
+and also we can check if we can conenct to that webpage:
 
-1. Level of Application: Applied at the instance level (specifically at the network interface level).
-2. Traffic Control: Filters traffic to and from individual EC2 instances, regardless of the subnet.
-3. Stateful: If an inbound rule allows traffic, the return traffic is automatically allowed, even if there’s no corresponding outbound rule.
-4. Rules: Each rule consists of:
-Protocol (e.g., TCP, UDP, ICMP)
-Port range (if applicable)
-Source IP or CIDR block (for inbound rules)
-Allow action only (cannot explicitly deny traffic; you can only allow traffic).
-5. Default Behavior: By default, a new security group denies all inbound traffic and allows all outbound traffic.
+[ec2-user@ip-10-0-1-159 ~]$ curl -s 10.0.4.148
+ <center><h1>This instance is in the subnet wih ID: subent-07e3qr32r </h1></center>
+
+we get this reponse
 
 
-Key Differences
-Scope:
-ACLs apply to subnets, affecting all instances within the subnet.
-Security groups apply to specific instances or network interfaces.
 
-State Management:
-ACLs are stateless (must define rules for both directions).
-Security groups are stateful (allow return traffic automatically).
 
-Example Scenario
->Client-Server Interaction:
 
-A client connects to a web server on port 80.
-Traffic is evaluated by the firewall (network ACL or security group).
-For security groups, if traffic is allowed in one direction, the return traffic is allowed automatically.
-For network ACLs, both inbound and outbound rules must explicitly allow the traffic.
+from this we infer that we have port 80 open and as well we were able to conenct to the instance in the 
+private subnet. and the instance can connect out to the internet cause it was able to onstall the web service.
 
-Conclusion
 
-Understanding the differences between Network ACLs and Security Groups is crucial for managing traffic effectively
-in your AWS environment. Each has its use cases, and knowing when to use one over the other can enhance 
-security and functionality in your VPC.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
