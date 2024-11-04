@@ -1,7 +1,5 @@
 
-
-
-Network Access Control Lists (ACLs)
+Network Access Control Lists (ACLs) and Security groups are two types of firewall that we can apply in our AWS environmet.
 
 
 1. Level of Application: Applied at the subnet level.
@@ -18,6 +16,9 @@ Allow or deny action
 
 
 Security Groups
+
+we can have multiple security groups for instances. for ex: security group A, security group B. 
+we can have same security group applied to instances in different subnets
 
 1. Level of Application: Applied at the instance level (specifically at the network interface level).
 2. Traffic Control: Filters traffic to and from individual EC2 instances, regardless of the subnet.
@@ -39,176 +40,230 @@ State Management:
 ACLs are stateless (must define rules for both directions).
 Security groups are stateful (allow return traffic automatically).
 
-Example Scenario
->Client-Server Interaction:
-
-A client connects to a web server on port 80.
-Traffic is evaluated by the firewall (network ACL or security group).
-For security groups, if traffic is allowed in one direction, the return traffic is allowed automatically.
-For network ACLs, both inbound and outbound rules must explicitly allow the traffic.
-
-Conclusion
-
-Understanding the differences between Network ACLs and Security Groups is crucial for managing traffic effectively
-in your AWS environment. Each has its use cases, and knowing when to use one over the other can enhance 
-security and functionality in your VPC.
-
-
-
 
 
 High Numbered Ports
 
 Definition: Ports above 1024 are called high numbered ports, commonly used for
 dynamic assignment during client-server communication.
-
 Source Port: Typically, a random high numbered port is assigned for the client (e.g., 65188).
-
 Destination Port: For web services, the destination port is often 80 (HTTP) or 443 (HTTPS).
 
 
-Firewall Rules
-
-Inbound Traffic: 
-
-To allow inbound HTTP traffic from a client IP (e.g., 10.1.1.1) to a web server
-IP (e.g., 10.2.1.10), configure the firewall with:
-
-Source IP: Client's IP (or any for public access)
-Destination IP: Web server's IP
-Destination Port: 80 (or 443 for HTTPS)
-Source Port: any (since it’s dynamically assigned)
 
 
-Return Traffic:
-For the return traffic:
+EXMAPLE:
 
-Source IP: Web server's IP
-Destination IP: Client's IP
-Source Port: 80 (for web server)
-Destination Port: Dynamic port (e.g., 65188)
+web server(10.2.1.10)<-----dest port:80-----FIREWALL<------src port:65188 ----- client(10.1.1.1)
+web server(10.2.1.10)-----source port:80-----FIREWALL------>dest port:65188 ----- >client(10.1.1.1)
 
 
-Stateful vs. Stateless Firewalls
+web server is lisetning on port 80 and source port that is asisgned to the connection by the computer, it is high numbered port
+it is dynammically applied to eveyr conenciton.
 
-Stateful Firewalls (like Security Groups):
-Automatically allow return traffic based on established connections.
-Only need inbound rules to allow incoming traffic; return traffic is allowed by default.
+waht do we need in firewall to be allowed to work?
 
-Stateless Firewalls (like Network ACLs):
-Require both inbound and outbound rules for connections.
-Treat each traffic direction separately; an inbound rule must be created for incoming traffic, and an outbound rule must be created for outgoing traffic.
+PROTOCOL SOURCE IP  DEST IP   SOURCE PORT DEST PORT
+HTTP     10.1.1.1   10.2.1.10   65188     80
+HTTP     10.2.1.10  10.1.1.1    80        65188
 
-
-Security Group Overview
-
-Configuration:
-Supports only allow rules; there’s an implicit deny rule at the end.
-Rules can specify source IPs, IP ranges, or other security group IDs.
-
-Best Practice:
-Define a security group for the public-facing load balancer allowing inbound traffic on port 80 from any source.
-Specify outbound rules to allow traffic to the web front end and application layers based on their respective security group IDs.
+we most likely to have source port to be any and source IP be any basically caus einterent connection
 
 
-Network ACL Overview
-
-Configuration:
-Can have both allow and deny rules.
-Rules are processed in a numbered order; once a rule is matched (allow or deny), processing stops.
-
-Best Practice:
-Set up inbound rules to allow traffic while specifying explicit deny rules as necessary.
-Ensure that the rule order reflects the intended traffic flow, as earlier rules can override later ones.
+PROTOCOL SOURCE IP  DEST IP   SOURCE PORT DEST PORT
+HTTP     ANY   10.2.1.10       ANY         80
+HTTP     10.2.1.10  ANY        80          ANY
 
 
-Practical Example
-Setup:
-Public Subnet: Hosts the load balancer and web servers.
-Private Subnet: Hosts application servers.
-
-Security Group Example:
-
-Public Load Balancer: Inbound rule allowing traffic on port 80 from any, outbound rule allowing traffic to the web servers on port 80.
-Web Server: Allows inbound traffic from the public load balancer and outbound traffic to the application servers on specific ports (e.g., 8080).
-Application Layer: Only accepts traffic from the web servers, ensuring strict communication boundaries.
+this is where stateful and stateless ocmes in 
 
 
 
 
+Common Inbound Rules for EC2 Instances
+
+Type	  Protocol  PortRange	  Source	          Description
+SSH	      TCP     	22	  Custom IP / Anywhere	 Allows SSH access for remote management (Linux instances).
+RDP	      TCP	     3389	  Custom IP / Anywhere	 Allows RDP access for remote management (Windows instances).
+HTTP	    TCP	     80	    Anywhere (0.0.0.0/0)	 Allows public web traffic (insecure HTTP).
+HTTPS	    TCP	     443	  Anywhere (0.0.0.0/0)	 Allows secure web traffic (HTTPS).
+Custom  
+TCP Rule  TCP    	8080	  Custom IP / Anywhere	 Allows traffic on port 8080 (e.g., for testing servers).
+Custom 
+UDP Rule	UDP   	123	    Anywhere             	Allows NTP traffic for time synchronization.
+All ICMP
+- IPv4	  ICMP	  All	    Anywhere	            Allows ping requests (useful for testing connectivity).
+MySQL/
+Aurora	  TCP	    3306	  Custom IP	           Allows MySQL database traffic from specified IP.
+Postgre
+SQL       TCP	   5432   	Custom IP	            Allows PostgreSQL database traffic from specified IP.
+
+
+
+(sournce can be securoty group id or ip adresss)
+
+
+Explanation of Fields
+
+Type: Commonly predefined in AWS, this field describes the type of access (e.g., SSH, HTTP).
+
+Protocol: Specifies the network protocol (e.g., TCP, UDP, ICMP).
+
+Port Range: Indicates the port(s) allowed. Some services, like HTTP, use standard ports, while custom applications might use non-standard ports.
+
+Source: Defines where traffic can come from. You can specify:
+
+Anywhere: 0.0.0.0/0 for all IPv4 addresses and ::/0 for all IPv6 addresses.
+Custom IP: Restrict access to a specific IP or range (e.g., 203.0.113.0/24).
+Security Group: You can use another security group as a source for internal traffic between instances.
+Using inbound rules thoughtfully ensures only necessary traffic can access your instance, which helps keep it secure.
 
 
 
 
+
+
+
+
+
+
+Here’s an example of a best-practice security group setup for a web application that uses an internal
+Application Load Balancer (ALB) and web front end. This configuration illustrates secure access control
+between the public internet, the ALB, and the EC2 instances.
+
+Architecture Overview
+
+1. Web Front End: A public-facing layer where users access the application (e.g., hosted on EC2 instances).
+
+Internal ALB: Manages traffic between the web front end and the backend application servers. 
+This is internal and not accessible from the public internet.
+
+Backend Application Servers: The application logic layer, accessible only through the ALB.
 
 Security Groups
 
+1. Web Front-End Security Group (for public access)
+Purpose: Allows HTTP/HTTPS access from the internet to the ALB.
+Assigned to: ALB
 
-1. Purpose: Security groups act as virtual firewalls for your EC2 instances to control inbound and outbound traffic.
+Inbound Rules:
+Type	Protocol	PortRange	Source	Description
+HTTP	TCP      	80	      0.0.0.0/0	Allow HTTP access from anywhere
+HTTPS	TCP	      443	      0.0.0.0/0	Allow HTTPS access from anywhere
 
-2. Configuring Security Groups:
-
-Outbound Rules: Control the traffic leaving your instance. To restrict outbound access, remove or limit outbound rules.
-Inbound Rules: Control incoming traffic. For web services, allow only HTTP (port 80) from trusted sources.
-Use specific IP addresses or security groups for source.
-
-Example: To allow HTTP from the public web, set the source to the public web security group's ID.
-
-3. Best Practices:
-
-Limit inbound traffic to only what is necessary (e.g., allow HTTP only from the public web security group).
-Regularly review and update security group rules to ensure they align with your application needs.
+Outbound Rules:
+Type	     Protocol	PortRange	 Destination     	Description
+All-Traffic	All	     All	     Internal ALB SG 	Allow traffic to ALB
 
 
-4. Testing Access:
+2. Internal ALB Security Group (for secure routing within VPC)
 
-Use a browser or curl command to test access to your instance.
-If you change your IP address (e.g., due to VPN), you may lose access until you update the security group rules.
+Purpose: Controls traffic between the ALB and backend application servers.
+Assigned to: Internal ALB
 
-5. Common Issues:
+Inbound Rules:
+Type	Protocol	Port-Range	Source	        Description
+HTTP	TCP      	80	     Web Front-End SG	  Allow HTTP from Web Front-End SG
+HTTPS	TCP	      443      Web Front-End SG	  Allow HTTPS from Web Front-End SG
 
-If you can't connect to an instance, verify the inbound and outbound rules of the associated security group.
-Remember that security groups are stateful, meaning return traffic is automatically allowed if outbound traffic was initiated.
+Outbound Rules:
+Type	Protocol	PortRange	Destination	        Description
+All    Traffic	  All    	All	Backend App SG 	Allow traffic to Backend App SG
 
 
-Network ACLs
+3. Backend Application Server Security Group (private, internal access only)
 
-1. Purpose: Network ACLs (Access Control Lists) provide an additional layer of security
-at the subnet level, controlling inbound and outbound traffic.
+Purpose: Controls access to the backend servers, only allowing traffic from the ALB.
+Assigned to: Backend EC2 instances running application logic.
 
-2. Configuring Network ACLs:
+Inbound Rules:
+Type	 Protocol	PortRange	Source          	Description
+HTTP	   TCP	  80	    Internal ALB SG	  Allow HTTP from ALB
+HTTPS	   TCP	   443	  Internal ALB SG	  Allow HTTPS from ALB
+Custom 
+TCP	     TCP	  3306	   Database SG	     Allow database access if applicable
 
-Rule Processing Order: Rules are evaluated in numerical order. If an "allow" rule is encountered 
-before a "deny" rule for a specific traffic type, the traffic is allowed.
 
-Inbound Rules: Define the traffic allowed into the subnet.
-Outbound Rules: Define the traffic allowed out of the subnet.
+Outbound Rules:
+Type	Protocol	PortRange  	Destination          	Description
+All   Traffic	   All	     All	Database SG        Allow traffic to DB if needed
+                         / Other Required Destinations	                     
 
-3. Best Practices:
 
-Use deny rules to restrict access from specific IP addresses or ranges while allowing necessary traffic.
-Ensure that your allow rules are set correctly to permit required traffic.
+Key Points for Best Practice:
+Least Privilege: Only allow necessary inbound and outbound traffic.
+Internal Communication: Use security groups as sources instead of IP ranges, ensuring internal communication is restricted to
+specific components (ALB to backend, backend to database, etc.).
+No Direct Internet Access: Backend servers only accept traffic from the internal ALB. They have no direct internet exposure.
+Specific Ports: Use specific port ranges (e.g., 80, 443) instead of broad ranges to restrict access further.
+Organized Naming: Name security groups clearly (e.g., Web-FE-SG, Internal-ALB-SG, Backend-App-SG) for easier maintenance and readability.
 
-4. Testing Access:
 
-After making changes to network ACLs, test access again (may take a moment to reflect changes).
-Confirm the order of rules to ensure that deny rules are processed before allow rules.
+exmaple from the actual video
 
-5. Common Issues:
+PUBLiC SUBNET
 
-If changes to network ACLs don't seem to work, double-check the rule order and make sure that 
-deny rules do not follow allow rules for the same traffic type.
+Security group - publicALB which is internet facing ALB
 
-Key Differences
+inbound: 
+protocol is HTTP
+port is 80
+sournce is 0.0.0.0/0
 
-Stateful (Security Groups): Return traffic is automatically allowed for outbound rules if the request was initiated.
-Stateless (Network ACLs): Return traffic must be explicitly allowed by rules, requiring separate rules for inbound and outbound traffic.
+outboundL 
+protol HTTPS
+port 80
+destination PUBLICEC2 (it is only gonna allow outbound to this wenfront end)
 
-Commands for Testing
 
-To test connectivity to a private IP:
-curl -s <private-ip>
 
-Note on Connectivity Delays
-Security group rule changes are applied immediately, while network ACL changes may take slightly longer to propagate.
+Security group - publicEC2 which is webfront-end
+
+inbound: 
+protocol is HTTP
+port is 80
+sournce is PublicALB
+
+outbound:
+protol HTTPS
+port 8080
+destination PrivateALB
+
+
+
+
+
+
+Private Subnet
+
+
+Security group - parivateALB which is internal ALB
+
+inbound: 
+protocol is HTTP
+port is 8080
+sournce is publicEC2
+
+Security group - parivateEc2 which is applicaiton Layer
+
+outbound:
+protol HTTPS
+port 8080
+destination PrivateALB
+
+
+
+
+Inbound and outbound rules can have deny or allow rules.
+
+for exampel: for through this video
+
+https://www.youtube.com/watch?v=g2JOHLHh4rI&t=2657s
+
+
+
+
+
+
+
 
