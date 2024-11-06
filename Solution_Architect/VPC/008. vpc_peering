@@ -1,0 +1,494 @@
+
+
+VPC Peering
+
+1. Purpose: VPC peering allows you to connect two VPCs to enable routing using private IPv4 or IPv6 addresses
+without traffic going over the public internet.
+
+2. Setup Considerations:
+
+CIDR Blocks: Ensure the CIDR blocks of the VPCs do not overlap. This is crucial as overlapping CIDR blocks will
+prevent peering connections from functioning.
+Peering Connections: You can create a VPC peering connection between VPCs within the same region or 
+across different regions and accounts.
+
+3. Routing and Security:
+
+Route Tables: Each VPC must update its route tables to direct traffic to the CIDR block of the peer VPC. 
+Add a route with the destination set to the CIDR block of the other VPC and the target set to the peering connection.
+
+Security Groups: Security group rules must allow traffic from the CIDR block of the peer VPC. For example, 
+to allow ICMP traffic for ping requests, create a rule in the security group specifying the CIDR of the peer VPC.
+
+4. Transitive Peering:
+
+VPC peering does not support transitive peering, meaning if VPC A is peered with VPC B, and VPC B is peered
+with VPC C, VPC A cannot communicate with VPC C through VPC B. Each pair must have a direct peering connection.
+
+5. Full Mesh Topology:
+
+For multiple VPCs to communicate with one another, you will need a full mesh of peering connections,
+which can become complex and unwieldy with many VPCs.
+
+6. Lab Setup:
+
+When setting up a lab for testing, consider placing EC2 instances in public subnets to facilitate easier access and testing of connectivity across VPCs.
+
+
+
+VPC in REGION 1
+
+CIDR: 10.0.0.0/16
+public subnet has EC2 instance
+
+Security Group:
+Protocol   Port   Source
+ICMP       ALL     10.1.0.0/16
+TCP        22      0.0.0.0/0
+
+Route Table:
+Destination    Target
+10.1.0.0/16     peering-id-2
+
+
+VPC in REGION 2
+
+CIDR: 10.1.0.0/16
+public subnet has EC2 instance
+
+Security Group:
+Protocol   Port   Source
+ICMP       ALL     10.0.0.0/16
+TCP        22      0.0.0.0/0
+
+Route Table:
+Destination    Target
+10.0.0.0/16     peering-id-1
+ 
+
+
+
+
+
+VPC Peering Connection Steps
+
+You can create a VPC using this:
+
+# Create VPC
+Name: MyVPC-PROD
+IPv4 CIDR Block: 10.1.0.0/16
+
+# Create Subnets
+
+Name: Public-1A
+Availability Zone: us-east-1a
+IPv4 CIDR Block: 10.1.1.0/24
+
+Name: Public-1B
+Availability Zone: us-east-1b
+IPv4 CIDR Block: 10.1.2.0/24
+
+Name: Private-1A
+Availability Zone: us-east-1a
+IPv4 CIDR Block: 10.1.3.0/24
+
+Name: Private-1B
+Availability Zone: us-east-1b
+IPv4 CIDR Block: 10.1.4.0/24
+
+# Create private route table
+
+Name: Private-RT
+VPC: MyVPC-PROD
+Subnet associations: Private-1A, Private-1B
+
+# Create Internet Gateway
+
+Name: MyIGW-PROD
+VPC: MyVPC-PROD
+
+# Account ID
+
+
+# VPC ID (Prod)
+
+
+# Instance IP (Prod)
+
+
+
+
+
+Create a Peering Connection:
+
+1. Go to the VPC console.
+Choose "Peering Connections" and select "Create Peering Connection."
+Specify the requester and accepter VPCs (can be in the same or different accounts).
+sepecify account id.
+if the instances are in different region, yu have gotta mention their ids.
+
+
+2. Update Route Tables:
+
+For each VPC involved, navigate to the route tables.
+Add a new route with the destination as the peer VPC's CIDR and the target as the peering connection ID.
+
+3. Modify Security Groups:
+
+Update the security groups of the EC2 instances in each VPC to allow traffic from the other VPC's CIDR block.
+Include necessary protocols, such as ICMP for ping.
+
+4. Testing Connectivity:
+
+Use commands like ping to test connectivity between instances across VPCs.
+Validate that the routes and security groups are correctly configured if there are connectivity issues.
+
+Additional Notes
+Monitoring and Costs: Keep track of VPC peering connections and associated costs, as unnecessary connections can incur charges.
+Cleaning Up Resources: Always remember to clean up resources, such as terminating unused EC2 instances
+and deleting NAT gateways, to prevent unexpected charges.
+
+
+
+
+Overview:
+
+You're setting up a VPC peering connection between two VPCs in separate AWS accounts: a management account and
+a production account. Each VPC has its own CIDR block, and you'll configure security groups and routing to allow 
+communication between instances using private IP addresses.
+
+Steps:
+
+1. Create VPCs (if not using default)
+Create two VPCs in each account, one for management and one for production, using the CIDR ranges specified 
+(e.g., 10.0.0.0/16 for management and 10.1.0.0/16 for production).
+Add subnets, Internet Gateway, and Route Tables in each VPC as necessary.
+
+2. Initiate VPC Peering Connection
+Go to the Peering Connections section in the VPC Management Console (Management Account).
+Click Create Peering Connection, name it (e.g., my-peer).
+For Local VPC, select your Management VPC.
+Choose Another account and provide the Account ID of the production account.
+Specify the VPC ID of the production VPC.
+Submit the request.
+
+3. Accept Peering Request
+Switch to the Production Account.
+In the VPC console, go to Peering Connections and find the pending request.
+Select it and choose Accept Request.
+
+4. Configure Route Tables
+In the Management account, go to the Route Tables section for the VPC.
+Edit the routes to add a route pointing to the Production VPC's CIDR block (e.g., 10.1.0.0/16) 
+and select the newly created peering connection as the target.
+Repeat the process in the Production account, adding a route for the Management VPC's CIDR block (e.g., 10.0.0.0/16).
+
+5. Create Security Groups
+In both accounts, create security groups to allow communication between the VPCs.
+For example:
+ICMP (All) to allow ping (for testing).
+SSH (port 22) to allow SSH connections.
+Ensure the security group rules allow inbound traffic from the other VPC’s CIDR block
+(e.g., for the management VPC, allow traffic from 10.1.0.0/16).
+
+6. Launch EC2 Instances
+Launch an EC2 instance in the public subnet of each VPC.
+Assign the corresponding security group (created earlier) to each instance.
+Ensure both instances are running in the respective public subnets.
+
+7. Test Connectivity
+Use the private IP address of each instance to ping the other, ensuring that the connection occurs 
+over the peering connection, not the Internet.
+Example:
+Ping from the management instance to the production instance’s private IP.
+You should receive a response if the setup is correct.
+Optionally, test SSH by attempting to establish an SSH connection between the two instances.
+
+8. Additional Practice (Optional)
+Try extending the configuration to the private subnets in each VPC.
+Use the public instance as a bastion host to access instances in the private subnets
+(using agent forwarding for SSH).
+
+Important Configuration Notes:
+Route Tables: Ensure routes are added in both VPCs’ route tables to route traffic through the peering connection.
+Security Groups: Ensure they allow necessary protocols like ICMP and SSH from the other VPC’s CIDR block.
+Test with Private IPs: When testing, ensure you're using private IP addresses to verify that traffic is 
+routed through the peering connection, not through the Internet.
+
+
+
+Terminate EC2 Instances:
+
+
+Terminate the instances you created in both the management and production environments.
+Ensure that any resources like Elastic IPs are released, and associated volumes are deleted unless
+you plan to use them for future instances.
+
+
+
+
+
+
+
+
+
+VPC ENDPOINTS
+
+Public vs. Private AWS Services:
+
+Private Services (like EC2): These run inside a VPC, with instances typically having private IP addresses 
+unless configured with public IPs or routed through a NAT gateway.
+Public Services (like Amazon S3): These have public endpoints, accessed via the internet using a public DNS (e.g., s3.amazonaws.com).
+
+VPC Endpoints:
+To avoid using the public Internet, especially for services like S3, VPC Endpoints allow you to route 
+traffic directly between your VPC and AWS services through private links.
+
+Types of VPC Endpoints:
+
+VPC Interface Endpoint:
+
+Used to privately connect EC2 instances in a VPC to supported AWS services without exposing the traffic to the internet.
+Creates an Elastic Network Interface (ENI) within your VPC that connects to the services such as AWS cloud Transformation,
+AWS codeDeploy, AWS privatelink..
+Controlled using security groups.
+
+
+VPC Gateway Endpoint:
+
+Used to privately connect to services like Amazon S3 and DynamoDB.
+the s3 gateway endpount stands between the VPC gateway to make connection wihtout the internet.
+Requires adding a route in the VPC’s route table to direct traffic to the endpoint.
+
+ROUTE TABLE:
+Destination                                                          Target
+pl-6aca54005(com.amazonaws.ap-southeasy-2.s3, 54.231.248.0/22,        Vpce-id
+54.231.252.0/24, 54.95.128.0/21)
+
+Does not require an ENI but uses route table entries.
+Controlled using VPC Endpoint called I am policies at s3 gateway and bucket policies in the amazon s3(which can limit the acces to endpoint 
+source).
+
+
+Interface End point:
+What? Elastic network with a private IP
+how? Uses DNS enteries to redirect traffic
+whichservices? API gateway, cloudtranformation, cloudwatch etc
+security? security groups
+
+gateway endpoint:
+What? A gateway that is a target for a speicifc route
+How? uses prefix lists in the route table to redirect traffic.
+Which sercies? Amaon s3, dynamoDB
+Security? VPC endpoint policies
+
+VPC Interface Endpoint Use Case:
+An EC2 instance in a private subnet can connect to AWS services (e.g., CloudWatch) using a private IP address via a VPC
+interface endpoint. This avoids routing the traffic through the internet or a NAT gateway.
+
+
+VPC Gateway Endpoint for S3 Use Case:
+If you have an instance in a private subnet and want to access Amazon S3 privately:
+Create an S3 gateway endpoint.
+Add a route in the route table that directs traffic to the endpoint (using the endpoint ID and S3 prefix list).
+The EC2 instance will now connect to S3 using the private IP without using the public Internet.
+
+
+Security Controls:
+For VPC Interface Endpoints, use security groups to control traffic.
+For Gateway Endpoints, use VPC endpoint policies to control which resources (like S3 buckets) the instances can access.
+
+
+
+
+
+Example:
++-------------------+           +------------------+
+|   Consumer VPC    |           |  Service Provider|
+|                   |           |       VPC        |
+|------------------|           |------------------|
+| +------------+    |           | +------------+   |
+| | EC         ||endpoint------->|NLB web server  
+| +------------+    |           | +------------+   |
+|  public sub                 |    Private sub     |
+|-------------------|           |------------------|
+
+A web application in the Consumer VPC needs to call an API hosted in the Service Provider VPC.
+The API is hosted behind a Network Load Balancer (NLB) in the Service Provider VPC, which ensures
+scalability and high availability.
+The Consumer VPC uses a VPC Endpoint to access the API securely without routing the traffic
+over the public internet.
+This setup ensures private, secure communication between the two VPCs and reduces reliance 
+on the public internet for service access.
+
+
+
+CREATE GATEWAY ENDPOINTS.
+
+instances in the public subnet of the vpc can be cnnected to the s3 bucket with s3 gateway endpoint sittin g in the
+VPC wiht endpoint policy which connects to the s3 bucket wiht bucket policy.
+
+
+Steps to Control Access to Amazon S3 Bucket via VPC Endpoint
+
+1. Create a VPC Endpoint for S3
+a. Navigate to the VPC Console
+Go to the VPC dashboard in your AWS Management Console.
+
+b. Create an Endpoint
+In the left-hand sidebar, click on Endpoints and then Create Endpoint.
+
+c. Choose the Service
+Under Service, search for s3 and select Gateway type for Amazon S3.
+
+we choose com.amazonaws.ws-east1.s3 type is gateway
+and then theres also com.amoasonaws-us-east.s3 and tpye is interface
+
+
+d. Select Route Table
+Select the VPC in which you want to create the endpoint.
+For Route Table, choose the route table associated with the public subnets 
+(typically the default route table for the VPC).
+
+e. Review and Create
+Set the policy to Full Access or customize as needed.
+After reviewing, click Create Endpoint.
+
+f. Verify Route Table Update
+Go to Route Tables in the VPC console.
+Ensure the new route is added to the route table (you should see com.amazonaws.vpc.s3 with 
+the corresponding VPC endpoint).
+
+now we can see
+destinatipn     target 
+10.0.0.0/16     local
+10.1.0.0/16     pcx-033e234
+0.0.0.0/0       IGW
+pi-6334324      VPC-0782343
+
+pi-6344234 is the s3 bucket and VPC-0782343 is the vpc end point we created.
+
+
+2. Attach IAM Role to EC2 Instance
+
+
+a. Create IAM Role for EC2
+Go to the IAM Console and choose Roles.
+Click Create Role, select AWS service → EC2, and click Next.
+ec2 , to allow ec2 instances to call aws services on our behalf.
+and for permission we do the next step
+
+b. Attach Policy for S3 Access
+In the policy search box, search for AmazonS3FullAccess and attach this policy to the role.
+Name the role (e.g., EC2-S3-Access-Role) and click Create Role.
+
+c. Assign the IAM Role to EC2 Instance
+Go to EC2 Console, select the instance, then go to Actions → Security → Modify IAM Role.
+Select the role you just created and click Update IAM Role.
+
+
+3. Create an S3 Bucket
+
+a. Go to the S3 Console
+In the AWS Console, navigate to S3 under Storage.
+Click Create Bucket.
+
+b. Bucket Settings
+Choose a globally unique name for your bucket (e.g., DCT-VPC-test).
+Select the AWS region (ensure it's the same region as your VPC).
+For this exercise, leave the default settings and click Create.
+
+c. Upload Objects (Files) to the Bucket
+Once the bucket is created, upload objects (such as images or files) to test access control.
+Click Upload, choose files from your local system, and click Upload.
+
+
+
+4. Test S3 Access from EC2 Instance
+
+a. Connect to the EC2 Instance
+Go to the EC2 Console, select your instance, and click Connect.
+Use SSH or EC2 Instance Connect to log into your EC2 instance.
+
+b. Run S3 Commands
+Run the following AWS CLI commands to check access:
+[ec2-user@ip-10-0-1-159] aws s3 ls — Lists your S3 buckets.
+[ec2-user@ip-10-0-1-159] aws s3 ls s3://your-bucket-name — Lists contents of your specific bucket.
+
+c. Confirm Endpoint Traffic
+To confirm traffic is going through the VPC endpoint, you can apply an endpoint policy (see below for blocking access) to deny
+access and test if the connection is blocked. we get this ques cause we are running the command from the subnet cli.
+
+
+5. Modify Endpoint Policy to Control Access
+
+a. Modify Endpoint Policy
+In the VPC Console, select your endpoint and go to Policy.
+Choose Custom and paste the following policy to deny access except for the VPC endpoint:
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Deny",
+      "Action": "s3:*",
+      "Resource": "arn:aws:s3:::your-bucket-name/*",
+      "Condition": {
+        "StringNotEquals": {
+          "aws:SourceVpc": "vpc-id"
+        }
+      }
+    }
+  ]
+}
+Replace your-bucket-name with your actual bucket name and vpc-id with your VPC ID.
+Click Save Changes.
+
+b. Test Access After Policy Update
+From your EC2 instance, rerun aws s3 ls and check if it still works. You should be able to access the bucket as long as it's coming from the VPC endpoint.
+
+
+6. Set Up S3 Bucket Policy
+
+a. Edit S3 Bucket Policy
+Go to the S3 Console and select your bucket.
+Click Permissions → Bucket Policy and add the following policy to restrict access to the bucket only via the VPC endpoint:
+json
+Copy code
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Deny",
+      "Action": "s3:*",
+      "Resource": "arn:aws:s3:::your-bucket-name/*",
+      "Condition": {
+        "StringNotEquals": {
+          "aws:SourceVpce": "vpce-id"
+        }
+      }
+    }
+  ]
+}
+
+Replace your-bucket-name with the actual name of your S3 bucket and vpce-id with your VPC endpoint ID.
+
+b. Save the Bucket Policy
+After pasting the correct policy, click Save Changes.
+
+
+7. Test Access Control
+
+a. Test from EC2 Instance
+After setting the bucket policy, you should still be able to access the S3 bucket from your EC2 instance (because it is routed through the VPC endpoint).
+
+b. Test from Your Local Machine
+Run the same aws s3 ls s3://your-bucket-name command from your local machine. You should get an Access Denied error, 
+confirming that only the EC2 instance within the VPC endpoint can access the bucket.
+
+
+8. Conclusion
+You have successfully configured VPC endpoint routing for S3 and set up IAM roles to grant access to your EC2 instance.
+Bucket policies ensure that only requests originating from the VPC endpoint can access the S3 bucket, enhancing security
+by preventing public internet access.
+You tested the configuration by using AWS CLI commands from both the EC2 instance and a local machine.
