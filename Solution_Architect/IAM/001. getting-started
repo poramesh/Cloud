@@ -1,0 +1,135 @@
+Introduction to AWS IAM
+
+Purpose:
+Securely connect to your AWS account via:
+1. Console
+2. Command Line Interface (CLI)
+3. API
+
+
+Key Constructs
+
+Users: Individual identities within the AWS account.
+Groups: Collections of users for centralized permissions management.
+Roles: Temporary credentials for AWS resources or external users.
+Policies: Define permissions for users, groups, or roles.
+
+
+Authentication and Authorization
+
+Authentication: Verifying identity to connect to AWS.
+Authorization: Granting permissions to access AWS resources.
+
+
+Key Mechanisms
+
+Access Keys: Credentials for programmatic access to AWS.
+
+Policies:
+Identity-based Policies: Attached to users, groups, or roles.
+Resource-based Policies: Attached directly to AWS resources (e.g., S3 bucket policies).
+
+Multi-Factor Authentication (MFA):
+Adds an extra layer of security by requiring a second authentication factor.
+
+Password Policies:
+Enforce complexity, expiration, and rotation requirements for better security.
+
+Best Practices
+Use IAM Roles instead of access keys when possible.
+Implement MFA for all users.
+Follow the Principle of Least Privilege:
+Grant the minimum permissions needed to perform a task.
+Regularly review and rotate credentials.
+Enable CloudTrail to monitor and log IAM activities.
+
+
+
+/************
+
+Components of Access Keys
+
+Access Key ID:
+
+A unique identifier, like a username.
+Publicly visible (not a secret).
+
+
+Secret Access Key:
+
+A private key, like a password.
+Must be kept secret and is used to sign requests to AWS.
+
+
+Purpose of Access Keys
+
+1. Programmatic Access:
+For applications or scripts to interact with AWS services programmatically.
+Example: Uploading files to S3 or querying DynamoDB via an API.
+
+2. AWS Command Line Interface (CLI):
+Allows developers to run AWS commands directly from the terminal.
+AWS Software Development Kits (SDKs):
+Enables developers to write code that interacts with AWS services.
+Example of Access Key Usage
+
+3. In CLI Configuration: Configure the AWS CLI using access keys:
+
+aws configure
+
+You'll be prompted to enter:
+
+Access Key ID
+Secret Access Key
+Default region
+
+Output format
+
+In Code: Example using Python and boto3 SDK:
+
+import boto3
+
+session = boto3.Session(
+    aws_access_key_id='your-access-key-id',
+    aws_secret_access_key='your-secret-access-key',
+    region_name='us-west-2'
+)
+
+s3 = session.resource('s3')
+for bucket in s3.buckets.all():
+    print(bucket.name)
+
+
+Why Use IAM Roles Instead?
+
+While access keys are powerful, they have drawbacks:
+
+Security Risks:
+
+If an access key is leaked, it can be exploited until manually revoked.
+It's hard to rotate or manage access keys securely for multiple users or applications.
+
+IAM Roles Are Safer:
+
+IAM roles provide temporary credentials that automatically expire.
+Applications running on AWS services (e.g., EC2, Lambda) can assume a role and use its permissions without storing access keys.
+
+Automatic Credential Rotation:
+
+AWS manages credential lifecycle for roles, reducing the risk of long-term exposure.
+
+
+Best Practices for Access Keys
+
+Avoid Hardcoding: Never hardcode access keys in your code. Use environment variables or a credentials file.
+Use IAM Roles: Wherever possible, prefer IAM roles for applications running within AWS.
+Rotate Keys Regularly: If you must use access keys, rotate them frequently and delete unused ones.
+Monitor Usage: Use AWS CloudTrail to monitor API calls and detect any misuse of access keys.
+
+
+*////////
+
+Learning Outcomes
+Understand and use AWS IAM effectively to manage access.
+Apply best practices to keep accounts secure.
+Prepare for AWS certifications that focus on IAM concepts.
