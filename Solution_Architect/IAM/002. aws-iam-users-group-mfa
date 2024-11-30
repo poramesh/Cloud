@@ -19,6 +19,10 @@ Principal: An entity (user, role, or application) that sends requests to AWS.
 Core IAM Components
 ____________________
 
+
+**You cannot delegate using a policy. You delegate using a role and you define permissions to the role through a policy.**
+
+
 Users:
 
 Individual accounts for people accessing AWS.
@@ -35,6 +39,7 @@ Example groups: Admins, Developers, Operations.
 Users can belong to multiple groups, combining permissions.
 
 Roles:
+**You can delegate permissions using roles. It’s a great way to provide permissions to resources for users and services without using permanent credentials.***
 
 Temporary identities with specific permissions.
 Assumed by a user or service to perform specific tasks.
