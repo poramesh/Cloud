@@ -1,3 +1,8 @@
+cheat sheet: https://digitalcloud.training/aws-iam/
+
+
+
+
 AWS Security Best Practices 
 
 1. Federated Access with Identity Provider
@@ -227,3 +232,10 @@ resources through the AWS CLI.
 Full Access to All EC2 API Actions for a Group of Users:
 Solution: Create a permissions policy with a wildcard for the action element (ec2:*),
 granting full access to all EC2 API actions.
+
+
+
+
+The Condition element (or Condition block) lets you specify conditions for when a policy is in effect
+The Security Token Service allows for temporary credentials to be used with identity federation, delegation, cross-account access, and IAM roles
+
