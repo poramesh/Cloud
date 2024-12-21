@@ -1,0 +1,112 @@
+Overview:
+Elastic Load Balancing (ELB) and Auto Scaling are two essential AWS services that ensure:
+<>. Your applications have enough capacity (EC2 instances).
+<>. Incoming connections are efficiently distributed across instances.
+
+
+Auto Scaling:
+Purpose: Ensures the right number of EC2 instances are available to meet application demand.
+Key Features:
+Dynamically adjusts the number of instances based on demand.
+Ensures scalability and cost efficiency.
+Automatically launches or terminates instances as needed.
+
+
+Elastic Load Balancing (ELB):
+Purpose: Distributes incoming traffic across multiple EC2 instances.
+Key Features:
+Enhances application availability and fault tolerance.
+Balances the load among instances in the Auto Scaling Group.
+Supports multiple protocols (HTTP, HTTPS, TCP).
+
+
+Working Together:
+Integration:
+Auto Scaling manages the pool of EC2 instances.
+ELB distributes traffic evenly across the pool of instances.
+Benefits:
+Enables elastic applications: Scales up or down automatically based on demand.
+Ensures fault tolerance: Handles traffic rerouting if an instance fails.
+
+Elastic and Fault-Tolerant Applications:
+These technologies work together to provide reliability and adaptability.
+
+_______________________________________________________
+
+
+Notes: Scaling Up vs. Scaling Out
+
+1. Understanding Statefulness in Applications:
+
+
+Stateless Applications:
+Do not store information about the user session.
+Example: A weather website that only displays current weather without recording user data.
+
+Stateful Applications:
+Store and manage user-specific data.
+Example: An e-commerce website (e.g., Amazon) tracks user browsing history, purchases, and preferences.
+
+Example Breakdown:
+Stateless Web Server:
+Cart items stored in cookies (client-side).
+No state is stored on the web server itself.
+
+Stateful Database:
+Records information like purchase history or user transactions.
+
+
+2. Scaling Strategies:
+
+Scaling Up (Vertical Scaling):
+Increases the resources (CPU, memory, storage) of a single instance.
+Example: Upgrading an EC2 instance from t2.micro (1 vCPU, 1 GB RAM) to c5.xlarge (4 vCPUs, 8 GB RAM).
+
+Use Case:
+Ideal for databases (e.g., MySQL) to enhance write/read performance.
+
+Scaling Out (Horizontal Scaling):
+Adds more instances of an application or service to distribute the load.
+Example: Deploying 8 t2.micro instances instead of upgrading to 1 c5.xlarge.
+
+Use Case:
+Works well for stateless applications or static websites.
+Enhances fault tolerance as multiple instances handle incoming requests.
+
+3. Scaling Up vs. Scaling Out: Key Points
+
+Scaling Up (Vertical):
+Adds resources to an existing instance.
+Limited by the maximum capacity of a single server.
+If the instance fails, the entire application is affected.
+
+
+Scaling Out (Horizontal):
+Increases the number of instances.
+Distributes the load across multiple servers.
+Preferred for fault tolerance and diversification of risk (e.g., multiple availability zones).
+
+
+4. AWS Examples:
+
+Scaling Up:
+Upgrade an EC2 instance type (e.g., from t2.micro to c5.xlarge).
+Commonly used for databases or stateful applications where externalizing state isn't feasible.
+
+Scaling Out:
+Add more EC2 instances and use a load balancer (e.g., ELB) to distribute incoming traffic.
+Ideal for stateless applications or static websites.
+
+
+5. Key Considerations:
+
+Dynamic Websites:
+Store state in external systems like Amazon EFS, DynamoDB, or Amazon RDS to facilitate scaling out.
+
+AWS Preference:
+AWS typically recommends scaling out to:
+Spread the load.
+Improve fault tolerance (e.g., distributing instances across availability zones).
+
+Limitations:
+Some applications require scaling up, especially databases with write-heavy operations.
