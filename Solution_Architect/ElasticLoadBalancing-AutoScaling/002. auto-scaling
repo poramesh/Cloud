@@ -1,0 +1,302 @@
+
+
+Purpose of Auto Scaling:
+
+>Ensures availability of EC2 instances and scales based on demand.
+>Automatically launches or terminates instances:
+Replaces failed instances (availability).
+Adjusts capacity to match application needs (scalability).
+
+Key Features:
+
+1. Horizontal Scaling (Scaling Out):
+Adds or removes EC2 instances.
+Enhances fault tolerance by spreading load across instances.
+
+2. Integration with AWS Services:
+CloudWatch: Monitors metrics (e.g., CPU utilization) and triggers scaling.
+Elastic Load Balancer (ELB): Distributes traffic across instances.
+VPC: Deploys instances across subnets and availability zones.
+Spot Instances: Cost optimization by using low-cost EC2 instances.
+
+Auto Scaling Scenarios:
+
+1. Automatic Scaling:
+Uses CloudWatch metrics and alarms to add/remove instances based on demand.
+Example: Adds an instance if CPU utilization exceeds 80%.
+
+2. Maintaining Availability:
+Replaces failed instances based on EC2 and ELB health checks.
+
+Scaling Policies:
+
+1. Manual Scaling:
+User manually changes the number of instances.
+2. Dynamic Scaling:
+Adjusts instance count automatically based on demand (CloudWatch metrics).
+3. Scheduled Scaling:
+Adds/removes instances based on predefined schedules (e.g., peak hours).
+4. Predictive Scaling:
+Uses machine learning to anticipate future demand based on historical patterns.
+
+
+Launch Configurations:
+
+1. Launch Template (Recommended):
+Specifies instance details: AMI, instance type, EBS volumes, IAM roles, etc.
+Supports advanced options and replaces older launch configurations.
+2. Launch Configuration (Legacy):
+Similar to templates but less flexible.
+
+
+Health Checks:
+
+EC2 Health Checks:
+Uses EC2 status checks (system or instance impairments).
+ELB Health Checks:
+Load balancer monitors instance health and reports failures to Auto Scaling.
+Health Check Grace Period:
+Allows time for instance initialization (e.g., bootstrap scripts) before checks begin.
+
+
+Configuration Details:
+
+Instance Count:
+Define minimum, maximum, and desired instance counts.
+Scaling Policies:
+Set thresholds for scaling actions (e.g., CPU > 80% triggers scaling out).
+Load Balancer:
+Optionally attach ELB to distribute incoming traffic to healthy instances.
+Purchase Options:
+Configure instances as On-Demand, Spot, or a mix for cost efficiency.
+
+
+Benefits of Auto Scaling:
+
+Elasticity: Scales in and out dynamically to match demand.
+Scalability: Ensures sufficient capacity during high demand.
+Fault Tolerance: Replaces failed instances to maintain application availability.
+Cost Optimization: Scales down during low demand to reduce costs.
+
+
+
+
+
+This covers the creation of an Amazon EC2 Auto Scaling Group to manage instances across availability zones, install a web server, and verify its operation.
+Below is a step-by-step breakdown:
+
+1. Prepare User Data
+Purpose: Automate the installation of a web server (Apache) and configure a custom web page to display the availability zone.
+Steps:
+Copy the provided user data script (user-data-web-server.sh) from the course materials.
+
+
+#!/bin/bash
+
+# Update the system and install necessary packages
+yum update -y
+yum install -y httpd
+
+# Start the Apache server
+systemctl start httpd
+systemctl enable httpd
+
+# Fetch the Availability Zone information using IMDSv2
+TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
+AZ=`curl -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/placement/availability-zone`
+
+# Create the index.html file
+cat > /var/www/html/index.html <<EOF
+<html>
+<head>
+    <title>Instance Availability Zone</title>
+    <style>
+        body {
+            background-color: #6495ED; /* Cornflower Blue - a darker shade */
+            color: white;
+            font-size: 36px; /* Significantly larger text */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div>This instance is located in Availability Zone: $AZ</div>
+</body>
+</html>
+EOF
+# Ensure the httpd service is correctly set up to start on boot
+chkconfig httpd on
+
+
+exaplnation of the code:
+
+1. Shebang Line
+
+#!/bin/bash
+
+Specifies the script interpreter (bash).
+Ensures the script is executed in a bash shell environment.
+
+
+2. Update System and Install Apache (HTTPD)
+
+yum update -y // Updates all installed packages to the latest versions without user interaction (-y).
+yum install -y httpd // Installs the Apache HTTP server, which will host the web page.
+
+3. Start and Enable the Apache Web Server
+
+systemctl start httpd // Starts the Apache server immediately.
+systemctl enable httpd //Configures Apache to start automatically on instance reboot.
+
+4. Fetch the Availability Zone using IMDSv2
+
+TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
+AZ=`curl -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/placement/availability-zone`
+
+IMDSv2 (Instance Metadata Service Version 2):
+A secure way to retrieve metadata about an instance, such as its availability zone.
+It uses a temporary token-based authentication system.
+
+
+Steps:
+
+curl -X PUT ...: Requests an authentication token from the IMDS endpoint. The token is valid for 21600 seconds (6 hours).
+curl -H ...: Uses the token to query the instance metadata service for the Availability Zone of the instance. The result is stored in the variable AZ.
+
+
+5. Create a Custom Web Page
+
+cat > /var/www/html/index.html <<EOF
+<html>
+<head>
+    <title>Instance Availability Zone</title>
+    <style>
+        body {
+            background-color: #6495ED; /* Cornflower Blue - a darker shade */
+            color: white;
+            font-size: 36px; /* Significantly larger text */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div>This instance is located in Availability Zone: $AZ</div>
+</body>
+</html>
+EOF
+
+
+Creates an HTML page:
+
+The cat command writes the HTML content to /var/www/html/index.html.
+This file will be served as the default page by Apache.
+
+HTML Highlights:
+
+Displays the message: "This instance is located in Availability Zone: $AZ", where $AZ is dynamically replaced by the instance's Availability Zone.
+Includes CSS styling:
+Background color: #6495ED (Cornflower Blue).
+Text color: White.
+Text size: 36px (large and readable).
+Full-page alignment: Centers the text horizontally and vertically.
+
+
+6. Ensure Apache Starts on Boot
+
+chkconfig httpd on
+Configures Apache (httpd) to start on boot in Amazon Linux.
+Equivalent to systemctl enable httpd in many distributions.
+
+Functionality Summary
+
+Initial Setup:
+Updates the system and installs Apache.
+Configures Apache to run at startup.
+Dynamic Content:
+Fetches the Availability Zone of the EC2 instance using IMDSv2.
+Generates a web page that displays the Availability Zone dynamically.
+Serve the Web Page:
+Starts Apache to serve the page at the instance's public IP.
+The result can be accessed by visiting http://<instance-public-IP>.
+
+
+
+
+2. Create a Launch Template
+
+Purpose: Defines the configuration for instances launched by the Auto Scaling Group (ASG).
+Steps:
+1. Go to the EC2 Management Console.
+2. Select Launch Templates > Create Launch Template.
+3. Configure the following:
+Name: Example: MyWebServer.
+AMI: Select Amazon Linux 2023.
+Instance Type: t2.micro (free tier eligible).
+Security Group: Use an existing group (e.g., web-access) with port 80 open.
+Advanced Details: Paste the copied user data script into the User Data field.
+4. Click Create Launch Template.
+
+
+3. Create an Auto Scaling Group
+
+Purpose: Automatically manage EC2 instances based on defined policies and maintain the desired number of instances.
+Steps:
+1. Go to Auto Scaling Groups > Create Auto Scaling Group.
+2. Configure the following:
+Name: Example: ASG1.
+Launch Template: Select the one created earlier.
+Select VPC and Subnets:
+Use the default VPC.
+3. Choose two availability zones (e.g., us-east-1a and us-east-1b).
+4. Define Instance Counts:
+Desired Capacity: 2.
+Minimum Capacity: 2.
+Maximum Capacity: 2.
+(No scaling policies configured yet).
+5. Review and create the Auto Scaling Group.
+
+
+4. Verify Instances
+
+Check Deployment:
+1. Go to EC2 Instances:
+ Confirm two instances are running, one in each availability zone.
+2. Check the public IPs of the instances.
+3. Access the web page by navigating to the public IP in a browser.
+The page should display the availability zone (e.g., us-east-1a).
+
+
+5. Test Auto Scaling for Availability
+
+Scenario:
+Terminate one instance manually to observe how the Auto Scaling Group handles failure.
+Steps:
+1. Select an instance and terminate it in the EC2 console.
+2. Monitor the Auto Scaling Group's Activity Tab:
+It should detect the instance failure using EC2 health checks.
+Launch a replacement instance to maintain the desired capacity.
+3. Refresh the Instances page:
+Confirm a new instance has been launched.
+
+
+
+6. Advanced Configurations (Future Steps)
+
+Scaling Policies:
+Define dynamic scaling based on CloudWatch metrics (e.g., CPU utilization).
+Set up scheduled scaling for predictable demand spikes.
+Use predictive scaling to anticipate future demands.
+
+Load Balancer Integration:
+Attach a load balancer to distribute incoming traffic across instances.
+Enable ELB health checks for enhanced instance monitoring.
