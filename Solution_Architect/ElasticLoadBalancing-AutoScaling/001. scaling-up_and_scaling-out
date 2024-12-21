@@ -110,3 +110,62 @@ Improve fault tolerance (e.g., distributing instances across availability zones)
 
 Limitations:
 Some applications require scaling up, especially databases with write-heavy operations.
+
+
+
+
+
+
+High Availability (HA), Fault Tolerance, and Durability on AWS:
+
+1. High Availability (HA)
+Definition: Ensures minimal service interruption for applications and services. It’s about keeping services up and running with redundancy.
+
+Key Concepts:
+No single point of failure: Design systems to handle failure at any point.
+Replicating across multiple Availability Zones (AZs): Spread across geographically separate data centers to ensure continuous service.
+Cost-Effective: Typically cheaper than fault tolerance.
+
+Example Services:
+>Elastic Load Balancing (ELB): Distributes incoming traffic across multiple targets in different AZs.
+>Auto Scaling: Ensures there are enough instances running.
+>Route 53: DNS service, can help with load balancing and failover.
+
+
+2. Fault Tolerance
+Definition: Designed for zero service interruption, even during multiple failures.
+
+Key Concepts:
+No downtime or data loss: Needs specialized hardware that can provide instantaneous failover.
+Costly: Higher cost than HA due to complex infrastructure.
+
+Example Services:
+>RAID 1: Disk mirroring for data redundancy.
+>Synchronous DB replication: Guarantees zero data loss by writing data simultaneously to multiple locations.
+>Redundant power sources and networking.
+
+**Redundancy refers to the duplication of critical components or systems to increase reliability and availability. In the context of computing and networking, 
+redundancy is used to ensure that a system continues to operate even if one of its parts fails. It is a key principle in building fault-tolerant and highly available systems.
+Example: Cloud storage services like Amazon S3 replicate data across multiple data centers for durability and availability.
+**
+
+
+
+3. High Availability on AWS
+
+AWS provides fault tolerance as part of its underlying infrastructure (e.g., redundant power, networking).
+You can add high availability on top by using services like Load Balancers across multiple AZs.
+Failover: If one web server fails, the traffic is rerouted to healthy servers.
+Auto Scaling: Automatically adjusts the number of instances to handle traffic.
+
+
+
+4. Durability vs. Availability
+
+Durability: Refers to protection against data loss or corruption. AWS S3 offers 11 9's of durability (99.999999999%), meaning data is extremely unlikely to be lost.
+Availability: Refers to the uptime and ability to access the data. Services like S3 and EFS provide high durability and you can choose the level of availability.
+
+Key Differences:
+High Availability (HA) aims to minimize downtime, while Fault Tolerance aims for zero downtime and data loss.
+Durability is about how safe your data is from loss or corruption, while Availability is about the uptime and access to data.
+
