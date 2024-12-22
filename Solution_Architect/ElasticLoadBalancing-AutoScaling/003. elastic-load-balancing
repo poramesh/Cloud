@@ -1,0 +1,198 @@
+Amazon Elastic Load Balancing (ELB)
+
+
+Purpose:
+
+Provides high availability and fault tolerance by distributing incoming traffic to multiple instances.
+Acts as a single endpoint (DNS name or IP address) behind which multiple EC2 instances (or other targets) sit.
+
+Supported Targets:
+
+EC2 instances
+ECS containers
+IP addresses
+Lambda functions
+Other load balancers (can be chained together)
+
+
+Key Features:
+
+Automatic Distribution:
+Distributes traffic to targets (EC2 instances, containers, etc.) across multiple availability zones.
+
+Health Checks:
+ELB performs health checks on targets (e.g., checks HTTP port 80 for a 200 status code).
+If a target fails the health check, it is marked as unhealthy, and the traffic is redirected to healthy targets.
+
+Auto Scaling Integration:
+Auto scaling works with ELB to replace unhealthy instances automatically. When ELB detects a failure, it triggers auto scaling to launch new instances.
+
+Fault Tolerance:
+Even if an instance or availability zone fails, traffic is redistributed to healthy instances in other zones.
+
+
+
+Types of Load Balancers:
+
+1. Application Load Balancer (ALB):
+
+Layer 7 Load Balancer: Works with HTTP/HTTPS traffic and looks at the HTTP headers.
+
+Features:
+Path-based routing (e.g., /orders vs /myaccount).
+Host-based routing (routing based on domain names).
+Good for web applications, microservices, and Docker containers.
+Supports Lambda functions as targets.
+Use for microservices architectures or applications requiring detailed routing.
+
+
+Use Cases:
+
+Use for web applications (HTTP/HTTPS).
+Useful for microservices architectures like Docker containers.
+Supports Lambda as a target.
+Good for complex routing needs (path-based, host-based).
+
+2. Network Load Balancer (NLB):
+
+Layer 4 Load Balancer: Works with TCP/UDP traffic, looking at port numbers (Layer 4 protocols).
+
+Features:
+High performance and low latency.
+Supports TLS offloading.
+Supports static IPs (Elastic IPs) in each availability zone, useful for firewall whitelisting.
+Use for applications requiring high performance and low latency, such as real-time applications or TCP/UDP-based traffic.
+
+
+Use Cases:
+
+Use for TCP/UDP-based applications.
+Suitable for low-latency and high-performance scenarios.
+Supports static IPs for fixed IP addresses.
+
+
+
+3, Gateway Load Balancer (GLB):
+
+Used for load balancing traffic to virtual appliances (e.g., firewalls, intrusion detection/prevention systems).
+Uses the Geneve protocol for inspecting incoming traffic.
+Provides centralized inspection and monitoring for third-party virtual network appliances.
+
+Use Cases:
+
+Deploy for virtual network appliances (firewalls, IDS/IPS, deep packet inspection).
+Use when you need centralized traffic inspection and monitoring.
+
+
+Conclusion:
+Elastic Load Balancing ensures high availability and fault tolerance by distributing traffic across multiple targets and integrating with services like Auto Scaling.
+Different types of load balancers (ALB, NLB, GLB) are suited for different use cases depending on the level of traffic inspection and performance needs.
+
+
+
+
+
+
+
+_____________________________
+
+
+
+
+
+
+
+Overview of Load Balancer Deployment:
+
+1. Target Groups:
+Target groups define the type of target and protocol used.
+Targets can be EC2 instances, Lambda functions, or IP addresses.
+Health checks determine the availability and readiness of targets, and the load balancer only forwards traffic to healthy targets.
+
+
+2. VPC and Availability Zones:
+Instances are deployed in a VPC and health checks are performed based on protocol and port.
+
+3. Target Registration:
+Manual registration of targets or automatic registration via Auto Scaling Groups (ASG).
+
+4. Load Balancer and Listener:
+The load balancer listens on a defined protocol/port.
+The protocol/port can differ from the target group's protocol/port.
+
+5. Routing and Encryption:
+Routing rules can be applied for advanced traffic management.
+SSL/TLS certificates can be assigned for encryption.
+
+
+Supported Configurations for ALB vs NLB:
+1. Application Load Balancer (ALB):
+
+Supported Target Types: EC2 instances, IP addresses, Lambda functions.
+Protocol: Must be HTTP or HTTPS.
+Health Check Protocol: Must be HTTP or HTTPS (TCP is not supported).
+Advanced Request Routing: Supports path-based and host-based routing.
+
+
+2. Network Load Balancer (NLB):
+
+Supported Target Types: EC2 instances, IP addresses, Application Load Balancers.
+Protocol: Must be TCP or UDP.
+Health Check Protocol: Any protocol is supported (e.g., TCP, HTTP).
+Elastic IPs: NLB supports Elastic IPs per subnet for static public IP addresses.
+No Advanced Request Routing: Unlike ALB, NLB does not support advanced request routing but can create multiple listeners for different ports.
+
+
+
+Advanced Request Routing (ALB):
+
+1. Path-Based Routing:
+Traffic can be routed based on the URL path (e.g., /orders, /specials).
+
+2. Host-Based Routing:
+Traffic can be routed based on the host field in the HTTP header (e.g., subdomains like members.example.com).
+
+3. Combination of Routing:
+Both path-based and host-based routing can be combined for flexible traffic management.
+
+
+
+
+Network Load Balancer (NLB):
+
+1. Listener Configuration:
+NLB listens on TCP, UDP, or TCP/UDP protocols.
+Multiple listeners can be configured, each for different ports.
+
+2. Source IP Address:
+ALB: Uses the private IP address of the load balancer node as the source IP.
+NLB: When targets are registered by instance ID, the client's IP address is visible to the application (important for logging and security).
+When registered by IP address, the IP seen by the application is the IP address of the load balancer node.
+
+3. External Targets:
+NLB can route traffic to on-premises data centers or targets outside of the VPC.
+
+
+Handling Source IP Addresses:
+
+ALB:
+The X-Forwarded-For header can be used to capture the client's IP address when using ALB.
+
+NLB:
+The source IP for clients is either the load balancer node IP or the client's IP address depending on target registration (instance ID or IP address).
+When using VPC Endpoint or Global Accelerator, the source IPs are the private IPs of the NLB nodes.
+
+
+
+Key Differences Between ALB and NLB:
+
+Feature	Application
+                              Load Balancer (ALB)	                    Network Load Balancer (NLB)
+Target Types:          EC2 instances, IP addresses, Lambda functions	      EC2 instances, IP addresses, ALBs (for chaining)
+Protocol               HTTP, HTTPS                                          TCP, UDP
+Health Check Protocol	 HTTP, HTTPS	                                        Any protocol (TCP, HTTP, etc.)
+Elastic IP	           Not supported  	                                    Supported per subnet
+Advanced Routing	     Path-based, Host-based routing	                      Not supported
+Use Cases	             Web applications, Microservices, Lambda	            High performance, Low latency applications
+Listener	             HTTP, HTTPS                                         	TCP, UDP
+Source IP	             Private IP of the Load Balancer node	                 Client's IP or Load Balancer node IP (depends on registration)
