@@ -166,7 +166,8 @@ Multiple listeners can be configured, each for different ports.
 
 2. Source IP Address:
 ALB: Uses the private IP address of the load balancer node as the source IP.
-NLB: When targets are registered by instance ID, the client's IP address is visible to the application (important for logging and security).
+NLB: When targets are registered by instance ID, the client's IP address is visible to the application (important for logging and security).(wchi means while creating target if we
+select instances then we can see the ip if we seelct ip then we wont)
 When registered by IP address, the IP seen by the application is the IP address of the load balancer node.
 
 3. External Targets:
