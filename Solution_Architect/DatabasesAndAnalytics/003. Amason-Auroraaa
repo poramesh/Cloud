@@ -1,0 +1,33 @@
+Amazon Aurora
+
+What is Aurora?
+A high-performance, fully managed relational database service compatible with MySQL and PostgreSQL.
+
+Key Features:
+Performance: Up to 5x faster than MySQL and 3x faster than PostgreSQL.
+Highly Available: Multi-AZ deployment, with fault-tolerant and self-healing storage.
+Serverless Option: Scales automatically based on demand.
+
+Example Use Case:
+A finance application requiring high performance and frequent analytics queries.
+Pricing: Pay only for the resources consumed (storage, compute).
+
+
+Amazon Aurora Deployment Options
+
+Provisioned Mode:
+Fixed resources for consistent performance.
+Ideal for predictable workloads.
+
+Aurora Serverless:
+Automatically scales based on demand.
+Best for intermittent, unpredictable workloads.
+
+Example: A blogging website where traffic spikes during specific events.
+
+Global Database:
+Replicates data across multiple regions.
+Low-latency reads and disaster recovery support.
+
+Example: A global e-commerce site serving users from different continents.
+
