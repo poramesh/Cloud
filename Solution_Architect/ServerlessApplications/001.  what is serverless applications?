@@ -149,10 +149,29 @@ Subsequent requests are usually faster.
 Server Applications:
 A web server running on an AWS EC2 instance.
 A database server hosting a MySQL instance.
+ex: Web servers, databases, applications running on EC2	APIs, 
+
 
 Serverless Applications:
 An API built with AWS Lambda and API Gateway.
 Real-time data processing using AWS Lambda triggered by an Amazon S3 file upload.
+ex;event-driven systems, real-time processing (Lambda, Cloud Functions)
+
+
+8. Architecture:
+
+Server Applications:
+Application: Runs on a provisioned server or containerized instance.
+Server: You manage the operating system, web servers (like Apache or Nginx), application stack, and everything that runs on the server.
+Scaling: Based on traffic, you need to manually add or configure additional servers or resources to handle the load.
+Maintenance: You need to manage patching, updates, security, and system monitoring.
+
+Serverless Applications:
+Application: The application logic is split into small, event-driven functions (e.g., AWS Lambda functions), each performing a specific task.
+Server: There are no fixed servers. The cloud provider automatically provisions the runtime environment when a request triggers the function.
+Scaling: Automatic scaling based on the event (e.g., number of incoming HTTP requests, database changes, etc.). Serverless 
+functions can scale instantly without any manual configuration.
+Maintenance: The provider handles the underlying infrastructure, including scaling, patching, and securing the servers. Developers only maintain and deploy the code.
 
 
 
@@ -163,8 +182,6 @@ Cost	              Pay for uptime/resources        	Pay per use
 Maintenance	        Requires manual updates          	No maintenance required
 Use Cases	          Long-running apps                	Event-driven apps
 Performance	        Consistent, customizable	        May experience cold starts
-
-
 
 
 
