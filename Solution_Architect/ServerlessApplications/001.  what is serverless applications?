@@ -1,3 +1,39 @@
+Introduction
+
+AWS Lambda:
+A serverless compute service where you can run your code without managing servers.
+You only need to write your code and upload it—AWS handles scaling, patching, and server management.
+
+Application Integration Services:
+Message Buses: Services that facilitate communication between different application components.
+Notification Services: Services like SNS (Simple Notification Service) that send notifications to users or other systems.
+Orchestration Services: Services that help manage and sequence workflows, like AWS Step Functions.
+
+API Gateway:
+A service that allows you to expose your application via RESTful APIs or HTTP APIs.
+It connects your serverless applications to the outside world (e.g., client applications or third-party services).
+
+Building Applications:
+Serverless Architecture: With AWS serverless services, it’s easy to build applications with multiple layers (frontend, backend, messaging, etc.).
+The services are connected together to create a functional application without worrying about infrastructure management.
+
+
+
+These AWS services enable rapid development of applications by allowing you to focus on code while AWS handles infrastructure tasks like patching,
+scaling, and provisioning servers. The goal is to build applications that are flexible, scalable, and cost-efficient with minimal effort on infrastructure.
+
+_________________________________________________________________
+
+
+
+
+
+
+
+Serverless Services on AWS
+
+
+
 Serverless applications in AWS (Amazon Web Services) are applications that rely on managed cloud services to handle the infrastructure, 
 so developers can focus solely on writing and deploying code.
 In serverless computing, the cloud provider (AWS) automatically provisions, scales, and manages the servers needed to run your application.
