@@ -1,0 +1,14 @@
+
+Amazon RDS Proxy
+
+What is RDS Proxy?
+A fully managed database proxy that improves application scalability and resiliency by pooling database connections.
+
+Key Benefits:
+Efficient connection management for high-throughput workloads.
+Improved failover time for Aurora and RDS databases.
+Secure with AWS IAM and Secrets Manager integration.
+
+Example Use Case:
+A web app with Lambda accessing an Aurora database—RDS Proxy reduces the overhead of connection management.
+
