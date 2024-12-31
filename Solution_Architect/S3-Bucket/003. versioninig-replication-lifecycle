@@ -11,7 +11,13 @@ Key Points:
 Versioning is enabled on a per-bucket basis.
 Versioned buckets allow you to preserve, retrieve, and restore every version of each object in the bucket.
 
+Changing the Versioning State
 
+You can only transition between the following states:
+Unversioned → Enabled: Turns versioning on.
+Enabled → Suspended: Stops creating new versions but keeps existing versions.
+Suspended → Enabled: Resumes versioning for new objects.
+Once versioning is enabled, it cannot be disabled, only suspended.
 
 S3 Replication
 There are two types of S3 replication:
