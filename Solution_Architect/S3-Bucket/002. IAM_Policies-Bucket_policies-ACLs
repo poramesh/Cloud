@@ -1,0 +1,254 @@
+Access control in Amazon S3 is crucial for managing who can access your data and what actions they can perform on it.
+There are several mechanisms available to control access to your S3 buckets and objects:
+
+
+IAM Policies (Identity-based Policies) Identity access management 
+
+Overview: IAM policies are associated with IAM identities like users, groups, or roles. These are identity-based policies and 
+define what actions a user (or a role or group) can perform on AWS resources, including S3 buckets.
+
+How IAM Policies Work:
+The policy specifies the actions allowed on specific resources (e.g., buckets).
+It is attached to an IAM entity like a user, group, or role.
+A group policy can be used to apply the same permissions to multiple users by adding them to a group.
+
+IAM Policy Format: IAM policies are written in JSON format using AWS's access policy language. The Principal element is
+not required in IAM policies since they are identity-based.
+Example:
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "s3:PutObject",
+      "Resource": "arn:aws:s3:::mybucket/*"
+    }
+  ]
+}
+
+This policy allows the user or role to upload objects (s3:PutObject) to the specified S3 bucket.
+
+
+
+
+S3 Bucket Policies (Resource-based Policies)
+
+Overview: S3 bucket policies are directly attached to S3 buckets. These are resource-based policies that control access to the bucket and objects inside it.
+
+How Bucket Policies Work:
+Bucket policies can be used to define permissions for specific users or accounts on the bucket itself.
+These policies use the same JSON format as IAM policies, but they specify the Principal (the user or entity being granted permissions).
+Example:
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::account-id:root"
+      },
+      "Action": "s3:PutObject",
+      "Resource": "arn:aws:s3:::mybucket/*"
+    }
+  ]
+}
+
+This policy grants the specified user or role the permission to upload (s3:PutObject) to the bucket mybucket.
+
+
+
+Access Control Lists (ACLs)
+
+Overview: ACLs are an older way of managing permissions in S3. While still supported, they are not as powerful or flexible as IAM or bucket policies.
+
+How ACLs Work:
+ACLs can be applied at the bucket or object level.
+They allow you to specify grantees (users or entities) and the permissions granted to them (e.g., read, write).
+ACLs are less flexible and harder to manage than IAM or bucket policies.
+
+Use Case: 
+ACLs may be used when specific, simple access needs to be granted to specific users, but AWS generally recommends using IAM or bucket policies instead.
+
+
+
+
+
+Choosing the Right Access Control Mechanism
+
+IAM Policies:
+Use IAM policies when you need to control access to AWS resources beyond just S3.
+They are ideal for centralizing control over access to multiple S3 buckets and other AWS resources.
+IAM policies allow for a more granular, flexible control of permissions, especially when managing multiple users, roles, or services.
+They are easier to manage in an organization that uses a large number of services and users.
+
+S3 Bucket Policies:
+Bucket policies are a good choice when you need to grant cross-account access to a bucket without using IAM roles. They are simpler to set up for this purpose.
+If IAM policies become too complex or reach their size limits, bucket policies can be an alternative.
+Bucket policies are also useful when you prefer to manage permissions directly at the S3 level 
+(for example, if you're working with external parties or want to keep access control strictly within S3).
+
+Access Control Lists (ACLs):
+ACLs should be used when you have very simple access control needs or for legacy reasons.
+They are limited in terms of flexibility and scalability, and AWS recommends using IAM or bucket policies in most cases.
+
+
+
+Authorization Process in S3
+
+When a request is made to access a resource (e.g., an object in an S3 bucket), the authorization process follows a logical sequence:
+
+Start with Deny:
+All access requests are denied by default.
+
+Explicit Deny:
+The system first checks for any explicit deny statements. If any exist, access is immediately denied, and no further evaluation is done.
+
+Explicit Allow:
+If no explicit deny is found, the system checks for explicit allow statements. If a policy allows access, the request is granted.
+
+Implicit Deny:
+If no allow statement is found, access is implicitly denied. This is the default behavior if no permissions are explicitly granted.
+
+Summary
+IAM Policies: Identity-based, applied to users, roles, or groups.
+S3 Bucket Policies: Resource-based, applied directly to the bucket for cross-account access or centralized control.
+Access Control Lists: Legacy mechanism, now less recommended but still used for specific, simple cases.
+Authorization Process: Starts with deny, evaluates explicit denies, checks for explicit allows, and if none found, denies access implicitly.
+
+
+
+
+
+practicals
+
+we delve into the practical use of AWS S3 permissions and bucket policies, explaining how different types of permissions interact
+and how to create and manage users, policies, and access control.
+
+1. Creating an IAM User (Eric):
+
+The IAM user "Eric" is created without any permissions at the start.
+Custom password is provided, and the option to force a password change at next login is disabled.
+
+2. Identity-Based Policy:
+
+An identity-based policy defines what actions a user or group can perform. The example identity-based policy used here does the following:
+Allows the user to list all the buckets and get their location.
+Grants permission to list objects within a specific bucket (after defining the bucket ARN).
+Permits the user to put and get objects in the bucket.
+
+Policy Structure Example:
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:ListAllMyBuckets",
+                "s3:GetBucketLocation"
+            ],
+            "Resource": "arn:aws:s3:::*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:ListBucket"
+            ],
+            "Resource": "arn:aws:s3:::permissions-test-*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetObject",
+                "s3:PutObject"
+            ],
+            "Resource": "arn:aws:s3:::permissions-test-*/object/*"
+        }
+    ]
+}
+
+
+3. Creating the S3 Bucket:
+
+A new bucket is created in Amazon S3 called permissions-test-<random>.
+The ARN (Amazon Resource Name) of the bucket is copied to use in the policy.
+
+
+4. Attaching the Identity-Based Policy to the User:
+
+The policy is attached to the IAM user (Eric) via the Inline Policy in the IAM console.
+After attaching the policy, we log in as Eric to test access.
+
+
+5. Testing Permissions:
+
+Eric can see the list of buckets (due to s3:ListAllMyBuckets), but initially cannot perform actions (e.g., uploading, downloading, deleting) on them.
+After uploading a file, Eric is able to upload and download files, but cannot delete because the policy does not grant s3:DeleteObject permissions.
+
+
+6. Bucket Policy for s3:DeleteObject:
+
+A bucket policy is applied to explicitly allow the s3:DeleteObject permission for Eric. This bucket policy is resource-based, 
+meaning it is applied to a specific S3 bucket and grants permissions for specific actions.
+
+Bucket Policy Example:
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "s3:DeleteObject",
+            "Resource": "arn:aws:s3:::permissions-test-*/object/*",
+            "Principal": {
+                "AWS": "arn:aws:iam::account-id:user/Eric"
+            }
+        }
+    ]
+}
+This grants Eric permission to delete objects inside the bucket, and after applying the bucket policy, Eric can delete objects.
+
+
+7. Combining Policies:
+
+Now, both the Identity-Based Policy and Bucket Policy are working together.
+The Identity-Based Policy grants GetObject and PutObject permissions.
+The Bucket Policy explicitly allows DeleteObject for Eric.
+
+
+8. Explicit Deny Example:
+
+When a deny statement is added in an identity-based policy, it overrides any allow statement, including those in the bucket policy.
+For example, a deny policy that prevents s3:DeleteObject can stop Eric from deleting objects even if the bucket policy allows it.
+Policy with Deny Statement:
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "s3:PutObject",
+            "Resource": "arn:aws:s3:::permissions-test-*/object/*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::permissions-test-*/object/*"
+        },
+        {
+            "Effect": "Deny",
+            "Action": "s3:DeleteObject",
+            "Resource": "arn:aws:s3:::permissions-test-*/object/*"
+        }
+    ]
+}
+Despite the bucket policy allowing s3:DeleteObject, the deny statement in the identity-based policy prevents the deletion of objects.
+
+
+9. Outcome:
+When the Deny is added to the identity-based policy, it successfully blocks deletion, and Eric can no longer delete objects, even though the bucket policy was allowing it.
+
+Key Concepts:
+Identity-Based Policy: Permissions attached directly to IAM users or roles.
+Bucket Policy: Permissions applied to the S3 bucket itself, often with the ability to specify which IAM users can perform actions on the bucket.
+Explicit Deny: Takes precedence over any allow and is used to prevent actions, even if other policies allow them.
