@@ -1,0 +1,298 @@
+Versioning
+Versioning allows you to keep multiple versions of an object in the same S3 bucket.
+When you upload a file and later make edits to it, S3 will store both the original and the modified versions. 
+You can then retrieve or restore any version as needed.
+
+Benefits of Versioning:
+Data Recovery: It helps you recover objects from accidental deletion or overwriting.
+Object Restoration: You can restore any previous version of an object.
+
+Key Points:
+Versioning is enabled on a per-bucket basis.
+Versioned buckets allow you to preserve, retrieve, and restore every version of each object in the bucket.
+
+
+
+S3 Replication
+There are two types of S3 replication:
+
+Cross-Regional Replication (CRR):
+Replicates objects from a source bucket in one region to a destination bucket in a different region.
+Useful for compliance, disaster recovery, and data sovereignty.
+
+Same-Region Replication (SRR):
+Replicates objects within the same region.
+A newer feature added to enhance data availability and redundancy within the same geographic area.
+
+Replication Features:
+Replication can occur between different AWS accounts.
+Versioning must be enabled on both the source and destination buckets to set up replication.
+
+Use Cases:
+Replication can be used for backup, disaster recovery, and cross-account data sharing.
+
+
+(((((((
+
+replication involves copying the same data from one bucket to another, but there are several key reasons why this is useful:
+
+Disaster Recovery and Fault Tolerance:
+Geographical redundancy: By replicating data across different regions (in Cross-Regional Replication (CRR)), you ensure that
+even if there is a region-wide outage (due to a natural disaster, power failure, or other issues), the data is still accessible
+in another region. This reduces the risk of data loss or service disruption.
+
+Availability and durability: In the event of a failure in the source bucket (such as accidental deletion or corruption), you 
+can rely on the replicated bucket as a backup.
+
+Performance Improvement:
+Low-latency access: Replicating data to a region closer to end-users or customers improves access speed. For example, if users
+in Europe are accessing data stored in the U.S., replication to a European region can improve performance and reduce latency.
+Edge locations: By replicating data across multiple regions, you can make data available to users closer 
+to their physical location, improving response times.
+
+
+Source bucket: logs-bucket-us-east-1 (in the US East region).
+Destination bucket: backup-logs-bucket-us-east-1 (in the same US East region).
+
+))))))))))
+
+
+
+
+Lifecycle Management
+Lifecycle policies help automate data management by defining actions based on object age or other criteria. These actions can
+be transitions to different storage classes or expiration (deletion) of objects.
+
+Actions in Lifecycle Management:
+Transition Actions: Move objects to different storage classes based on age or other factors.
+Expiration Actions: Automatically delete objects after a certain period or based on specific conditions.
+
+Storage Classes for Transitions:
+Standard → other storage classes (e.g., Glacier, Standard-IA)
+Standard-IA (Infrequent Access) → Intelligent Tiering or One Zone-IA
+Intelligent Tiering → One Zone-IA
+Glacier → Glacier Deep Archive
+Glacier Deep Archive can remain there.
+
+What Can’t You Transition?
+You cannot transition to the S3 Standard or Reduced Redundancy storage classes.
+Intelligent Tiering cannot be transitioned to Standard-IA.
+One Zone-IA cannot be transitioned to S3 Standard-IA or Intelligent Tiering.
+
+Use Cases:
+Lifecycle management is helpful for compliance scenarios where data must be retained or archived for a certain period.
+It’s also useful for managing costs by moving data to cheaper storage classes when it’s not actively accessed.
+
+
+Exam Preparation
+
+You may be given scenarios that require you to choose appropriate storage classes and transition actions for data retention, compliance, or cost management.
+
+From → To   	       Supported Transitions
+Standard
+/Reduced Redundancy
+storage classes     	 Standard-IA, Intelligent Tiering, One Zone-IA, Glacier, Glacier Deep Archive
+Standard-IA	           Intelligent Tiering, One Zone-IA, Glacier, derr archive
+IntelligentTiering	   One Zone-IA, Glacier, derr archive
+One Zone-IA        	   Glacier, Glacier Deep Archive
+Glacier              	 Glacier Deep Archive
+
+and ulta doesnt work.
+
+Key Takeaways:
+Versioning: Useful for data recovery and restoring previous object versions.
+Replication: CRR and SRR for cross-region or same-region object duplication, across accounts.
+Lifecycle Management: Transition objects between storage classes or set up expiration actions based on object age or criteria.
+
+
+
+
+Practicals:
+
+
+1. Creating S3 Buckets for Replication
+
+Replication can either be within the same region or across different regions (cross-region replication).
+To enable replication, versioning must be enabled on both the source and destination buckets.
+
+Steps:
+Create a source bucket called my-replication-test-source.
+Enable versioning during the bucket creation to allow for replication.
+Similarly, create a destination bucket called my-replication-test-destination and also enable versioning.
+
+aws s3api create-bucket --bucket my-replication-test-source --region us-east-1 --create-bucket-configuration LocationConstraint=us-east-1
+aws s3api create-bucket --bucket my-replication-test-destination --region us-east-1 --create-bucket-configuration LocationConstraint=us-east-1
+
+
+
+2. Creating IAM Role for S3 Replication
+
+The IAM role allows S3 to have permission to replicate objects. The role has a trust policy that defines which AWS 
+service (S3 in this case) can assume the role.
+
+(click on create role and then choose custom ttsut policy and there are other options like web idenity(federataed acc), awws account, aws service like lamda, ecs)
+Trust Policy: Allows S3 to assume the role.
+The trust policy specifies the S3 service (s3.amazonaws.com) as the trusted entity that can assume this role.
+
+Example trust policy:
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "s3.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole" //it grants the ability to call the STS AssumeRole API to switch to another IAM role
+    }
+  ]
+}
+
+
+&&&&
+STS (Security Token Service): This is an AWS service that allows you to request temporary security credentials.
+It is used to grant access to AWS resources for a specific period of time without needing to share 
+permanent IAM credentials (like an access key and secret key).
+
+Assume Role: When you assume a role, you temporarily take on the permissions associated with that role. This is especially useful for 
+cross-account access or when a user or service needs to temporarily elevate its privileges to perform certain actions.
+
+When a principal (e.g., an IAM user or service) wants to perform actions that require permissions from another role,
+they must "assume" that role first. This is done using the sts:AssumeRole action.
+
+This action allows the S3 service to assume a role. When S3 assumes a role, it temporarily gains the permissions assigned to that role.
+The sts:AssumeRole action is allowing the S3 service to call the STS AssumeRole API, which means S3 can switch to a different IAM role 
+and perform actions as if it were that role.
+
+&&&&
+
+After creating the IAM role, attach this policy to it.
+
+
+
+
+3. Creating Inline Policy for IAM Role
+
+After the role is created, we need to specify the permissions that allow the role to perform replication actions.
+This involves providing the ARN of the source and destination buckets.
+
+Create an inline policy and add it to the IAM role. This policy grants the necessary permissions to the source and destination S3 buckets.
+
+Example inline policy:
+{
+   "Version":"2012-10-17",
+   "Statement":[
+      {
+         "Effect":"Allow",
+         "Action":[
+            "s3:GetReplicationConfiguration", //allows retrieving the replication configuration for the source bucket.
+            "s3:ListBucket" //allows listing objects in the source bucket.
+         ],
+         "Resource":[
+            "arn:aws:s3:::SOURCE-BUCKET"
+         ]
+      },
+      {
+         "Effect":"Allow",
+         "Action":[
+            "s3:GetObjectVersionForReplication", //allows getting an object version for replication.
+            "s3:GetObjectVersionAcl", //allows retrieving the Access Control List (ACL) for a specific version of an object.
+            "s3:GetObjectVersionTagging" //allows retrieving tagging information for a specific object version.
+         ],
+         "Resource":[
+            "arn:aws:s3:::SOURCE-BUCKET/*"
+         ]
+      },
+      {
+         "Effect":"Allow",
+         "Action":[
+            "s3:ReplicateObject", //allows replicating objects to the destination bucket.
+            "s3:ReplicateDelete", /allows deleting objects in the destination bucket as part of the replication process (if objects are deleted in the source bucket).
+            "s3:ReplicateTags" //allows replicating the tags of objects.
+         ],
+         "Resource":"arn:aws:s3:::DESTINATION-BUCKET/*" //refers to all objects in the destination bucke
+      }
+   ]
+}
+Attach this policy to the IAM role to allow S3 replication between the source and destination buckets.
+
+
+this json defines permissions for an IAM role (or a service) to interact with Amazon S3 buckets and replicate objects from one bucket to another.
+This is not the role itself but the permissions granted by a policy that is typically attached to a role. 
+The permissions are granted to the role to perform specific actions related to S3 replication.
+
+
+
+4. Creating a Replication Rule
+
+Go to the source bucket in the AWS console and open the Management tab.
+Create a Replication rule. The replication rule defines what objects in the source bucket should be replicated and where (destination bucket).
+
+Rule ID: Can be any name like SR-S3-Replication.
+Source Bucket: Specify the source bucket.
+Destination Bucket: Select the destination bucket.
+IAM Role: Choose the IAM role created earlier.
+Scope: Apply the rule to all objects or filter by prefix.
+
+Once the replication rule is set up, objects uploaded to the source bucket will automatically be replicated to the destination bucket.
+
+
+
+
+5. Testing Replication
+
+Upload files to the source bucket to test the replication.
+After a short wait (it might take a few minutes), check the destination bucket to see the replicated objects.
+
+Steps to upload files:
+aws s3 cp myfile.txt s3://my-replication-test-source/
+
+Then, after replication completes, check the destination:
+aws s3 ls s3://my-replication-test-destination/
+
+
+
+
+6. Lifecycle Rules for Object Management
+
+Lifecycle rules help manage the lifecycle of objects in the S3 bucket, like transitioning to different storage classes or expiring objects.
+
+Create a lifecycle rule to transition objects to different storage classes (e.g., from STANDARD to STANDARD_IA or GLACIER).
+You can also expire objects after a certain number of days or delete non-current versions.
+
+Steps to create lifecycle rules:
+
+You can apply the rule to all objects or a specific prefix (like files/), or based on object tags.
+
+Actions you can configure:
+Move current versions to another storage class.
+Expire current versions or delete non-current versions.
+Delete expired object delete markers.
+
+This rule will transition objects to GLACIER storage after 30 days and expire them after 365 days.
+
+
+
+7. Versioning in S3
+
+Versioning allows you to keep multiple versions of an object in your bucket. When a new version of an object is uploaded, the previous versions are retained.
+To view object versions, click on Show versions in the S3 console.
+
+Steps:
+Upload the same file with the same name multiple times to create multiple versions.
+When you view the bucket with Show versions, you’ll see the versions listed, including a delete marker for deleted objects.
+
+
+8. Handling Deleted Versions
+
+When an object is deleted, a delete marker is created in versioned buckets. The original object is not actually deleted unless the delete marker itself is removed.
+If you delete the delete marker, the previous versions of the object are restored.
+
+Steps:
+Delete an object version and confirm the deletion.
+View the bucket versions to see the delete marker and the previous version.
+Delete the delete marker to restore the object.
+
+aws s3api delete-object --bucket my-replication-test-source --key "myfile.txt" --version-id <version-id>
+
