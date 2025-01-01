@@ -1,0 +1,126 @@
+Multipart Upload
+
+Definition: Multipart upload allows objects to be uploaded in parts independently, in parallel, and in any order. 
+This is useful for uploading large files efficiently.
+
+When to Use:
+Recommended for files larger than 100 MB.
+Can be used for files ranging from 5 MB to 5 TB.
+Must be used for objects larger than 5 GB.
+
+How It Works:
+The file is split into multiple parts, which are uploaded in parallel.
+Each part is uploaded independently, which speeds up the upload process.
+Parts can be uploaded in any order, and the upload can continue even if some parts fail, allowing for easy retries.
+
+Benefits:
+Optimized throughput due to parallel uploads.
+Easier to recover from failures as individual parts can be retrived.
+
+
+
+
+Transfer Acceleration
+Definition: Transfer Acceleration uses Amazon CloudFront edge locations to improve upload performance to S3, especially from geographically distant locations.
+
+How It Works:
+CloudFront Edge Locations: These locations are distributed globally to bring content closer to users. The upload is made to the nearest edge location, 
+which then sends the data to the S3 bucket over the AWS global network.
+This reduces latency and improves throughput by utilizing the global AWS network.
+
+When to Use:
+Best for improving upload speeds for users who are far away from the S3 bucket.
+Example: Users in Australia uploading large files to a bucket in US-East can benefit from Transfer Acceleration.
+Endpoint: The endpoint for Transfer Acceleration includes s3-accelerate, e.g., s3-accelerate.amazonaws.com.
+
+Pricing:
+Extra charges are applied for Transfer Acceleration usage, but only if there's a performance improvement.
+
+Benefits:
+Reduced latency and potentially faster upload speeds from remote locations.
+Helps when the source and destination locations are far apart geographically.
+
+Key Takeaways:
+
+Multipart Upload:
+Breaks large files into smaller parts, uploads them in parallel for faster uploads.
+Recommended for files larger than 100 MB.
+Allows easy recovery in case of failures.
+
+Transfer Acceleration:
+Uses CloudFront edge locations to speed up uploads.
+Reduces latency by using a geographically closer edge location for uploading.
+Best for remote locations far from the S3 bucket.
+
+
+
+
+
+
+
+
+
+
+S3 Select and Glacier Select
+
+S3 Select and Glacier Select allow you to use SQL queries to retrieve specific data from within large objects 
+(e.g., retrieving individual files from a zip file) without having to retrieve the entire object.
+
+Use Cases:
+
+S3 Select:
+Used for querying data within objects stored in S3, such as extracting a specific file from a zip file.
+For example, a Lambda function can issue an SQL expression to retrieve a single file from a large zip file in S3, instead of downloading the entire file.
+
+import boto3
+
+def lambda_handler(event, context):
+    s3_client = boto3.client('s3')
+    
+    # Set up the bucket and the object key
+    bucket_name = 'my-zip-bucket'
+    object_key = 'archive.zip'
+    
+    # Set the SQL expression to query a specific file inside the zip (for example, file1.txt)
+    sql_expression = "SELECT s.* FROM S3Object s WHERE s.filename = 'file1.txt'"
+    
+    # Perform the S3 Select query
+    response = s3_client.select_object_content(
+        Bucket=bucket_name,
+        Key=object_key,
+        Expression=sql_expression,
+        ExpressionType='SQL',
+        InputSerialization={'CompressionType': 'ZIP'},
+        OutputSerialization={'CSV': {}},
+    )
+    
+    # Extract the results from the response
+    for event in response['Payload']:
+        if 'Records' in event:
+            print(event['Records']['Payload'].decode('utf-8'))
+
+
+
+Glacier Select:
+Similar to S3 Select but used for querying objects stored in Amazon Glacier archives.
+Can also retrieve specific files from a zip archive stored in Glacier using SQL queries.
+
+response = s3_client.select_object_content(
+    Bucket='my-glacier-bucket',
+    Key='glacier-archive.zip',
+    Expression="SELECT s.* FROM S3Object s WHERE s.filename = 'data.csv'",
+    ExpressionType='SQL',
+    InputSerialization={'CompressionType': 'ZIP'},
+    OutputSerialization={'CSV': {}},
+)
+InputSerialization: This defines the type of input (e.g., ZIP for compressed zip files).
+OutputSerialization: Defines the output format (e.g., CSV for CSV formatted data).
+ExpressionType: Set to SQL to perform SQL queries
+
+Benefits:
+Allows for more efficient retrieval of data from large objects by querying specific parts (like files within a zip) rather than downloading everything.
+Reduces the need for unnecessary data retrieval, saving both time and cost.
+
+Key Takeaway:
+S3 Select and Glacier Select are both powerful tools for running SQL queries on objects in S3 and Glacier, respectively, enabling the extraction 
+of specific data without the need to download the entire object.
