@@ -1,0 +1,293 @@
+Notes on Creating a Presigned URL for S3 Objects:
+
+
+A presigned URL allows temporary access to an S3 object without making the bucket public or granting full IAM permissions.
+The URL has an expiration time, after which access is revoked.
+
+Command to Create Presigned URL:
+The basic command to generate a presigned URL is:
+aws s3 presign s3://<bucket-name>/<object-key>
+
+Example:
+
+aws s3 presign s3://presign-test/presigned-index.html
+This generates a URL with embedded parameters (like expiry time).
+
+Process:
+Create a bucket (e.g., presign-test).
+Upload an object (e.g., presigned-index.html).
+Access Denied: Without a presigned URL, trying to access the object will result in "Access Denied."
+Generate Presigned URL: Run the AWS CLI command (or cloudshell)to generate the URL for the object.
+
+Accessing the Object with the Presigned URL:
+After generating the presigned URL, use it to access the object.
+The URL includes the expiry time (e.g., 3600 seconds = 1 hour).
+This allows access to the object for the specified duration.
+
+Example of the URL:
+The URL generated is long and includes:
+Expiry time.
+Date stamps.
+The signed permissions.
+
+
+Use Case:
+No public access to the bucket is granted.
+Temporary access to the object is provided, useful for limited time access in applications.
+
+Automating with Lambda:
+In applications, Lambda functions with authentication can be used to generate presigned URLs dynamically.
+
+
+we were able to do it with aws cli since the account has an access to s3 bucket 
+
+
+
+
+Use Case Example: Image Upload and Retrieval System
+
+Let's imagine you have an image gallery application where users can upload images, and the app needs to display them when requested. 
+Here’s how the object key comes into play in this scenario:
+
+Scenario:
+User uploads an image to S3: The image is stored in a bucket called my-image-gallery, with the key uploads/user123/profile.jpg.
+User requests the image: The application needs to fetch the image using the S3 object key.
+
+Step-by-Step Process:
+
+1. Uploading an Image:
+
+When a user uploads an image, the application needs to store the image in S3.
+The object key is derived from the upload process. Typically, it includes:
+The folder or path (e.g., uploads/ for user images).
+The file name, which could include the user's identifier or a timestamp to make it unique (e.g., user123/profile.jpg).
+
+Example object key: uploads/user123/profile.jpg
+The S3 API allows you to upload an object, specifying the key, 
+for example:
+aws s3 cp profile.jpg s3://my-image-gallery/uploads/user123/profile.jpg
+In this case, uploads/user123/profile.jpg is the object key.
+
+2. Generating a Presigned URL:
+
+Now, the application needs to provide a temporary link to the image for viewing.
+To do this, it generates a presigned URL for the object in S3 using the object key.
+The presigned URL is generated using the following steps:
+The application uses the AWS SDK to call the getSignedUrl method for S3, passing the object key (uploads/user123/profile.jpg), 
+along with an expiration time (e.g., 1 hour).
+The URL that is returned can be shared with the user to access the image temporarily.
+
+Example of generating a presigned URL:
+
+js code:
+const AWS = require('aws-sdk');
+const s3 = new AWS.S3();
+
+const params = {
+  Bucket: 'my-image-gallery',
+  Key: 'uploads/user123/profile.jpg', // Object Key
+  Expires: 3600 // URL expires in 1 hour
+};
+
+s3.getSignedUrl('getObject', params, function(err, url) {
+  if (err) console.log('Error generating presigned URL:', err);
+  else console.log('Presigned URL:', url);
+});
+
+This will return a URL that grants temporary access to the image for 1 hour.
+
+3. Accessing the Image:
+
+To display the image, the application uses the presigned URL.
+When a user clicks on the image link, the URL gives access to the object stored in S3 for a limited period.
+The application fetches the object using the object key in the background (when a user requests to view or download the image).
+
+
+
+
+
+______________
+
+Steps to Secure API Gateway with IAM Authentication:
+
+
+Step 1: Create the Lambda Function
+
+You likely already have the Lambda function that generates the presigned URL, but here's a reminder of the basic
+Lambda code setup for generating a presigned URL.
+
+const AWS = require('aws-sdk');
+const s3 = new AWS.S3();
+
+exports.handler = async (event) => {
+    const bucketName = 'your-bucket-name';
+    const objectKey = event.objectKey;  // Object key passed via the event
+    const expiryTime = 3600;  // Expiry time in seconds (1 hour)
+
+    const params = {
+        Bucket: bucketName,
+        Key: objectKey,
+        Expires: expiryTime
+    };
+
+    try {
+        // Generate presigned URL
+        const presignedUrl = s3.getSignedUrl('getObject', params);
+        
+        return {
+            statusCode: 200,
+            body: JSON.stringify({
+                message: 'Presigned URL generated successfully',
+                url: presignedUrl
+            })
+        };
+    } catch (error) {
+        return {
+            statusCode: 500,
+            body: JSON.stringify({
+                message: 'Error generating presigned URL',
+                error: error.message
+            })
+        };
+    }
+};
+
+
+
+Step 2: Create an API in API Gateway
+
+1. Go to the AWS Management Console, and navigate to API Gateway.
+
+2. Create a new REST API.
+Choose Create API and select REST API.
+Provide a name for the API (e.g., PresignedURLApi).
+Set the Endpoint Type to Regional or Edge-Optimized depending on your needs.
+
+3. Create a Resource:
+Under the newly created API, click on Actions and select Create Resource.
+Provide a Resource Name (e.g., /generatePresignedUrl).
+
+4. Create a Method:
+Select the newly created resource and click Create Method.
+Choose the POST method from the dropdown.
+Select Lambda Function as the integration type and choose the Lambda function you created earlier (the one generating the presigned URL).
+Make sure the Lambda function permissions allow API Gateway to invoke it (you may need to add a Lambda execution role).
+
+
+
+Step 3: Enable IAM Authentication for API Gateway
+
+1. Configure Method Request:
+Select the POST method under your resource (/generatePresignedUrl).
+Under Method Request, click on Authorization.
+Select AWS_IAM as the authorization type.
+
+2. Deploy the API:
+Once you've configured the IAM authentication, go to the Actions dropdown and select Deploy API.
+Choose a Stage (e.g., prod), then click Deploy.
+
+
+Step 4: Grant IAM User Permissions to Access the API
+
+You will need to grant IAM users or roles the necessary permissions to access this API endpoint.
+
+1. Create or Use an IAM Role/User:
+Go to the IAM Console, and either create a new user or use an existing user that will be allowed to invoke the API.
+Attach the following policy to the user or role. This policy allows the user to invoke the API Gateway endpoint using IAM authentication.
+Example IAM Policy for API Gateway Access:
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "execute-api:Invoke",
+            "Resource": "arn:aws:apigateway:REGION::/restapis/API_ID/stages/STAGE_NAME/*"
+        }
+    ]
+}
+
+Replace REGION with your API Gateway region (e.g., us-east-1).
+Replace API_ID with the actual API ID for your API (you can find this in the API Gateway console).
+Replace STAGE_NAME with the name of your stage (e.g., prod).
+
+Attach the policy:
+Attach this policy to the IAM user or role that needs to access the presigned URL API.
+
+
+Step 5: Make an Authenticated Request
+
+Now that your API is secured with IAM authentication, users or applications will need to sign their requests using AWS credentials
+(access keys) to authenticate the request.
+
+You can use AWS SDKs (like AWS SDK for JavaScript, Python, etc.) or AWS CLI to sign requests and make authenticated calls to your API Gateway.
+
+Making a Request Using AWS SDK (Node.js Example):
+Install AWS SDK if not already installed:
+
+npm install aws-sdk
+Make the API Request:
+
+const AWS = require('aws-sdk');
+const axios = require('axios');
+const signer = new AWS.Signers.V4();
+
+const accessKeyId = '<your-access-key-id>';
+const secretAccessKey = '<your-secret-access-key>';
+const region = 'us-east-1';
+const apiId = '<your-api-id>';
+const stage = 'prod';
+const resource = '/generatePresignedUrl';  // The endpoint you created
+
+const url = `https://${apiId}.execute-api.${region}.amazonaws.com/${stage}${resource}`;
+
+// Prepare headers with IAM credentials
+const request = {
+    method: 'POST',
+    url: url,
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    data: {
+        objectKey: 'path/to/your/object.jpg'  // Object key for presigned URL
+    }
+};
+
+// Sign the request with AWS credentials
+const signedRequest = signer.sign(request, accessKeyId, secretAccessKey);
+
+axios(signedRequest)
+    .then(response => {
+        console.log(response.data);  // This will contain the presigned URL
+    })
+    .catch(error => {
+        console.error('Error making the API request:', error);
+    });
+
+
+Step 6: Using AWS CLI to Make a Signed Request
+
+You can also use AWS CLI to invoke the API endpoint. Here's an example:
+
+Invoke the API with AWS CLI (assuming the IAM user has been properly configured with access permissions):
+
+aws apigateway test-invoke-method \
+  --rest-api-id <api-id> \
+  --resource-id <resource-id> \
+  --http-method POST \
+  --body '{"objectKey": "path/to/your/object.jpg"}' \
+  --region <region>
+
+
+Step 7: Lambda Generates Presigned URL
+
+Once the authenticated request is received, the Lambda function will generate the presigned URL and return it in the response.
+The client can use the presigned URL to access the S3 object.
+
+Summary
+
+By following these steps:
+You create an API Gateway with IAM authentication.
+You configure your Lambda function to generate the presigned URL.
+You set up IAM users or roles with permissions to invoke the API.
+The IAM authentication ensures that only authorized users or services can invoke the API and generate presigned URLs.
