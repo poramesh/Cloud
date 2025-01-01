@@ -1,0 +1,77 @@
+S3 Event Notifications:
+
+Event Notifications in S3 allow for the automatic sending of information about events (e.g., object creation, deletion) to
+other AWS services like SNS, SQS, or Lambda.
+Use Case: You can send notifications when an object is uploaded (PUT, POST events) to trigger further actions in other services like processing or sending alerts.
+
+Setting Up S3 Event Notifications:
+
+Create S3 Bucket:
+Create a new S3 bucket (e.g., events-notifications-lab).
+
+Create SNS Topic:
+In SNS, create a new standard topic (e.g., my-email) to handle notifications.
+Set up an email subscription to the topic to receive notifications via email.
+Confirm the subscription via email.
+
+Configure Event Notifications in S3:
+Navigate to the Properties tab of the S3 bucket.
+Under Event Notifications, create a new notification:
+Set a name (e.g., upload-event).
+Prefix and Suffix: Optionally set conditions for objects (e.g., only for objects with .jpeg).
+Set to trigger on object creation events (PUT, POST, etc.).
+
+Choose Destination:
+Select SNS as the destination service.
+Choose the SNS topic created earlier.
+
+Error Handling (Permission Issue):
+If you receive an error like "unable to validate destination configurations," it means permissions need to be set.
+Add a resource-based policy to the SNS topic to allow S3 to send messages.
+
+Example policy: Grants sns:Publish permission from S3 to the SNS topic.
+Get the ARNs for the SNS topic and S3 bucket and the account ID for the owner.
+Update the SNS Access Policy with the new permissions.
+Save changes.
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowS3Publish",
+      "Effect": "Allow",
+      "Action": "sns:Publish",
+      "Resource": "arn:aws:sns:us-east-1:123456789012:my-email-topic",
+      "Condition": {
+        "StringEquals": {
+          "aws:SourceArn": "arn:aws:s3:::bucket-lab"
+        }
+      }
+    }
+  ]
+}
+
+
+
+Test Event Notification:
+Upload an object to the S3 bucket (e.g., a .yaml file).
+An object creation event triggers the notification.
+
+Email Notification:
+After uploading the object, check the email for a notification.
+The email contains metadata about the object creation event, including:
+Event source (S3), region, timestamp, object key, etc.
+Information about the API action used (PUT).
+Principal, source IP, and other metadata.
+
+Use Case for Lambda:
+If the notification is sent to Lambda, Lambda could process the metadata (e.g., object key, bucket name) and perform actions on the uploaded object, 
+such as:
+Image processing
+File validation
+Data extraction
+
+Summary:
+S3 event notifications allow the automation of processes based on events in the S3 bucket.
+SNS is used to notify users or trigger further processing (e.g., Lambda) via email or other services.
+Permissions: Ensure that the correct permissions are set for the SNS topic to allow S3 to publish notifications.
