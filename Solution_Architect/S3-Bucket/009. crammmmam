@@ -1,0 +1,167 @@
+
+Exam Cram Notes for Amazon S3
+
+General Information
+
+File Storage: S3 supports any file type, from 0 bytes to 5 TB.
+Storage Capacity: Unlimited storage available.
+Global Namespace: Bucket names must be globally unique.
+Region-Specific: Buckets are created in specific regions to reduce latency.
+Flat Storage: Buckets are flat containers; no hierarchy, but object keys or prefixes can mimic folders.
+Consistency: S3 offers strong read-after-write consistency.
+%%%
+Strong read-after-write consistency in Amazon S3 means that after you successfully write (or update) an object to S3, you can immediately 
+retrieve that object with a read request, and it will reflect the most recent write or update.
+You upload an object (e.g., file.txt) to S3 at 12:00 PM.
+At 12:01 PM, you or another user reads file.txt. S3 will return the object with the exact contents you uploaded.
+%%%%
+
+
+
+Buckets
+
+Limit: 100 buckets per account by default (limit can be increased).
+Replication: Objects remain in the same region unless replication is enabled.
+Permissions: Can be defined at any time.
+Nested Buckets: Not supported.
+
+
+
+Objects
+
+Storage Classes:
+Standard, Intelligent-Tiering, Standard-IA, One Zone-IA, Glacier Instant Retrieval, Glacier Flexible Retrieval, Glacier Deep Archive, etc.
+Understand features and use cases for each.
+
+Unique Keys: Objects are stored and retrieved by unique keys.
+
+Versioning:
+Enables multiple versions of an object in the same bucket.
+Helps recover from accidental deletions or overwrites.
+
+
+
+Policies and Permissions
+
+IAM Policies:
+Identity-based, no principal defined.
+Best for managing numerous buckets or cross-service access.
+
+Bucket Policies:
+Resource-based, specific to S3 buckets.
+Best for cross-account access or when IAM size limits are reached.
+
+Access Control Lists (ACLs):
+Legacy mechanism, limited options for grantees and permissions.
+Prefer IAM policies or bucket policies.
+
+
+
+Lifecycle Management
+
+Actions:
+Transition Actions: Move objects between storage classes.
+Expiration Actions: Permanently delete objects after a set time.
+
+Unsupported Transitions:
+No transitions to Reduced Redundancy.
+Certain transitions between Intelligent-Tiering, Standard-IA, and One Zone-IA are unsupported.
+
+
+
+Multi-Factor Authentication (MFA)
+
+MFA Delete:
+Requires versioning to be enabled.
+Only bucket owners can enable MFA Delete.
+
+Protected API Access:
+Enforces MFA for accessing resources.
+Uses AWS MultiFactorAuthAge in bucket policies.
+
+
+
+
+Encryption
+
+Server-Side Encryption:
+SSE-S3: Uses S3-managed keys.
+SSE-C: You provide your own keys.
+SSE-KMS: Uses AWS Key Management Service.
+
+Client-Side Encryption:
+You manage encryption before uploading objects.
+
+Default Encryption:
+Automatically encrypts new objects in a bucket.
+
+
+
+
+Event Notifications
+
+Triggered on events like object creation, deletion, etc.
+Destinations: SNS, SQS, Lambda.
+
+
+
+Multipart Upload
+
+Used for large files (>5 GB, recommended for files >100 MB).
+Uploads files in parts, allowing parallel uploads.
+
+
+Transfer Acceleration
+Speeds up file transfers by leveraging CloudFront edge locations.
+Reduces latency for long-distance uploads/downloads.
+Can only be suspended, not disabled.
+
+
+
+Copy API
+
+Copy objects up to 5 GB.
+Use cases: Generate copies, rename, change storage class, move between regions, modify metadata.
+
+
+
+Logging
+
+Server Access Logging:
+Logs request details (e.g., requester, bucket, request time).
+Requires a separate bucket for log storage.
+Disabled by default.
+
+CORS: Configured using JSON rules.
+
+
+
+
+Cross-Account Access
+
+Programmatic Access: Use resource-based policies or IAM policies.
+Programmatic & Console Access: Use cross-account IAM roles.
+
+
+
+Performance Optimization
+
+Limits:
+3,500 PUT/COPY/POST/DELETE or 5,500 GET/HEAD requests per second per prefix.
+
+Strategies:
+Parallelize reads/writes.
+Use Byte-Range Fetches.
+Retry requests for latency-sensitive applications.
+Use EC2 in the same region.
+Leverage S3 Transfer Acceleration.
+
+
+Key Features for Exam Focus
+Storage Classes: Understand use cases and limitations.
+Policies: Differences between IAM, bucket policies, and ACLs.
+Versioning: Benefits and use cases.
+Encryption: SSE options and client-side encryption.
+Performance Optimization: Best practices to improve performance.
+Lifecycle Management: Supported and unsupported transitions.
+Transfer Acceleration: Benefits and configurations.
