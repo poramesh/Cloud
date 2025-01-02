@@ -165,3 +165,47 @@ Encryption: SSE options and client-side encryption.
 Performance Optimization: Best practices to improve performance.
 Lifecycle Management: Supported and unsupported transitions.
 Transfer Acceleration: Benefits and configurations.
+
+
+
+
+
+
+
+
+ARCHITECTURE:
+
+1. Accidental Deletion Prevention
+Use S3 Versioning to preserve, retrieve, and restore previous versions of objects. This helps protect against accidental deletions and overwrites.
+Frequently Accessed Data Transition
+
+2. Data accessed frequently for 30 days and rarely accessed afterward but still immediately retrievable:
+Use a lifecycle policy to transition objects from S3 Standard to S3 Standard-IA (Infrequent Access) after 30 days.
+
+3.Cross-Region Backup
+To back up objects in a specific folder to another region:
+Use Cross-Region Replication (CRR) and specify the folder name as a prefix in the configuration.
+
+4. Long-Term Storage for Previous Versions
+For versioning-enabled buckets, store previous versions at the lowest cost:
+Use a lifecycle rule to transition previous versions to S3 Glacier Deep Archive, the cheapest storage class for long-term retention.
+
+5. Client-Side Encryption with Custom Keys
+If a company wants to manage all encryption through their application:
+Use client-side encryption with client-managed keys for encrypting data before uploading it to S3.
+
+6. Encrypt Existing Unencrypted Objects
+Unencrypted objects in an S3 bucket need encryption:
+Re-upload the objects with the required encryption specified (e.g., SSE-S3, SSE-KMS, or SSE-C) since existing objects cannot be retroactively encrypted.
+
+7. Notifications on Object Deletion
+To notify administrators of object deletions in an S3 bucket:
+Configure event notifications using Amazon SNS to send alerts for deletion events.
+
+8. Granting Limited Access to Customers Without AWS Credentials
+Provide limited access to specific objects (e.g., software updates) to external customers without AWS accounts:
+Generate a pre-signed URL with a time limit for temporary, secure access.
+
+9. Programmatic and Console Access Across Accounts
+For solutions architects requiring access to resources across multiple AWS accounts:
+Set up cross-account access using IAM roles for both programmatic and console access.
