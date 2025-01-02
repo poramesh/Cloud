@@ -1,0 +1,391 @@
+Cross-Origin Resource Sharing (CORS) in Amazon S3
+
+Cross-Origin Resource Sharing (CORS) is a mechanism that allows restricted resources (e.g., fonts, images, or APIs) on a web server to be accessed by web 
+clients from a different origin.
+It is particularly useful when working with browser-based applications that need to interact with resources hosted in S3 buckets.
+
+Understanding Origins
+
+An origin is defined by the following:
+DNS Name: The domain name (e.g., mycompany.com).
+Protocol: The communication protocol (e.g., HTTP or HTTPS).
+Port: The port being used (e.g., 80 for HTTP or 443 for HTTPS).
+
+For example:
+A client connecting to http://mycompany.com on port 80 forms the origin http://mycompany.com.
+
+How CORS Works
+
+Scenario:
+A client (e.g., a browser) connects to mycompany.com.
+The website hosted at mycompany.com needs to access resources (e.g., fonts or images) stored in another S3 bucket.
+This involves accessing a different origin (e.g., the S3 bucket endpoint).
+
+Pre-Flight Request:
+Before accessing the resources, the browser sends a pre-flight request to the S3 bucket to check if the cross-origin request is allowed.
+The S3 bucket responds with the rules defined in its CORS configuration.
+
+CORS Configuration:
+The S3 bucket with the resources must allow requests from the origin (e.g., mycompany.com).
+This is done by setting specific CORS rules.
+
+
+
+CORS Configuration Components
+
+CORS rules are defined in a JSON file and contain the following elements:
+
+1. Allowed Headers:
+Specifies which headers the client can include in the request.
+Example: "*" (allows all headers).
+
+2. Allowed Methods:
+Specifies the HTTP methods allowed for cross-origin requests.
+Examples: GET, PUT, POST, DELETE.
+
+3. Allowed Origins:
+Specifies the domains allowed to access the resources.
+Example: "https://www.mycompany.com".
+
+4. Exposed Headers (Optional):
+Specifies which headers in the response can be exposed to the client.
+
+5. Max Age (Optional):
+Specifies how long the results of a pre-flight request can be cached by the browser.
+
+
+CORS Configuration Example
+Here’s an example CORS configuration for an S3 bucket:
+[
+  {
+    "AllowedHeaders": ["*"],
+    "AllowedMethods": ["PUT", "POST", "DELETE"],
+    "AllowedOrigins": ["https://www.mycompany.com"],
+    "ExposeHeaders": [],
+    "MaxAgeSeconds": 3000
+  }
+]
+
+AllowedHeaders: Allows all headers ("*").
+AllowedMethods: Allows PUT, POST, and DELETE requests.
+AllowedOrigins: Only allows requests from https://www.mycompany.com.
+ExposeHeaders: No response headers are exposed.
+MaxAgeSeconds: The pre-flight response is cached for 3000 seconds.
+
+
+Steps to Configure CORS in Amazon S3
+
+1. Log into AWS Management Console:
+Go to the S3 Dashboard.
+2. Select the Target Bucket:
+Choose the bucket where the resource is stored.
+3. Navigate to Permissions:
+Click on the Permissions tab.
+4. Edit CORS Configuration:
+Scroll down to Cross-origin resource sharing (CORS).
+5. Click Edit.
+Add a JSON CORS Rule:
+Enter the desired CORS configuration in JSON format.
+6. Save Changes:
+Click Save to apply the CORS settings.
+
+
+Key Points
+
+Apply CORS on the Resource Bucket:
+The CORS configuration must be applied to the bucket that hosts the resource (not the origin bucket).
+
+Origins Must Match:
+Origins must be defined accurately (e.g., https://www.mycompany.com vs. http://mycompany.com are treated as different origins).
+
+Allowed Methods Are Crucial:
+Ensure the HTTP methods required by your application are included in the AllowedMethods.
+
+Security Considerations:
+Avoid overly permissive rules, such as "AllowedOrigins": ["*"], unless absolutely necessary.
+
+
+Practical Example
+
+Scenario:
+You have a static website hosted on https://www.mycompany.com.
+The website needs to load font files stored in an S3 bucket at https://assets.mycompany.com.
+
+Steps:
+Configure the S3 bucket assets.mycompany.com with the following CORS rule:
+[
+  {
+    "AllowedHeaders": ["*"],
+    "AllowedMethods": ["GET"],
+    "AllowedOrigins": ["https://www.mycompany.com"],
+    "MaxAgeSeconds": 3600
+  }
+]
+
+Save the configuration.
+The browser can now fetch resources from assets.mycompany.com when requested by https://www.mycompany.com.
+
+Summary
+CORS enables cross-origin requests for resources in S3.
+Key Components: AllowedHeaders, AllowedMethods, AllowedOrigins, ExposeHeaders, 
+
+
+How Headers Look in Practice
+
+A typical HTTP request with headers:
+GET /api/resource HTTP/1.1
+Host: example.com
+Authorization: Bearer abc123
+Content-Type: application/json
+
+A typical HTTP response with headers:
+HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 123
+Set-Cookie: sessionId=xyz789; Path=/; HttpOnly
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Cross Account Access:
+
+Prerequisites:
+Two AWS accounts: Account A (the account with the S3 bucket) and Account B (the account that will access the bucket).
+IAM Role: In Account A, an IAM role must be created, which Account B will assume to access the S3 bucket.
+External ID: A secret passphrase (External ID) is used to enhance security during the role assumption process.
+
+Step-by-Step Process
+
+1. Creating the S3 Bucket in Account A
+First, create an S3 bucket in Account A that will store the data.
+Ensure that public access is blocked, making the bucket private.
+Upload a file to the bucket, e.g., a JSON file.
+
+2. Creating the IAM Role in Account A
+Navigate to IAM in the AWS Management Console for Account A.
+Create a new role by choosing "Another AWS Account" as the trusted entity. (in the trusted entity type we got: aws servce like ec2 n aws accoutm web entity federated n custom trst policy)
+Provide Account B's account ID (the account that will assume the role).
+Specify an External ID (e.g., pass123456) to add a layer of security.
+No permissions are applied initially; we'll add permissions later.
+
+it will show trust policy like the below 
+
+after ceating the role you can add inline permission policy
+
+----
+trust policy
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::ACCOUNT-B-ID:root"
+      },
+      "Action": "sts:AssumeRole",
+      "Condition": {
+        "StringEquals": {
+          "sts:ExternalId": "pass123456"
+        }
+      }
+    }
+  ]
+}
+
+
+permission Policy
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:ListBucket",
+        "s3:GetObject",
+        "s3:PutObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::your-bucket-name",
+        "arn:aws:s3:::your-bucket-name/*"
+      ]
+    }
+  ]
+}
+
+----
+
+3. Configuring Permissions for the IAM Role
+After creating the IAM role, attach an inline policy.
+The policy grants permissions to the S3 bucket and specifies the actions (e.g., S3:GetObject, S3:PutObject, S3:ListBucket).
+Define the resource ARN for the S3 bucket (e.g., arn:aws:s3:::your-bucket-name/*).
+Review and create the policy.
+
+4. Role Assumption in Account B
+From Account B (the account that will access the bucket), use the CLI to assume the role in Account A.
+The CLI command requires the Role ARN, External ID, and the S3 bucket name.
+The command syntax is as follows:
+aws sts assume-role --role-arn arn:aws:iam::accountA-ID:role/cross-account-test-role --role-session-name session-name --external-id pass123456
+This returns temporary security credentials (Access Key ID, Secret Access Key, and Session Token).
+
+5. Configuring Temporary Credentials
+Use the output from the assume-role command to configure temporary credentials.
+These credentials are stored in the AWS CLI configuration file under a profile for Account B.
+
+Use the following commands to configure the credentials:
+aws configure set aws_access_key_id <AccessKeyID> --profile cross-account-test
+aws configure set aws_secret_access_key <SecretAccessKey> --profile cross-account-test
+aws configure set aws_session_token <SessionToken> --profile cross-account-test
+
+This configuration allows the user in Account B to use the role and interact with resources in Account A.
+
+6. Accessing the S3 Bucket
+With the temporary credentials configured, run the following command to list the contents of the S3 bucket in Account A:
+aws s3 ls s3://your-bucket-name --profile cross-account-test
+The output confirms that Account B can now access the private S3 bucket in Account A, demonstrating successful cross-account access.
+****
+
+>>cd ~/.aws
+>>ls 
+credentuals
+>> cat credentials
+[cross-account-test]
+aws_access_key = hihjij
+aws_secreet= hjhjh
+aws_sesion = hjhjhb
+>>rm -rf credentials
+
+it wpnt work after we delete
+
+**
+
+
+
+7. Verifying Role-Based Access
+If you delete the profile configuration or remove the temporary credentials, access will be denied when trying to list the bucket contents.
+This demonstrates the need for valid credentials and ensures that the access granted is temporary and role-based.
+
+8. Deleting the Temporary Credentials
+Once you’re done, it’s important to delete the credentials file and re-run commands without the profile to verify that access is properly revoked.
+
+Key Concepts
+Cross-Account Access: Allows a user from Account B to assume a role in Account A and access resources like S3.
+IAM Role: Defines permissions in Account A for actions like accessing S3.
+External ID: A secret key used for extra security to avoid unauthorized access.
+Temporary Security Credentials: These credentials are used for short-lived access, typically granted through the STS (Security Token Service) assume-role command.
+Role Assumption: The user in Account B uses STS to temporarily "assume" the IAM role in Account A.
+Profile Configuration: After assuming the role, temporary credentials are stored in a CLI profile to allow future commands using those credentials.
+
+Summary
+This exercise illustrates how to set up cross-account access in AWS by assuming a role from one account (Account B) to access resources 
+in another account (Account A), specifically an S3 bucket. The process involves creating the IAM role in the target account, defining
+a permissions policy, using the STS assume-role command to get temporary credentials, and configuring those credentials in the AWS CLI
+to perform actions like listing the S3 bucket contents. The process ensures that only authorized users with the correct credentials can access the S3 bucket.
+
+
+
+
+__________________
+
+
+
+
+
+S3 Object Lambda 
+
+
+S3 Object Lambda is a feature of AWS S3 that allows you to use AWS Lambda functions to process the output of GET requests made to S3 objects.
+
+In simple terms, when a client retrieves an object from S3, Lambda can modify the object before sending it back to the client. 
+This allows for real-time processing or transformation of data when it's requested.
+
+How It Works:
+Amazon S3: A bucket where the objects are stored.
+S3 Access Points: Provide a way to access objects in a specific S3 bucket.
+S3 Object Lambda Access Points: Special access points designed to integrate with Lambda, allowing you to trigger Lambda functions when GET requests are made.
+Lambda Function: The Lambda function is invoked to process the GET request and modify the data before it's returned to the application or user.
+GET Request: A client issues a GET request to retrieve an object. Lambda processes and modifies the response before sending it back.
+
+Prebuilt Lambda Functions (AWS Managed): These are predefined Lambda functions provided by AWS, so you don’t need to write custom code.
+
+PII Access Control:
+Detects Personally Identifiable Information (PII), such as names, addresses, credit card numbers, and social security numbers.
+It restricts access to objects containing sensitive PII.
+You can use the ARN (Amazon Resource Name) for this prebuilt function to easily detect and protect PII.
+
+PII Redaction:
+Similar to PII Access Control, but instead of restricting access, this function redacts (removes or masks) the detected PII from the document before sending it back.
+This is useful when you need to process or share documents but want to remove sensitive personal data.
+You can use the ARN provided for this function.
+
+Decompression:
+This function is useful when you have objects stored in compressed formats (like bzip2, gzip, snappy, zlib, zstandard, or ZIP).
+The prebuilt function decompresses these objects on the fly, making it easier to work with compressed data.
+The ARN for this function is available for integration.
+
+Use Cases:
+Data Processing: Modify or transform data before returning it (e.g., redact sensitive information).
+Content Filtering: Detect sensitive data such as PII and redact or restrict access.
+Real-time Decompression: Automatically decompress files stored in compressed formats when retrieved from S3.
+
+Exam Relevance:
+S3 Object Lambda may be an answer to exam questions related to:
+Modifying the response of GET requests from S3.
+Handling PII (especially redacting or controlling access to sensitive data).
+
+Conclusion:
+S3 Object Lambda provides a way to modify and process S3 object data dynamically during the retrieval process using Lambda functions.
+The prebuilt functions like PII detection, redaction, and decompression can simplify your setup and avoid the need to write custom Lambda functions.
+
+
+
+Example ARN for Prebuilt Lambda Functions for S3 Object Lambda
+
+Here are the ARNs for the prebuilt Lambda functions related to S3 Object Lambda:
+
+PII Access Control
+This detects PII and restricts access.
+Example ARN: arn:aws:lambda:us-east-1:123456789012:function:S3ObjectLambdaPIIAccessControl
+
+PII Redaction
+This detects PII and redacts it from the returned data.
+Example ARN: arn:aws:lambda:us-east-1:123456789012:function:S3ObjectLambdaPIIRedaction
+Decompression
+This decompresses objects stored in compressed formats.
+Example ARN:arn:aws:lambda:us-east-1:123456789012:function:S3ObjectLambdaDecompression
+
+
+
+
+Workflow of S3 Object Lambda
+
+1. Create an S3 Access Point
+An S3 Access Point is a unique way to access your S3 bucket. It ensures specific configurations like permissions and network policies for accessing objects.
+
+2. Create an S3 Object Lambda Access Point
+The Object Lambda Access Point is linked to your Lambda function and an existing S3 Access Point. This acts as a "gateway" to modify data during GET requests.
+
+3. Link a Lambda Function to the Object Lambda Access Point
+Attach a Lambda function to the Object Lambda Access Point. This function processes or transforms the data retrieved from S3 before sending it back to the application.
+You can use prebuilt functions (e.g., for PII detection and redaction) or write your own Lambda code.
+
+4. Client Makes a GET Request
+A client issues a GET request to the Object Lambda Access Point instead of directly to the S3 bucket or its access point.
+
+5. Request Routing and Processing
+The Object Lambda Access Point intercepts the GET request and sends it to the Lambda function.
+The Lambda function processes the data (e.g., redact PII, decompress files, or transform content) as per the logic you define.
+
+6. Response to the Client
+After processing, the Lambda function sends the modified data back to the Object Lambda Access Point, which forwards it to the client.
