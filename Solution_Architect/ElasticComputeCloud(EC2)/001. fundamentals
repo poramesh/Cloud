@@ -1,0 +1,385 @@
+EC2 Fundamentals
+
+
+EC2 (Elastic Compute Cloud) is a service in AWS to run virtual servers in the cloud.
+EC2 instances are virtual servers running on host servers managed by AWS.
+AWS uses hypervisors like Xen and Nitro for virtualization.
+EC2 provides Infrastructure as a Service (IaaS), where AWS manages the underlying infrastructure, and users manage the operating system and applications.
+
+Instance Configuration
+
+Instance Types and Families
+Users choose instance types based on workload requirements.
+Instance types define hardware configurations: CPU, memory, storage, and networking.
+
+Operating Systems
+Supports Windows, Linux, and macOS.
+macOS instances use dedicated hardware and are more expensive.
+
+
+
+
+
+Networking Basics
+
+
+1. IP Address Types
+
+Private IP Address
+Always assigned to instances.
+Retained when the instance is stopped and started.
+
+Public IP Address
+Automatically assigned to instances in public subnets.
+Lost when the instance is stopped.
+Mapped externally to the instance's private IP through the Elastic Network Interface (ENI).
+
+Elastic IP Address
+Static public IP address.
+Charged if not associated with a running instance.
+Can be moved between instances and network adapters.
+associated with private address on the instance.
+
+
+
+2. Elastic Network Interface (ENI)
+
+Public IPs are mapped externally through ENI.
+Operating system recognizes only private IP addresses.
+
+**********
+When the document mentions that Public IPs are mapped externally through ENI (Elastic Network Interface), 
+it means that the public IP address is not directly configured within the instance's operating system. Instead, it is associated with the instance's private IP address 
+by AWS's networking infrastructure.
+
+Here's how it works: 
+Private IP within the Instance: The instance itself only recognizes its private IP address. You can see this private IP by using commands 
+like ipconfig (Windows) or ifconfig (Linux).
+
+Mapping via ENI: The public IP address is mapped to the private IP at the Elastic Network Interface level. This mapping allows
+external communication (e.g., accessing the instance via the internet) while keeping the instance's private IP as its internal identity.
+
+External Access: Any traffic coming from the internet to the public IP is routed through the ENI and then delivered to the instance's private IP. 
+Similarly, outgoing traffic from the instance to the internet appears as if it is coming from the public IP.
+
+This design provides a layer of abstraction and security, ensuring that the private IP remains consistent and internal, while the public 
+IP can be dynamically reassigned or removed. Let me know if you'd like this explanation added to the document!
+
+************
+
+Subnets and Routing
+
+Public Subnets
+Instances can have public IP or elastic IP addresses.
+Connected to the internet via an Internet Gateway (IGW).
+Route table includes:
+Local route for internal communication within the VPC.
+Route to IGW for internet connectivity.
+
+dest             target 
+172.31.0.0/16    Local
+0.0.0.0/0        igw-id
+
+
+Private Subnets
+Instances have private IPs only; no internet connectivity by default.
+Used for security-sensitive workloads.
+
+dest             target 
+172.31.0.0/16    Local
+0.0.0.0/0        nat-gateway-id
+
+NAT Gateway
+Allows instances in private subnets to access the internet for outbound traffic.
+NAT Gateway uses an elastic IP address for internet communication.
+Associated route table directs outbound traffic to the NAT Gateway.
+Does not allow inbound connectivity.
+
+
+
+
+**********
+Private IP Communication:
+The private instance uses its private IP address to initiate the outbound request.
+Since it resides in a private subnet, it cannot directly access the internet.
+
+Route Table:
+The route table associated with the private subnet directs all outbound traffic (not destined for the VPC's local IP range)
+to the NAT Gateway.
+
+NAT Gateway:
+The NAT Gateway receives the traffic and translates (NAT = Network Address Translation) the source address of the packets from the
+private IP to its own public Elastic IP address.
+This makes the request appear as if it's coming from the NAT Gateway’s public IP.
+
+Internet Communication:
+The request proceeds to the external internet resource, which responds to the NAT Gateway's public Elastic IP.
+
+Returning Response:
+The NAT Gateway translates the response packets' destination address back to the private IP of the instance and forwards them to
+the instance in the private subnet.
+********
+
+
+
+
+Deployment Scenarios
+
+Public Deployments
+Instances in public subnets are accessible from the internet.
+Suitable for web servers and other internet-facing applications.
+Public instances always have private IPs, which are mapped to their public IPs via ENI.
+
+Private Deployments
+Instances in private subnets communicate only within the VPC.
+Ideal for backend services, databases, and applications requiring enhanced security.
+
+Combining Public and Private Subnets
+Use public subnets for load balancers and private subnets for application servers.
+Enhances security and restricts direct internet access to sensitive components.
+
+
+
+
+
+
+
+Key Takeaways
+
+EC2 is a versatile, cloud-based virtualization solution.
+Understanding IP address types and subnet configurations is crucial for secure and efficient deployments.
+Utilize private subnets wherever possible and NAT Gateways for controlled internet access.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Launching EC2 Instances
+
+Amazon EC2 allows you to launch and manage virtual servers in the cloud.
+You can launch instances with various operating systems and configurations, such as Linux and Windows.
+
+Steps to Launch an EC2 Instance
+
+Select Instance Type
+Instance Types define hardware resources like CPU, memory, and storage.
+Example: t2.micro is a general-purpose instance type and is free-tier eligible.
+Cost depends on selected resources.
+
+Choose Amazon Machine Image (AMI)
+AMI: Pre-configured templates defining the OS, software, and storage setup.
+Examples:
+ Amazon Linux 2023 AMI: Customized by AWS, includes AWS CLI and agents.
+ Windows Server 2022 Base.
+AMIs can be customized and saved for future use.
+Data is backed by snapshots (point-in-time backups).
+
+Create a Key Pair
+Key pairs are used for secure connection via SSH (Linux) or to retrieve passwords (Windows).
+Save the private key file securely—it’s sensitive information.
+
+
+Network Settings
+Configure security groups (firewalls) to allow necessary inbound traffic.
+Default security rules:
+Linux: SSH (port 22) for remote connection.
+Windows: RDP (port 3389) for Remote Desktop Protocol.
+
+Launch the Instance
+Review configuration settings, then launch the instance.
+
+
+Post-Launch Configuration
+
+Viewing Instance Details
+Instance details: Instance ID, public/private IPs, DNS names, and security groups.
+Accessible from the EC2 Management Console.
+
+Editing Security Groups
+Modify inbound rules to allow additional protocols if needed (e.g., RDP for Windows).
+
+Example:
+Add RDP protocol on port 3389 for Windows.
+Set source to "Anywhere" (0.0.0.0/0) for global access.
+
+
+Connecting to Instances
+
+Linux Instance
+Use SSH to connect using the private key file or AWS CloudShell.
+
+Windows Instance
+Use RDP after retrieving the instance password (requires the key pair).
+
+Additional Notes
+Custom AMIs:
+Launch an instance, customize it, and create a reusable AMI for future use.
+EC2 Management Console:
+Provides summary information and free-tier usage tracking.
+Instance States:
+Filter instances by state (e.g., running, stopped) for easier management.
+
+
+
+
+
+________________________________________________
+___________________
+
+
+Connecting to a Linux EC2 Instance Using SSH
+
+
+Steps to Connect:
+
+Launch EC2 Instance:
+Launch a Linux EC2 instance from the AWS console, and ensure that it has a public IP address or public DNS name.
+Select a key pair during instance creation. This will provide you with a private key file (PEM file) that you’ll use for SSH access.
+
+Download the PEM Key File:
+After creating the EC2 instance, ensure you download the private key file (PEM file). This is required to authenticate your connection.
+
+Configure Security Group (Port 22 for SSH):
+In the Security Group of the EC2 instance, ensure that port 22 (SSH) is open for all incoming traffic:
+Go to Security Groups -> Select the security group associated with the instance.
+Edit Inbound rules to add a rule for SSH:
+Type: SSH
+Protocol: TCP
+Port Range: 22
+Source: Anywhere (0.0.0.0/0)
+
+Connect to the Instance:
+From your local computer, open a terminal or SSH client.
+Use the following SSH command to connect to the instance:
+
+ssh -i /path/to/your-key.pem ec2-user@<instance-public-ip-or-dns>
+
+Replace /path/to/your-key.pem with the full path to your private key file (PEM file), and <instance-public-ip-or-dns> with the public IP or DNS name of your EC2 instance.
+
+Example:
+ssh -i ~/Downloads/my-key.pem ec2-user@ec2-18-222-34-55.compute-1.amazonaws.com
+
+Verifying the Connection:
+Once connected, you can run a command like ifconfig to check the network interfaces and confirm that the connection is successful.
+ifconfig
+
+You should also be able to ping external websites (e.g., Google) to confirm internet connectivity:
+ping google.com
+
+Troubleshooting:
+Connection Fails:
+Ensure that the instance has a public IP.
+Make sure port 22 is open in the security group (from anywhere or your IP).
+Verify the private key file is correct and associated with the key pair you selected when creating the EC2 instance.
+
+
+(or) 
+Connecting to Linux EC2 Instance Using SSH
+
+Prerequisites:
+Ensure your Linux EC2 instance is running and has a public IP address or DNS.
+Have your private key file (PEM file) ready, which you downloaded when creating the EC2 instance.
+Ensure port 22 (SSH) is open in the EC2 instance's security group.
+
+Steps to Connect via EC2 Instance Connect:
+In the AWS EC2 Management Console, select your Linux instance.
+Click on "Connect."
+Choose "EC2 Instance Connect."
+The username is typically ec2-user.
+Once connected, you will be in the command line of your EC2 instance.
+You can verify the connection by running commands like ifconfig to check IP addresses, or pinging external servers 
+like google.com to confirm internet access.
+
+2. Connecting to a Windows EC2 Instance Using RDP
+
+Steps to Connect:
+
+>Launch EC2 Windows Instance:
+Launch a Windows EC2 instance from the AWS console.
+Make sure you select Microsoft Windows as the AMI and configure a key pair.
+
+>Configure Security Group (Port 3389 for RDP):
+Go to Security Groups -> Select the security group associated with the Windows EC2 instance.
+
+Edit Inbound rules to open port 3389 for RDP:
+Type: RDP
+Protocol: TCP
+Port Range: 3389
+Source: Anywhere (0.0.0.0/0)
+
+>Get Windows Password:
+In the EC2 Management Console, select your Windows instance.
+Click on Connect.
+Under RDP Client, click Get Password.
+Upload the PEM file (your private key file) that you used to create the instance.
+Click on Decrypt Password. The decrypted password will appear on the screen.
+
+>Download or Configure RDP Client:
+Windows: RDP client is built into Windows. You can use the Remote Desktop Connection app.
+Mac/Linux: If you're using macOS, you'll need to download an RDP client (e.g., Microsoft Remote Desktop).
+
+>Connect to the Instance:
+Open your RDP client.
+Enter the public DNS name of the instance (or public IP address) as the PC Name.
+Use Administrator as the username and paste the decrypted password.
+Click Connect to access the Windows Desktop.
+
+
+Example for Windows RDP (Windows RDP client):
+Open Remote Desktop Connection (type mstsc in the search bar).
+Enter the public DNS name or IP address of your EC2 instance.
+Click Connect.
+Enter the username as Administrator and paste the decrypted password from AWS.
+
+
+3. Stopping, Rebooting, and Terminating EC2 Instances
+
+Stopping an Instance:
+In the EC2 Console, select the instance.
+Choose Instance State → Stop.
+Stopping an instance will stop compute charges but will still incur charges for EBS storage.
+
+Rebooting an Instance:
+In the EC2 Console, select the instance.
+Choose Instance State → Reboot.
+Rebooting will restart the instance without deleting it.
+
+Terminating an Instance:
+In the EC2 Console, select the instance.
+Choose Instance State → Terminate.
+Terminating the instance deletes it and stops all charges except for storage.
+
+
+
+4. Session Manager (Optional)
+
+If you don’t want to open SSH or RDP ports to the internet, you can use AWS Systems Manager's Session Manager to connect securely without opening ports.
+
+Steps to Use Session Manager:
+Ensure EC2 Instance has the necessary IAM Role:
+The instance must have an IAM role with AmazonSSMManagedInstanceCore policy attached.
+
+Verify SSM Agent is Installed:
+The SSM agent should be installed on your EC2 instance (for Amazon Linux 2, it comes pre-installed).
+
+sudo systemctl status amazon-ssm-agent //If it’s running, the agent is installed and operational
+
+sudo yum install -y amazon-ssm-agent//to install 
+
+Connect via Session Manager:
+Go to the EC2 Console, select your instance, and choose Connect.
+Select Session Manager under connection type and click Connect.
+This will open a browser-based terminal to manage your instance securely.
+
