@@ -1,0 +1,129 @@
+EC2 Placement Groups in AWS
+
+
+1. Overview
+EC2 Placement Groups allow you to control how AWS places your EC2 instances within or across Availability Zones (AZs). This helps optimize 
+performance and fault tolerance for different workloads.
+
+2. Types of Placement Groups
+
+a. Cluster Placement Group
+Description: Groups instances closely together within a single AZ.
+Purpose: Achieves low network latency and high throughput by keeping instances physically near each other (e.g., in the same rack or adjacent racks).
+Use Case: Best for tightly coupled workloads like High Performance Computing (HPC) applications with node-to-node communication.
+
+Physical Placement:
+All instances in the cluster placement group are placed on the same underlying hardware (or in adjacent racks) within the same AZ.
+The hardware includes the same rack, switch, or adjacent networking components.
+Since all instances share the same physical hardware or adjacent infrastructure, any failure of that hardware could affect 
+all the instances in the cluster placement group.
+
+
+Key Features:
+Very low latency.
+High throughput communication between instances.
+Example Workloads: HPC, simulations, big data analytics.
+
+Examples of applications suited for Cluster Placement Groups include:
+High Performance Computing (HPC):
+Scientific Simulations: Climate modeling, molecular dynamics, or astrophysical simulations that require real-time data sharing between nodes.
+Genomics Analysis: Processing large-scale genomic data with distributed tools like BLAST or GATK.
+
+(what is node?
+A node is an entity in a distributed system that has its own resources (such as CPU, memory, and storage) 
+and communicates with other nodes to share or process information.
+
+In the case of EC2 instances, each EC2 instance is considered a node within the cluster, and the communication
+between these nodes is what drives the application’s behavior.)
+
+Big Data Analytics:
+Distributed Data Processing: Frameworks like Apache Spark or Hadoop performing in-memory computations where low latency is critical.
+Real-Time Data Processing: Streaming analytics using tools like Apache Flink.
+
+Machine Learning and AI Workloads:
+Training Deep Learning Models: Distributed training using frameworks like TensorFlow, PyTorch, or Horovod on GPU or high-performance EC2 instances.
+Inference at Scale: Real-time prediction pipelines that require rapid inter-node communication.
+
+Financial Modeling:
+Risk Analysis: Monte Carlo simulations or financial derivatives modeling that require intensive computation and quick inter-node data sharing.
+
+Media Processing:
+Rendering Workloads: Real-time 3D rendering or video transcoding for movies or games.
+
+Gaming Servers:
+Multiplayer Gaming Backends: Games requiring low-latency communication between servers for physics simulations or player interactions.
+
+
+
+b. Partition Placement Group
+Description: Spreads instances across logical partitions to ensure each partition uses separate underlying hardware.
+Purpose: Provides fault tolerance by isolating partitions to prevent hardware failure in one partition from affecting others.
+Use Case: Ideal for distributed and replicated workloads where data or processes are spread across nodes.
+
+In a Partition Placement Group:
+The instances are divided into partitions.
+Each partition has a distinct set of underlying physical hardware (different servers, racks, and networking components).
+Instances within the same partition might share hardware, but instances in different partitions do not.
+
+Suppose you have a distributed application that requires 9 EC2 instances and you deploy them in a Partition Placement Group with 3 partitions.
+Partition A: Contains instances Instance 1, Instance 2, and Instance 3 placed on Rack 1.
+Partition B: Contains instances Instance 4, Instance 5, and Instance 6 placed on Rack 2.
+Partition C: Contains instances Instance 7, Instance 8, and Instance 9 placed on Rack 3.
+Each partition (A, B, C) uses entirely different physical hardware. This means:
+
+If Rack 1 (supporting Partition A) fails, only Instance 1, Instance 2, and Instance 3 are affected.
+Instance 4 through Instance 9 remain operational because Partitions B and C are on separate racks.
+
+Key Features:
+Supports partitions across one or multiple AZs.
+Up to 7 partitions per AZ.
+Example Workloads: Hadoop, Cassandra, Kafka.
+
+
+c. Spread Placement Group
+Description: Places each instance on separate underlying hardware to maximize fault tolerance.
+Purpose: Ensures that the failure of a single hardware rack does not affect other instances.
+Use Case: Suitable for critical, small-scale workloads where each instance must remain isolated.
+Key Features:
+Instances are in different AWS racks.
+Limited to 7 running instances per AZ.
+Example Workloads: Critical workloads with high availability requirements.
+
+You have a small number of critical EC2 instances handling different parts of the application:
+
+1. Database instance: This instance stores financial data that is highly sensitive and must be kept available.
+2. Authentication service instance: This handles user authentication and must be up and running at all times for secure access to the application.
+3. Web server instance: This serves the web interface to clients and manages user requests.
+4. API server instance: This handles API requests and integrates with external services.
+
+
+3. Visualizing Placement Groups
+Cluster Placement Group: Instances are placed closely together in the same AZ to minimize latency.
+Partition Placement Group: Instances are spread across multiple partitions within or across AZs. Each partition uses separate hardware to ensure fault isolation.
+Spread Placement Group: Instances are placed on separate racks, ensuring complete hardware isolation.
+
+
+4. Use Cases for Placement Groups
+Use Case	                                                                               Placement Group Type
+Tightly coupled application requiring low latency and high throughput	                   Cluster Placement Group
+Distributed and replicated NoSQL database requiring separate hardware for node groups	   Partition Placement Group
+Small number of critical instances that must be isolated from each other	               Spread Placement Group
+
+
+
+
+5. Deployment of Placement Groups
+During Instance Launch:
+In the EC2 Management Console, configure the instance launch settings.
+Choose to add the instance to an existing placement group or create a new one.
+
+If creating a new placement group:
+Provide a name.
+Select the type of placement group (Cluster, Partition, or Spread).
+Post Launch: Instances can be associated with placement groups if the instance type supports it.
+
+
+Key Takeaways
+Cluster Placement Group: Optimized for low latency, high throughput, tightly coupled workloads.
+Partition Placement Group: Designed for fault isolation in distributed and replicated systems.
+Spread Placement Group: Ensures maximum fault tolerance for critical workloads by isolating each instance.
