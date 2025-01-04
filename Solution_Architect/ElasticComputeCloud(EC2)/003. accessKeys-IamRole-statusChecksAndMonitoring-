@@ -1,0 +1,273 @@
+Overview
+
+AWS provides two ways to grant permissions to EC2 instances to interact with AWS services, such as S3:
+Access Keys: Credentials associated with an IAM user.
+IAM Roles: Temporary credentials managed automatically by AWS.
+
+
+1. Access Keys
+Definition: Long-term credentials consisting of an access key ID and a secret access key.
+
+How It Works:
+Access keys are created for an IAM user.
+Permissions are determined by the IAM policies attached to the user.
+The AWS CLI is configured on the EC2 instance with these access keys.
+Commands executed on the instance inherit the permissions of the IAM user.
+
+Challenges with Access Keys:
+Security Risk: Access keys are stored in plain text on the instance, making them vulnerable if the instance is compromised.
+Long-term Credentials: If stolen, they provide long-term access to the AWS account.
+
+
+2. IAM Roles
+Definition: Temporary, automatically managed credentials associated with an EC2 instance.
+
+How It Works:
+An IAM role is created with the required policies and permissions.
+The role is assigned to the EC2 instance during or after launch.
+The instance assumes the role using AWS Security Token Service (STS) to obtain temporary credentials.
+
+Benefits of IAM Roles:
+No Stored Credentials: No need to store credentials on the instance, reducing exposure to security risks.
+
+Temporary Credentials:
+STS provides temporary access keys with short expiration times.
+The EC2 instance automatically renews credentials before they expire, ensuring continuous access.
+Enhanced Security: Short-lived credentials reduce the risk of prolonged exposure.
+
+Comparison: Access Keys vs. IAM Roles
+
+Feature	       Access Keys	                              IAM Roles
+Storage	       Stored in plain text on the instance	      No credentials stored on the instance
+Credential 
+Duration	    Long-term  	                                Temporary (auto-renewed)
+Security      Risk	High	                                Low
+Management	  Manual	                                    Automatic
+Recommended 
+Usage	        Avoid when possible                        	Use whenever possible
+
+
+Key Takeaways
+Access keys provide permissions but pose significant security risks. Avoid their use whenever possible.
+IAM roles offer a secure and automated way to manage permissions for EC2 instances.
+IAM roles leverage AWS STS to generate short-lived credentials that are auto-renewed, minimizing security vulnerabilities.
+
+
+
+______________________________________________________________________________________________________________________
+
+practical
+
+1. Access Keys
+Definition: Access keys are long-term credentials that consist of an access key ID and a secret access key. These are associated with
+an IAM user and provide the same permissions as the policies attached to that user.
+
+Steps to Use Access Keys:
+
+EC2 instance connect | Session Manager | SSh Client | EC2 Serial Console
+
+click EC2 Instance connect..
+Verify AWS CLI Installation:
+AWS CLI is pre-installed in the Amazon Linux 2023 AMI.
+Run a command like aws s3 ls to confirm access.
+If credentials are missing, an error like unable to locate credentials will appear.
+
+even though user has permission to access s3 but the os does have permission so ec2 instance cli needs to be cofigured with acces keeys
+
+Create Access Keys:
+Navigate to the IAM Console → Users → Select User → Security Credentials.
+Click Create Access Key and select Command Line Interface as the use case.
+Warning: AWS recommends using IAM roles instead of access keys for EC2 instances due to security risks.
+
+Retrieve and Configure Access Keys:
+Note that secret access keys are only displayed at creation.
+Copy the access key ID and secret access key.
+
+Use aws configure on the instance to configure the CLI:
+
+>aws configure
+>Access Key ID: <Paste your Access Key ID>
+>Secret Access Key: <Paste your Secret Access Key>
+>Default Region: <e.g., us-east-1>
+
+After configuring, run AWS commands like aws s3 ls to confirm access.
+and also we can create a bucket using: aws s3 mb s3://mybucket-12312
+
+
+Security Risks of Access Keys:
+Plaintext Storage:
+
+> ~/.aws/
+.aws>ls
+config credentials
+>cat config
+[default]
+region = us-east-1
+>cat credentials 
+displays access key and secret key
+
+credentials file contains the access key ID and secret access key in plaintext.
+This file is vulnerable if the instance is compromised.
+Long-Term Credentials:
+Credentials are not auto-expiring and remain active unless manually revoked.
+
+Clean Up:
+Remove credentials from the instance using:
+rm -rf ~/.aws/*
+Deactivate and delete access keys in the IAM Console to secure the account.
+
+
+
+
+2. IAM Roles
+Definition: IAM roles allow EC2 instances to securely access AWS resources without storing credentials on the instance.
+Temporary credentials are automatically managed by AWS.
+
+Steps to Use IAM Roles:
+
+Create an IAM Role:
+Go to the IAM Console → Roles → Create Role.
+Select AWS Service → Choose EC2 as the use case.
+Attach a policy (e.g., AmazonS3ReadOnlyAccess) and there are other permissions like s3fullaccess and so on to define permissions.
+
+Review the Trust Policy:
+Defines the principal (who or what can assume the role).
+For EC2, the principal is the EC2 service (ec2.amazonaws.com).
+
+{
+"version": "2012-10-17"
+"statement":[
+{
+"effect":"Allow",
+"action":[
+"sts:AssumeRole"
+]
+"principal":{
+"service":[
+"ec2.amazonaws.com"
+]
+}
+}
+]
+}
+and in the permission we got amazons3readonlyaccess
+
+
+so wehn ec2 assumes the role, it gains the permission.
+
+Assign IAM Role to EC2 Instance:
+Navigate to EC2 Console → Select the instance → Actions → Security → Modify IAM Role.
+Choose the role created in the previous step and assign it to the instance.
+
+Verify IAM Role Access:
+Run AWS commands like aws s3 ls to confirm permissions.
+Temporary credentials provided by the IAM role are used in the background without being stored on the instance.
+
+Advantages of IAM Roles:
+No Stored Credentials: Credentials are not stored in plaintext, eliminating risks of accidental exposure.
+Temporary Credentials: IAM roles use temporary credentials managed by AWS STS (Security Token Service).
+Credentials are auto-renewed before expiration.
+Improved Security: Short-lived credentials reduce risks associated with long-term credentials.
+
+
+
+
+Best Practices:
+
+Access Keys:
+Use only for demonstration or testing purposes, as they present significant security risks.
+Always remove access keys from instances and deactivate them after use.
+
+IAM Roles:
+Preferred method for granting permissions to EC2 instances.
+Ensures better security by avoiding plaintext credentials and using temporary, auto-renewed credentials.
+
+
+Always use IAM roles over access keys for EC2 instances.
+Regularly audit and clean up unused IAM roles and policies to maintain a secure AWS environment.
+
+
+
+
+
+
+
+
+
+
+
+
+
+Monitoring EC2 Instances and Status Checks in AWS
+
+
+Overview
+This lesson covers how to monitor EC2 instances and check the status of the underlying hardware and software. It demonstrates the use 
+of status checks and CloudWatch monitoring to ensure the health and performance of an EC2 instance.
+
+1. Preparing the Environment
+Launch an EC2 instance:
+Use a t2.micro instance to stay within the free tier.
+Default settings are sufficient for this exercise.
+Highlight and select the instance in the EC2 Management Console to access its details.
+
+details | security | netowrking | storage |  status checks | monitoring | tags
+
+2. Status Checks
+AWS provides two types of status checks for EC2 instances:
+
+a. System Status Checks
+Purpose: Verifies the operational status of the underlying AWS hardware hosting your EC2 instance.
+Indicator: Green tick means the system is operational.
+Action: If this check fails, AWS support is required to resolve the issue.
+
+b. Instance Status Checks
+Purpose: Monitors the software and networking configuration of the EC2 instance itself.
+Indicator: Green tick means the instance is operational and communicating on the network.
+Action: If this check fails, you (the AWS customer) need to troubleshoot and fix the instance configuration.
+
+3. Monitoring Tab
+Located in the EC2 Management Console, it provides:
+CPU Utilization
+Status Check Results
+Networking Performance
+Disk Performance
+Metrics may take a few minutes to populate after the instance is launched.
+and this metrics will be sent to cloudwatch monitoring
+
+4. CloudWatch Monitoring
+CloudWatch is a performance monitoring tool in AWS that collects and displays metric data from EC2 instances and other AWS services.
+
+a. Viewing Metrics in CloudWatch
+Navigate to CloudWatch under Services → Management & Governance.
+Go to All Metrics to view metrics categorized by service.
+(here there are many services loike EC2, EBS, s3 and so on. within EC2 there will more than 1 instances and you will to clik its name to access it)
+For EC2:
+Per Instance Metrics: Displays metrics for specific EC2 instances. Match the instance ID to identify metrics for your instance.
+For EBS:
+Per Volume Metrics: Shows metrics for storage volumes attached to the instance.
+
+b. Using Metrics
+Use instance or volume IDs to filter and locate specific metrics.
+Metrics displayed in CloudWatch correspond to those seen in the EC2 Monitoring tab.
+
+6. Detailed Monitoring
+Default Monitoring: Sends metric data to CloudWatch every 5 minutes (free of charge).
+Detailed Monitoring: Sends data every 1 minute (requires additional charges).
+Can be enabled through the EC2 Monitoring tab.
+
+7. Practical Steps
+Launch an EC2 instance and navigate to the Monitoring and Status Checks tabs.
+Observe the System and Instance Status Checks.
+
+Explore the metrics in the CloudWatch Console:
+View EC2 and EBS metrics.
+Filter metrics by instance or volume IDs.
+Enable or manage Detailed Monitoring if needed.
+Once monitoring is complete, terminate the instance to avoid unnecessary charges.
+
+
+Key Takeaways
+Status Checks help ensure the instance and its underlying hardware are operational.
+CloudWatch is a centralized tool for monitoring performance metrics of EC2 and other AWS resources.
+Use Detailed Monitoring for more frequent metric updates if required.
