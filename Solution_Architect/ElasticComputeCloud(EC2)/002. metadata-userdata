@@ -12,27 +12,23 @@ Many more details specific to the instance.
 How to Access Instance Metadata?
 
 Metadata Path: http://169.254.169.254/latest/meta-data/
-
 This is a special HTTP endpoint available from within the instance.
 
 Retrieve Metadata Using curl:
+
 Example to retrieve the general metadata tree:
-
 curl http://169.254.169.254/latest/meta-data/
-
 The output will list metadata categories such as ami-id, hostname, local-ipv4, etc.
 
 
 Retrieve Specific Metadata:
 
 Example to retrieve the local IPv4 address:
-
 curl http://169.254.169.254/latest/meta-data/local-ipv4
-169.254.169.254
+179.54.69.54
 This will return the local (private) IPv4 address of the instance.
 
 Example to retrieve the public IPv4 address:
-
 curl http://169.254.169.254/latest/meta-data/public-ipv4
 3.26.54.18
 This will return the public IP of the instance.
@@ -53,7 +49,7 @@ Protects against attacks like server-side request forgery (SSRF).
 How to Use IMDSv2:
 Obtain a session token:
 TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
-
+echo TOKEN will display the token And it is a env variable and we supply it to fetch the metadata
 Use the token to retrieve metadata:
 curl -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/
 
@@ -64,33 +60,35 @@ Metadata version: IMDSv1 or IMDSv2 (default is IMDSv2).
 These settings are available in the Advanced Settings during instance creation.
 
 
+
+
 User Data
-What is User Data?
+
 User Data allows you to run custom scripts or commands when an instance starts for the first time.
 It's typically used to:
 Install software.
 Configure applications.
 Automate instance setup.
+
 User Data Script Examples
+
 Using the AWS Management Console:
 During instance launch, under Advanced Settings, add the script to the User Data field.
 
 Example (Linux):
-bash
-Copy code
+
 #!/bin/bash
 yum update -y
 yum install -y httpd
 systemctl start httpd
 systemctl enable httpd
+
 This script updates the instance, installs Apache (httpd), and starts the web server.
 After launch, the instance will run this script once.
 
 Using the AWS CLI:
 Use the --user-data option with a file containing your script.
 Example:
-bash
-Copy code
 aws ec2 run-instances \
     --image-id ami-0123456789abcdef0 \
     --count 1 \
@@ -99,40 +97,103 @@ aws ec2 run-instances \
     --security-group-ids sg-0123456789abcdef0 \
     --subnet-id subnet-0123456789abcdef0 \
     --user-data file://my-user-data-script.sh
+
+
 Key Points About User Data:
+
 Encoding: User Data must be Base64 encoded.
-
 The console and CLI handle encoding automatically.
-Execution Limits:
 
+Execution Limits:
 Limited to 16 KB in raw form (before Base64 encoding).
 Runs only once, at the first boot of the instance.
-Stopping and Editing User Data:
 
+Stopping and Editing User Data:
 You can stop the instance and edit the User Data.
 However, the modified User Data will not run unless the instance is relaunched.
 Combining Metadata and User Data
 You can combine metadata and user data to create dynamic scripts.
 
 Example:
-
 Retrieve the instance's private IP and include it in a configuration file during setup.
 Script:
 
-bash
-Copy code
 #!/bin/bash
 PRIVATE_IP=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
 echo "Private IP: $PRIVATE_IP" > /var/www/html/index.html
 yum install -y httpd
 systemctl start httpd
 systemctl enable httpd
+
+(OR)
+yum update -y
+yum install -y httpd
+systemctl enable httpd
+EC2ID = $(curl -s http://169.254.169.254/latest/meta-data/instance-id)
+echo '<center><h1>the instance id of this amazon EC2 instance is: EC2ID </h1><center>' > /var/www/html/index.txt
+sed "s/EC2ID/$EC2ID/" /var/www/html/index.txt > /var/www/html/index.html
+
+
+//sed 's/SEARCH_PATTERN/REPLACEMENT/' [FILE]
+
 This script sets up a web server and displays the instance’s private IP on the homepage.
-Summary
-Feature	Instance Metadata	User Data
-Purpose	Retrieve runtime information about the instance.	Execute a script during the instance's first launch.
-Access Method	HTTP requests to 169.254.169.254.	Specify during instance launch.
-Security	IMDSv2 requires session tokens.	Scripts are only run once.
-Common Uses	- Retrieve IPs, hostname, AMI ID.	- Install software.
-- Configure instance.
-Execution	Can be accessed anytime during instance lifecycle.
+
+
+Feature                     Instance Metadata	                      User Data
+Purpose	        Retrieve runtime information about the instance.	 Execute a script during the instance's first launch.
+Access Method	HTTP requests to 169.254.169.254.	                 Specify during instance launch.
+Security	    IMDSv2 requires session tokens.	                     Scripts are only run once.
+Common Uses	-   Retrieve IPs, hostname, AMI ID.                      - Install software. - Configure instance.
+Execution	    Can be accessed anytime                              during instance lifecycle.
+
+
+
+IMDS v2
+
+Step 1 - Create a session and get a token
+TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+Step 2 - Use the token to request metadata
+Get the instance ID: curl -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/instance-id
+Get the AMI ID: curl -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/ami-id
+
+Use metadata with user data to configure the instance
+This script installs a web server and uses instance metadata to retrieve information about the instance and then output the information on a webpage.
+
+#!/bin/bash
+
+# Update system and install httpd (Apache)
+yum update -y
+yum install -y httpd
+
+# Start httpd service and enable it to start on boot
+systemctl start httpd
+systemctl enable httpd
+
+# Fetch metadata using IMDSv2
+TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+INSTANCE_ID=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/instance-id)
+AMI_ID=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/ami-id)
+INSTANCE_TYPE=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/instance-type)
+
+# Create a web page to display the metadata
+cat <<EOF > /var/www/html/index.html
+<html>
+<head>
+    <title>EC2 Instance Metadata</title>
+</head>
+<body>
+    <h1>EC2 Instance Metadata</h1>
+    <p>Instance ID: $INSTANCE_ID</p>
+    <p>AMI ID: $AMI_ID</p>
+    <p>Instance Type: $INSTANCE_TYPE</p>
+</body>
+</html>
+EOF
+
+
+
+you can nano script.sh
+and copy paste the above code, save and exit
+and then chmod +x script.sh
+ls-la script.sh user has got execute perm
+sudo ./script.sh
