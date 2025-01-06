@@ -1,0 +1,547 @@
+
+
+1. Block-Based Storage:
+
+Definition: Block-based storage refers to storage systems where data is stored in fixed-size blocks.
+Example: Hard Disk Drives (HDDs) and Solid State Drives (SSDs) are examples of block-based storage.
+
+How it works:
+In block storage, each piece of data is treated as a block, and each block has a unique address.
+The Operating System (OS) interacts with the blocks at a low level, formatting and partitioning them to create volumes.
+Volumes can be mounted to a system, and each volume can be formatted with a file system (e.g., NTFS for Windows).
+The OS can interact with these volumes just as it does with internal drives, like C and D drives.
+
+Key Points:
+Examples: Internal storage on servers or cloud storage like Amazon EBS (Elastic Block Storage).
+Block storage systems are suited for use cases where you need to install operating systems, databases, or applications.
+Provides high performance and low latency.
+Can be shared over networks with protocols like iSCSI (Internet Small Computer Systems Interface) or Fibre Channel.
+
+
+
+2. File-Based Storage:
+
+Definition: File-based storage is where data is organized and stored in files, and the system provides a shared file system over the network.
+Example: Network Attached Storage (NAS) systems.
+
+How it works:
+The file system in a NAS server is shared over a network, allowing client computers to access and modify the files.
+The OS on the client computer sees the remote file system as if it were a local drive (e.g., Z: drive).
+Multiple clients can access and interact with the file system simultaneously.
+The underlying storage system could be block-based, but the OS interacts with files and directories over a network.
+
+Key Points:
+Commonly used for shared file access where multiple users need to work with the same files.
+Suitable for applications like file sharing, collaboration tools, and centralized file storage.
+Examples: Windows file shares, Network Attached Storage (NAS).
+
+Visualization
+Think of a file as a book:
+The file is the entire book.
+The blocks are the individual pages.
+The file system acts like the table of contents, telling the operating system where the pages (blocks) are located on the disk.
+
+
+
+3. Object-Based Storage:
+
+Definition: Object-based storage stores data as objects, where each object consists of data, metadata, and a unique identifier (object key).
+Example: Amazon S3 (Simple Storage Service) is an example of object-based storage in the cloud.
+
+How it works:
+Data is uploaded as objects (e.g., images, videos, documents) using a RESTful API (HTTP methods like GET, PUT, POST).
+There is no hierarchy within the container (e.g., a bucket in S3), and all objects are stored together.
+Object storage systems allow developers to integrate easily with code through APIs.
+Scalability and low cost make it ideal for storing large amounts of unstructured data.
+The system uses metadata to store details about the objects and can be used for content retrieval.
+
+Key Points:
+Example: Amazon S3, Google Cloud Storage, and Microsoft Azure Blob Storage.
+Offers excellent scalability and low cost, suitable for use cases like backups, data storage, and log files.
+Easy integration with applications via APIs.
+Allows for versioning and lifecycle management.
+Ideal for storing large, unstructured data like videos, backups, and data lakes.
+
+Key Differences:
+
+1. Storage Level:
+Block-Based: Stores data in fixed-size blocks.
+File-Based: Stores data in files, organized in directories.
+Object-Based: Stores data as objects, each containing data, metadata, and a unique identifier.
+
+2. Access Methods:
+Block-Based: OS interacts with storage at the block level, which can be partitioned and formatted.
+File-Based: File system is mounted over the network, and the OS interacts with files and directories.
+Object-Based: Accessed via HTTP/HTTPS protocols using RESTful APIs.
+
+3. Scalability and Use Cases:
+
+Block-Based: Ideal for databases, applications, and systems where high performance is needed.
+File-Based: Suitable for file sharing and access by multiple clients.
+Object-Based: Best for storing large amounts of unstructured data, backups, and media files, with easy scalability.
+
+4. Cost:
+Block-Based: Typically more expensive than object storage due to higher performance and more complex storage management.
+File-Based: Varies based on implementation but usually more expensive than object storage.
+Object-Based: Cost-effective and scalable, ideal for cloud storage due to its pay-per-use pricing model.
+
+These storage systems serve different use cases and are suited for specific requirements based on performance, cost, and scalability needs.
+
+
+
+
+
+
+
+*****************************************
+
+
+the Operating System (OS) is what makes block storage readable and usable for most applications and users. 
+Here’s how the OS does that:
+
+1. Block Storage: Raw Data
+Block storage provides raw, unorganized chunks of data. These chunks (or blocks) have no
+inherent meaning when accessed directly.
+Each block typically stores a fixed-size chunk of data (e.g., 512 bytes or 4KB), but it doesn't know what
+that data represents (it could be part of a file, a database record, or something else entirely).
+
+
+2. Role of the Operating System (OS)
+The OS provides the necessary layers of abstraction to make sense of this raw block data. It turns raw blocks into something
+meaningful (like files, directories, or applications). Here’s how:
+
+File System:
+The OS uses a file system (e.g., NTFS, ext4, or HFS+) to organize the raw blocks into files and directories. The file system
+sits on top of the block storage and acts as an intermediary.
+
+The file system groups blocks together to represent files, and it adds metadata (such as names, permissions, sizes, and timestamps).
+The OS then maps those blocks to higher-level abstractions (like files and folders) so that the user can interact with them in a meaningful way.
+
+Block Allocation and Management:
+
+When you write data to a block storage device, the OS decides how to organize that data in blocks. For example:
+When you save a file, the OS will allocate a series of blocks on the storage device and keep track of them in a block allocation table.
+The OS also manages free space (available blocks) and ensures that files are stored in blocks that are contiguous (if possible), which helps with performance.
+
+Logical Volume Management:
+For more complex setups (like multi-disk systems or dynamic resizing), the OS can use logical volume managers (LVM) or similar tools to combine 
+multiple blocks into a single logical volume. This gives the OS a way to manage storage across multiple devices transparently to the 
+
+
+File System Example (ext4 or NTFS):
+
+ext4 (Linux):
+On top of the raw block storage, ext4 creates an organized structure, grouping blocks into inodes (which store file metadata) 
+and blocks (which store actual file data).
+For example, when you create a file in Linux, the OS allocates blocks from the underlying block storage and organizes them 
+into the file, creating an inode with information like file size and permissions.
+When you access the file, the OS uses the inode to figure out which blocks to retrieve.
+
+NTFS (Windows):
+Similar to ext4, NTFS organizes raw blocks into clusters and MFT (Master File Table) records.
+The MFT holds information about each file, including its location on disk, and the OS retrieves the data using the clusters 
+(blocks) it has allocated for that file.
+
+
+Making Block Storage Readable:
+
+The OS takes care of:
+Formatting the block device into a usable file system.
+Translating the raw block data into a human-readable and usable structure (files, directories).
+Managing block-level operations like reading, writing, and deleting data, while ensuring data integrity and performance.
+
+
+Accessing Block Storage:
+Once the block storage is formatted with a file system and the OS manages it, applications and users can access data through the file system interface
+(e.g., accessing files via C:\ in Windows or /home/user/ in Linux). 
+The OS translates these requests into block-level read/write operations on the raw storage.
+*******************************************
+
+
+
+Data Structure
+
+
+Block Storage: Raw blocks of data
+File System: Organized files and directories	
+Object Storage: Flat objects with metadata
+
+Access Method
+Block Storage: Block-level access (OS-level)
+File System: File-level access (OS-level with system calls)	
+Object Storage: HTTP APIs (RESTful calls)
+
+Data Granularity
+Block Storage: Fixed-size blocks (e.g., 512 bytes)	0.5 KB
+File System: Files (can be composed of many blocks)
+Object Storage: Objects (can be any size, including files)
+
+Management Layer	
+Block Storage: No inherent file management (OS or app)	
+File System: Organized into directories and file names
+Object Storage: Each object has unique ID and metadata
+
+Performance	
+Block Storage: High-performance,low-latency access
+File System: Moderate performance, depending on the file system	
+Object Storage: Optimized for scalability, not low-latency
+
+Metadata
+Block Storage: Typically managed by OS or file system
+File System: Stored in file system metadata (e.g., file names, permissions)	
+Object Storage: Stored within each object itself (rich metadata)
+
+Use Case
+Block Storage: Databases, VM storage, file systems	
+File System: Local storage, shared file access	
+Object Storage: Backup, media storage, large unstructured data
+
+Scalability	
+Block Storage: Limited scalability, typically bound to device size
+File System: Limited scalability (depends on system limits)	
+Object Storage: Highly scalable, designed for massive amounts of data
+
+^^^^^
+
+Bytes to Kilobytes:
+1KB=1024bytes
+512bytes= 512/1024 =0.5KB
+
+Kilobytes to Megabytes:
+1MB=1024KB
+​
+Megabytes to Gigabytes:
+1GB=1024MB
+
+^^^^^^^
+10 ms (milliseconds) is equal to 0.01 seconds, not 0.001 seconds. Here's the breakdown:
+
+1 ms = 0.001 seconds (1/1000 of a second).
+10 ms = 0.01 seconds (10/1000 of a second).
+100 ms = 0.1 seconds (100/1000 of a second).
+^^^^^^
+
+A flat object refers to a data storage structure where there is no inherent hierarchy or organization among the stored items. Each object exists at the same
+"level" and is individually identifiable by a unique key or identifier
+
+^^^^^^^^
+
+
+HDD (Hard Disk Drive) vs. SSD (Solid-State Drive)
+
+HDDs and SSDs are two types of storage devices used in computers, servers, and data centers. They serve the same purpose—storing data—but they 
+differ in technology, speed, durability, and price.
+
+1. Technology
+
+HDD (Hard Disk Drive):
+Uses mechanical parts to read/write data.
+Consists of spinning magnetic platters and a read/write head that moves to access data.
+Data is stored magnetically on the disk's surface.
+
+SSD (Solid-State Drive):
+Uses flash memory chips with no moving parts.
+Stores data electronically in NAND flash cells.
+Acts more like a large USB flash drive.
+
+2. Speed
+
+HDD:
+Slower due to mechanical movement.
+Average speeds:
+Read/Write Speed: 50–150 MB/s.
+Seek Time: ~10 ms (moving the head to the right position).
+
+SSD:
+Much faster since it has no moving parts.
+Average speeds:
+Read/Write Speed: 200–550 MB/s (SATA SSD) or 3,000–7,000 MB/s (NVMe SSD).
+Seek Time: ~0.1 ms.
+
+3. Durability
+
+HDD:
+Less durable due to moving parts.
+Sensitive to drops, vibrations, and mechanical wear over time.
+
+SSD:
+More durable with no mechanical parts.
+Better for mobile devices and harsh environments.
+
+4. Capacity
+
+HDD:
+Typically offers higher capacities at a lower cost.
+Common sizes: 500 GB, 1 TB, 2 TB, up to 20 TB for consumer use.
+
+SSD:
+Smaller capacities are more affordable.
+Common sizes: 128 GB, 256 GB, 512 GB, 1 TB, up to 8 TB.
+
+5. Cost
+
+HDD:
+Cheaper per GB.
+Cost-effective for large data storage.
+
+SSD:
+More expensive per GB.
+Price has been decreasing over time.
+
+6. Lifespan
+HDD:
+Lifespan depends on mechanical wear and tear.
+Typically lasts 3–5 years under normal use.
+
+SSD:
+Lifespan depends on the number of write/erase cycles (TBW - Terabytes Written).
+Typically lasts 5–10 years under normal use.
+
+7. Noise and Power
+
+HDD:
+Noisy due to spinning disks and moving heads.
+Consumes more power.
+
+SSD:
+Silent operation.
+Energy-efficient.
+
+8. Use Cases
+HDD:
+Backup and archival storage.
+Large datasets where speed is less critical.
+Cost-sensitive applications.
+
+SSD:
+Boot drives for operating systems.
+Gaming, video editing, and applications requiring high speed.
+Portable drives for performance and durability.
+
+
+^^^^^^
+
+
+
+###in windows typically with a new volume,
+you have to activate it and then you have to
+create a volume and then you can partition the volume
+and use a file system.
+##
+
+Notes on Disk Management and Partitioning in Windows:
+
+Disk Management Console:
+A built-in Windows tool used to manage hard drives and storage devices.
+Displays physical disks connected to the system.
+Allows users to create, modify, and manage volumes and partitions.
+
+Physical Disk Representation:
+Each connected hard disk drive (HDD) or solid-state drive (SSD) is displayed in the Disk Management Console.
+The physical disk is seen as a unit, ready for further configuration.
+
+Creating Volumes:
+Volume: A defined storage area on a disk, created from unallocated space.
+To use a disk, a volume must be created and initialized.
+
+Partitioning the Drive:
+A partition divides a volume into sections that can act as separate storage units (e.g., C: and D: drives).
+Common types of partitions:
+Primary Partition: Used to install an operating system or store data.
+Extended Partition: Can contain multiple logical drives.
+Each partition is assigned a drive letter (e.g., C: for the system drive).
+
+Activating a New Volume:
+When a new disk is added:
+It must be initialized (select partition style: MBR or GPT).
+A volume must be created on the unallocated space.
+The volume is then formatted with a file system (e.g., NTFS, exFAT).
+
+File System:
+The file system (e.g., NTFS) organizes and manages data on the disk.
+Once a volume is formatted, it becomes accessible to the operating system.
+Example of Partitioning:
+A single physical disk can be divided into multiple partitions (e.g., C: drive for the OS, D: drive for data).
+Each partition is assigned a specified capacity and acts as an independent storage area.
+
+Key Takeaways:
+Disk Management Console is essential for managing and configuring storage on Windows.
+Creating volumes, initializing disks, and partitioning are prerequisites for using any new disk.
+Partitions allow better organization of data and separation of storage areas.
+
+
+
+
+^^^^^^
+
+Notes on File-Based Storage and Network-Attached Storage (NAS)
+
+Overview of File-Based Storage:
+Built on top of block-based storage systems with a file system layered on it (e.g., NTFS, FAT32).
+File systems organize data into files and directories for easy access and management.
+The storage is shared across a network, allowing multiple devices to access the same data.
+
+Network-Attached Storage (NAS):
+A dedicated server or appliance designed to provide file-based storage to clients over a network.
+Acts as a central repository for shared files, accessible by multiple devices.
+Examples include home NAS systems or enterprise-level storage solutions.
+
+How File-Based Storage Works:
+
+NAS Server:
+Contains block-based storage drives internally (e.g., HDDs or SSDs).
+Drives are partitioned, volumes are created, and formatted with a file system (e.g., NTFS, ext4).
+
+File System Sharing:
+The file system on the NAS is shared over the network using protocols like NFS (Network File System) or SMB (Server Message Block).
+
+Client Computer:
+Accesses the shared file system over the network.
+Mounts the shared storage as a drive (e.g., Z:) for seamless integration with the operating system.
+
+Client-Server Interaction:
+The NAS server exposes a shared file system via the network.
+The client computer connects to the NAS and mounts the shared file system, assigning it a drive letter (e.g., Z:).
+From the client's perspective, the shared storage behaves like a local disk, allowing users to read, write, and manage files as they would on internal storage.
+
+Key Features of File-Based Storage:
+Centralized Management: All files are stored in a single location (the NAS server).
+Network Access: Files can be accessed from any device connected to the network.
+Multi-User Collaboration: Multiple users can read and write to the shared storage simultaneously.
+Drive Mapping: Shared storage appears as a network drive (e.g., Z:), indicating its remote nature.
+
+Comparison with Block-Based Storage:
+File-based storage abstracts the block-level operations and directly presents files and folders.
+Block-based storage focuses on raw storage blocks, requiring a file system on top for organization.
+
+Real-World Example:
+A company using a NAS for shared file storage:
+Employees’ computers (clients) access shared documents stored on the NAS server.
+Each user sees a mapped drive (e.g., Z:) on their local system, which corresponds to the shared file system on the NAS.
+
+Key Takeaways:
+File-based storage is built on top of block-based storage but abstracts the complexity by exposing a file system.
+NAS servers enable centralized and shared file storage over a network.
+Clients interact with shared file systems as if they were local drives, thanks to seamless integration.
+
+
+^^^^^^^^^
+
+Notes on Object-Based Storage Systems (AWS S3 Example)
+
+Overview of Object-Based Storage:
+Definition: A storage system where data is managed as discrete objects. Each object consists of:
+Data (the actual file).
+Metadata (descriptive information about the file, such as file type, size, or tags).
+A unique identifier (key) to locate the object within the storage system.
+Example: Amazon S3 (Simple Storage Service), a widely used object storage service in AWS.
+
+Key Features:
+
+1. Storage Container:
+In S3, the container is referred to as a "bucket."
+Buckets are used to store objects, which can be any file type (e.g., images, videos, documents).
+
+2. Protocol:
+Uses HTTP/HTTPS for communication.
+Employs a REST API to interact with the storage system.
+
+3. REST API Methods:
+PUT/POST: Upload objects to the bucket.
+GET: Retrieve objects from the bucket.
+DELETE: Remove objects from the bucket.
+HEAD: Fetch metadata without downloading the object.
+SELECT: Query specific data within an object without retrieving the whole file.
+
+4. Scalability and Cost:
+Highly scalable: Supports storing vast amounts of data across distributed infrastructure.
+Cost-effective: Pay-as-you-go pricing model for storage, requests, and data transfer.
+
+5. Flat Structure:
+No inherent hierarchy (like folders in a file system).
+All objects are stored at the same "level" within a bucket.
+Mimicked hierarchy is possible by using prefixes in object keys (e.g., "folder1/file.txt").
+
+6. Object Types:
+Supports any file type, including videos, PDFs, images, and log files.
+Objects can range from a few bytes to terabytes in size.
+
+
+Comparison with Block-Based and File-Based Storage:
+Block-Based Storage:
+Deals with raw storage blocks.
+Requires a file system to organize and manage data.
+Used for OS disks, databases, and virtual machines.
+E.g., Amazon EBS (Elastic Block Store).
+
+File-Based Storage:
+Organizes data into files and folders using a file system.
+Shared over a network via protocols like SMB or NFS.
+Used for shared access and collaboration.
+E.g., Amazon EFS (Elastic File System).
+
+Object-Based Storage:
+Stores data as discrete objects, each with metadata and a unique identifier.
+No partitioning, file systems, or volumes needed.
+Accessed programmatically via APIs.
+Used for scalable, distributed storage in the cloud.
+E.g., Amazon S3.
+
+
+
+Advantages of Object Storage:
+
+API Integration:
+REST API simplifies integration into applications.
+Allows developers to programmatically manage data with minimal effort.
+
+Unlimited Storage:
+Can scale to store petabytes or exabytes of data without performance degradation.
+
+Low Cost:
+Ideal for backups, archival, and storing large datasets.
+
+Global Accessibility:
+Accessible from anywhere with an internet connection.
+Provides high durability and availability through distributed infrastructure.
+
+Metadata Rich:
+Metadata helps in organizing and managing objects without a traditional file system.
+
+
+
+Common Use Cases:
+
+Data Archival and Backup:
+Storing infrequently accessed data cost-effectively.
+
+Content Delivery:
+Storing media files (videos, images) for websites and applications.
+
+Log Storage:
+Centralizing logs from various applications for analytics or troubleshooting.
+
+Data Lakes:
+Serving as a foundation for analytics and big data processing.
+
+
+
+How It Works in AWS S3:
+
+Bucket Creation:
+User creates a bucket in a specific AWS region.
+
+Object Upload:
+Objects (files) are uploaded to the bucket using a web browser, SDKs, or APIs.
+
+Access Management:
+Fine-grained access controls using bucket policies or IAM roles.
+
+Data Retrieval:
+Objects can be fetched via HTTP GET requests or APIs.
+
+
+Takeaways:
+Object-based storage is fundamentally different from block-based and file-based systems.
+Ideal for modern cloud use cases due to its API-driven approach, scalability, and low cost.
+AWS S3 is the most common example, making it essential for cloud professionals to understand its working and features.
