@@ -1,0 +1,388 @@
+
+
+Introduction to EBS:
+
+Elastic Block Store (EBS) is a block-level storage service in AWS.
+Primary Use: Provides persistent storage for EC2 instances, used for:
+Operating system storage.
+Storing application data.
+Running databases and other workloads requiring high performance.
+
+Key Characteristics of EBS:
+
+Persistence:
+EBS volumes persist independently of EC2 instances.
+Data remains intact even after EC2 instance termination (unless specified otherwise).
+
+AZ Specific:
+EBS volumes are confined to a single Availability Zone (AZ).
+The data is replicated within the AZ for durability and fault tolerance.
+
+Attachment:
+EBS volumes must be attached to an EC2 instance in the same AZ.
+Volumes can be attached/detached dynamically.
+
+Snapshots:
+Snapshots of EBS volumes can be created and stored in Amazon S3.
+Snapshots can be used to create new volumes in the same or different AZs or regions.
+
+
+^^^
+Snapshot Basics:
+Point-in-time backup: A snapshot is essentially a backup of the data on an EBS volume at a specific point in time.
+Incremental snapshots: After the initial snapshot, AWS only saves the changes (deltas) to the volume data rather than duplicating the entire volume. 
+This makes subsequent snapshots more efficient in terms of storage space.
+^^^^
+
+
+EBS Volume Types:
+EBS volumes are categorized into SSD-backed and HDD-backed types:
+
+
+1. SSD-Backed Volumes:
+Designed for high performance and low latency.
+Suitable for workloads requiring fast IOPS (e.g., databases, OS disks).
+
+Type:	gp2 (General Purpose SSD)
+Volume Size: 1 GiB to 16 TiB	
+Max IOPS(input output per sec):	16,000
+Multi-Attach:	:No
+Use Case: General-purpose workloads.
+
+Type:	gp3
+Volume Size: 1 GiB to 16 TiB	
+Max IOPS:	16,000
+Multi-Attach:No
+Use Case: Cost-efficient, configurable IOPS, Web servers, boot volumes, low-latency applications.
+
+Type:	io1 (Provisioned IOPS SSD)
+Volume Size: 4 GiB to 16 TiB	
+Max IOPS:	64,000	
+Multi-Attach:	:Yes
+Use Case: I/O-intensive workloads or IOPS-intensive applications.
+
+
+Type:	io2 (provisioned)
+Volume Soze: 4 GiB to 16 TiB	
+Max IOPS:	256,000
+Multi-Attach:	:Yes
+Use Case: Higher durability, critical application, latency-sensitive applications.
+
+Type:	io2 Block Express (provisioned)
+Volume Size: 4 GiB to 64 TiB	
+Max IOPS:	256,000
+Multi-Attach:	:Yes
+Use Case: Extreme performance and scalability.
+
+###Provisioned refers to reserving or allocating specific resources in advance to meet a desired performance level or capacity. In the context of storage,
+computing, or networking, it ensures that the allocated resource is available for use whenever needed.###
+
+2. HDD-Backed Volumes:
+Ideal for sequential read/write operations and large data sets.
+Cost-effective compared to SSD-backed volumes.
+
+Type: st1 (Throughput Optimized HDD)
+Volume Size: 500 GiB to 16 TiB	
+Max IOPS: 500
+Multi-Attach: No
+Use Case: Big data, log processing.
+
+^^^^
+what is throughput:
+Throughput is the rate at which data is read from or written to the storage.
+It is measured in megabytes per second (MB/s).
+This volume type is ideal for applications that require transferring large amounts of data sequentially, such as log processing, data lakes, or video streaming.
+
+Imagine you're running a log analytics pipeline that processes logs sequentially from multiple servers. Each log file is hundreds of MBs in size, 
+and you need to transfer and analyze them quickly but not in a random order. Throughput-Optimized HDD volumes would be an ideal choice since 
+they provide cost-effective high-throughput storage without the need for high IOPS.
+^^^^^^
+
+
+Type: sc1 (Cold HDD)	
+Volume size: 500 GiB to 16 TiB	
+Max IOPS: 250
+Multi-Attach:	No	
+USe case: Infrequently accessed data, scenarios where low storage cost is imp
+
+
+Key Concepts:
+
+1. EBS Multi-Attach:
+Allows a single EBS volume to be attached to multiple EC2 instances.
+Constraints:
+Only supported for Nitro-based EC2 instances.
+Limited to io1, io2, and io2 Block Express volumes.
+Max of 16 instances can be attached to the same volume.
+All instances and the volume must be in the same AZ.
+Use Case: Shared workloads like clustered databases or applications.
+
+2. Durability and Availability:
+Data is replicated within the AZ for durability.
+Ensures high availability and fault tolerance.
+
+3. Partitioning and File System:
+Once a volume is created, it can be partitioned and formatted with a file system.
+Common file systems: NTFS (Windows), EXT4 (Linux), etc.
+
+4. Lifecycle of EBS Volumes:
+Root Volumes:
+Default: Deleted when the EC2 instance is terminated.
+This behavior can be modified.
+Additional Volumes:
+Persist after instance termination by default.
+Behavior can also be changed.
+
+****
+Volumes and Deletion on EC2 Instance Termination:
+Boot Volume: By default, the boot volume (which contains the OS) is deleted when you terminate the
+instance. However, this behavior can be modified.
+Non-Boot Volumes: Non-boot volumes typically do not get deleted when the instance is terminated, and you need to manage them separately. Again,
+this behavior can be configured when creating or attaching the volume.
+
+
+
+
+Boot Volume: When you launch an EC2 instance, AWS automatically creates a boot volume based on the AMI you choose. 
+This volume has the OS installed and is required to launch the instance.
+Non-Boot Volume: After launching the instance, you might add extra EBS volumes (non-boot volumes) to store application data. 
+For example, if you're running a database application on your instance, you might attach a non-boot EBS volume to store the database files.
+*******
+
+
+
+Final notes:
+
+>The EBS volumes persist independently of the life of an EC2 instance,
+
+>EBS Volumes don't need to be attached to an EC2 instance. So they can exist in AWS without actually being attached to an EC2 instance.
+
+>you can boot up an instance or attach them to an existing instance.
+
+>You can have multiple EBS volumes attached to a single EC2 instance.
+
+>EBS volumes absolutely must be in the same availability zone as the instances they are attached to.
+
+>By default, the root EBS volumes,those are the ones with your operating system,get deleted on termination of the instance by default.
+However, any non-boot volumes, so any additional volumes that you attach to your EC2 instanc do not get deleted on termination by default.
+And in both of these cases, you can change this behavior.
+
+
+
+
+
+
+what is latency?
+
+Latency is the time it takes for a system to respond to a request. In the context of storage systems, it refers to the delay between a request
+(e.g., reading or writing data) and the completion of that request.
+
+Key Points about Latency
+1. Measured in milliseconds (ms) or microseconds (µs):
+A lower latency indicates a faster response.
+For example, if a storage drive has a latency of 1 ms, it takes 1 millisecond to complete a single read or write operation.
+
+2. Components of Latency:
+Access Time:
+The time needed to locate the data.
+Includes seek time (for HDDs) or accessing memory cells (for SSDs).
+Transfer Time:
+The time required to transfer the data after it has been located.
+Queue Time:
+The time a request spends waiting in the queue before being processed.
+
+3. Type of Storage:
+Hard Disk Drives (HDDs) typically have higher latency due to mechanical components like spinning platters and moving read/write heads.
+Solid-State Drives (SSDs) have lower latency because they use electronic memory with no moving parts.
+
+4. Network Distance:
+For network-attached storage (e.g., NAS), the physical distance and network speed can impact latency.
+
+5. Concurrency:
+When multiple requests are made simultaneously, queue times may increase, leading to higher latency.
+
+
+Examples of Latency
+1. HDD: Latency is typically in the range of 5-10 ms due to the time it takes for the spinning platter and read/write head to align.
+
+2. SSD: Latency is significantly lower, often less than 1 ms because data access is electronic.
+
+3. AWS EBS:
+General Purpose SSD (gp2/gp3): ~1 ms latency.
+Throughput-Optimized HDD (st1): ~5-10 ms latency.
+Cold HDD (sc1): ~10-15 ms latency.
+
+Latency vs. Throughput
+Latency: Measures how quickly a single request is completed.
+Throughput: Measures the amount of data transferred in a given time (e.g., MB/s).
+
+Example:
+A high-latency storage system might take longer to process a single request, even if it can handle large volumes of data once started.
+Conversely, a low-latency system is better for applications requiring quick responses, like real-time databases.
+
+Why Does Latency Matter?
+
+Performance:
+Low latency is critical for applications like real-time analytics, transactional databases, and gaming.
+High latency can slow down workflows and degrade user experience.
+
+Efficiency:
+In high-demand environments, reducing latency ensures faster completion of tasks, improving overall system throughput.
+
+
+
+
+
+
+
+What is Throughput?
+
+Throughput refers to the amount of data that can be transferred from one location to another within a given period of time. It is typically measured
+in units such as megabytes per second (MB/s), gigabytes per second (GB/s), or bits per second (bps) for networks.
+
+In the context of storage systems, throughput measures how much data can be read or written to a storage device per second.
+
+
+Key Characteristics of Throughput
+
+1. Measures Data Transfer Rate:
+Throughput reflects the overall capacity of a system to handle large volumes of data efficiently.
+For example, a system with 500 MB/s throughput can read or write 500 megabytes of data per second.
+
+2. Different from Latency:
+Latency: How fast a single request is processed.
+Throughput: How much data is processed over time.
+Example: A system may have low latency for small files but lower throughput when dealing with large files.
+
+3. Applications of High Throughput:
+Suitable for workloads requiring bulk data transfers, such as:
+Big data analytics.
+Video streaming or rendering.
+Data backups and archiving.
+
+
+
+
+Throughput in AWS EBS Volumes
+
+AWS Elastic Block Store (EBS) provides different volume types, each optimized for specific workloads:
+
+General Purpose SSD (gp2/gp3):
+Balanced performance.
+Throughput: 250–1000 MB/s (depending on volume size and type).
+
+Provisioned IOPS SSD (io1/io2):
+Designed for low latency and high IOPS.
+Throughput: up to 1024 MB/s.
+
+Throughput-Optimized HDD (st1):
+Designed for high throughput rather than high IOPS.
+Throughput: up to 500 MB/s.
+
+Cold HDD (sc1):
+Low-cost option for infrequent access.
+Throughput: up to 250 MB/s.
+
+
+
+
+Factors That Influence Throughput
+
+Storage Type:
+HDDs typically have lower throughput compared to SSDs.
+Network-attached storage (NAS) may have throughput limits based on network speed.
+
+File Size:
+Large, sequential files often achieve higher throughput compared to small, random files.
+
+Network Bandwidth:
+For data transfer across a network, the available network bandwidth directly impacts throughput.
+
+Concurrent Access:
+Throughput may decrease if multiple applications are reading/writing to the same storage simultaneously.
+
+
+
+
+Why Does Throughput Matter?
+
+Workload Efficiency:
+For tasks like video editing or data streaming, high throughput ensures data moves quickly without bottlenecks.
+
+Performance Optimization:
+Matching the storage throughput to the workload ensures efficient resource utilization.
+
+
+
+
+Throughput vs. IOPS
+
+IOPS (Input/Output Operations Per Second):
+Measures how many input/output operations are performed in a second.
+Relevant for small, random reads/writes (e.g., databases).
+
+Throughput:
+Measures the volume of data transferred per second.
+Relevant for large, sequential reads/writes (e.g., big data analytics).
+
+
+
+
+
+Real-World Example of Throughput
+
+
+Scenario: Video Streaming Platform
+Imagine you are running a video streaming platform (like Netflix or YouTube). Your platform needs to deliver video
+files quickly to users, especially during peak hours.
+
+1. Storage System:
+Videos are stored on an AWS EBS Throughput-Optimized HDD (st1) volume, which is ideal for handling large, sequential data transfers.
+Each video file might be several gigabytes in size.
+
+2. Throughput in Action:
+When a user requests a video, the system reads chunks of the video from storage.
+If the EBS volume has a throughput of 500 MB/s, it can deliver a large 2 GB video file in about 4 seconds (2000 MB ÷ 500 MB/s).
+
+3. High Throughput Advantage:
+Multiple users can stream videos simultaneously without noticeable lag or buffering because the system 
+can transfer large amounts of data quickly.
+
+
+
+How to Optimize Throughput in AWS
+
+1. Choose the Right Volume Type:
+For workloads requiring high throughput, use Throughput-Optimized HDD (st1) or gp3 SSD volumes.
+
+2. Configure Proper Block Size:
+Larger block sizes (e.g., 1 MB) improve throughput for large, sequential files.
+Small block sizes (e.g., 4 KB) may lead to lower throughput due to higher overhead.
+
+3. Enable Enhanced Networking:
+Use Elastic Network Adapter (ENA) for EC2 instances to increase network bandwidth and support higher 
+throughput for network-attached storage.
+
+4. Parallel Reads/Writes:
+Applications should use multiple threads or processes to read/write data concurrently to maximize throughput.
+
+5. Monitor and Scale:
+Use AWS CloudWatch to monitor throughput metrics and adjust volume size or type if required.
+Scale out by adding more instances or storage volumes for distributed access.
+
+ 
+
+Comparison of IOPS vs. Throughput
+
+Feature	            High Throughput Use Case           	     High IOPS Use Case
+Example Workload	  Streaming large video files	            Processing database transactions
+File Type	          Large, sequential (e.g., videos)	      Small, random (e.g., logs, tables)
+Storage Type      	HDD or SSD with high throughput         Provisioned IOPS SSD (io1/io2)
+Metric             	MB/s or GB/s	                          Operations per second (IOPS)
+Optimization	      Use larger block sizes for data flow	  Use smaller block sizes for speed
+
+
+
+
+ If cost is a significant factor and you’re dealing with large amounts of sequential data, HDDs are a good choice. For high-performance, latency-sensitive applications, 
+SSDs are the way to go.
