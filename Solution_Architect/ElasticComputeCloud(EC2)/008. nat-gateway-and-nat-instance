@@ -1,0 +1,90 @@
+ NAT Gateways and NAT Instances
+
+Purpose of NAT Gateways and NAT Instances:
+Both NAT gateways and NAT instances allow instances in private subnets to access the internet, but they do not allow inbound
+traffic from the internet to these private instances.
+Outbound only: This means instances in private subnets can make requests to the internet (e.g., for software updates), but no one from the internet 
+can initiate a connection to these instances.
+
+
+
+
+NAT Gateways:
+
+A managed AWS service used to enable outbound internet access for instances in private subnets.
+Deployed in public subnets, and each NAT gateway has a public Elastic IP to communicate with the internet.
+
+Configuration:
+The route table of the private subnet needs an entry pointing to the NAT gateway (0.0.0.0/0 -> NAT gateway).
+The route table of the public subnet has a route to the internet gateway.
+
+Destination           	  Target	                 Description
+172.31.0.0/16	            local	                   Internal traffic within the VPC
+0.0.0.0/0                	igw-xxxxxxxx	           Default route for internet access (through an Internet Gateway)
+
+Traffic from a private instance reaches the NAT gateway via private IP and is forwarded to the internet via NAT.
+
+Destination	                       Target              	Description
+172.31.0.0/16	                     local	              Internal traffic within the VPC
+0.0.0.0/0	                         nat-xxxxxxxx	         Route to NAT gateway for outbound traffic to the internet
+
+
+Key Points for Exam:
+Elastic IP is associated with the NAT gateway to route traffic to/from the internet.
+High Availability: NAT gateways are automatically highly available within an availability zone (AZ) and can be deployed
+in multiple AZs for redundancy.
+
+
+
+
+
+NAT Instances:
+
+A NAT instance is an EC2 instance configured to act as a NAT device.
+Not a managed service; requires manual setup and maintenance.
+
+Configuration:
+Use an AMZN-AMI-VPC-NAT pre-configured AMI.
+Disable source and destination checks to allow the instance to perform NAT.
+Similar route table setup as NAT gateway but with the NAT instance ID instead.
+
+Differences from NAT Gateways:
+Managed by you: You control the EC2 instance, its software, and maintenance.
+Scaling: Scaling requires manually changing instance types (no automatic scaling).
+No HA: NAT instances do not provide high availability unless you manually configure it.
+Security Groups: You can use security groups with NAT instances for access control, unlike NAT gateways.
+Dual-purpose: NAT instances can also be used as a bastion host to connect to instances in privatesubnets, whereas NAT gateways cannot.
+
+Comparison between NAT Gateways and NAT Instances:
+
+
+Feature	                   NAT Gateway             	              NAT Instance
+Management	               Managed by AWS	                       Managed by the user (EC2 instance)
+Scaling	                   Fully elastic	                       Requires manual scaling (change instance type)
+High Availability (HA)	   Automatic HA within a single          No HA by default, must be manually configured
+                           AZ, can be placed in multiple AZs	
+Security                   No security groups; only allows       Security groups can be applied for control
+                           outbound access	
+Dual-purpose(Bastion_Host) Cannot be used as a bastion host	      Can act as both NAT and bastion host
+
+
+Exam Key Points:
+NAT gateway is a fully managed AWS service, scalable, and provides automatic high availability.
+NAT instances are EC2 instances that you configure yourself, but they offer flexibility with security groups and can serve as a bastion host.
+NAT instance requires you to disable source and destination checks.
+
+
+
+FOR THE PRACTICALS 
+
+we conencted to the piublic ec2 isntance by ec2 instance connect and then we connected to provate instance with key value pair by ssh 'ing
+
+so we are in now in private isntance
+
+if we ping www.google.com it wont work since it doesnt have 0.0.0.0/0 in its routetable 
+once we create the NAT gateway with elatic ip and we can put it in publci subnet and then in the private route table we can update to route all zeros through nat we created
+
+and now we ping from the cli it shall work.
+
+
+asteee
