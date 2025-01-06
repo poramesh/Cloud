@@ -1,0 +1,231 @@
+In an AWS account, we typically have one or more availability zones (AZs). Within an AZ, we might have two subnets. Suppose we launch an EC2 
+instance in one of these subnets. 
+
+This instance will have:
+A network interface in the public subnet with a private IP address and a public IP address.
+Another network interface in a different subnet within the same AZ with a private IP address.
+
+Public IP Addresses
+Dynamic: Public IPs are assigned dynamically, which means they can change. If you stop and start the instance, a new public IP will be assigned.
+Usage: Since public IPs can change, they shouldn’t be hardcoded into application code.
+Limitation: Public IPs cannot be moved between instances.
+
+Elastic IP Addresses (EIPs)
+Static Public IP: Unlike regular public IPs, Elastic IPs are static and don’t change, even when the instance is stopped and restarted.
+Assignment: An Elastic IP can be associated with a network interface, making it a permanent address for that interface.
+Remapping: Elastic IPs can be reassigned to a different instance or network interface, allowing for flexibility in case of instance failure.
+For example:
+If the instance fails, you can remap the Elastic IP to another instance within the same availability zone (AZ).
+Elastic IPs can also be moved across AZs to ensure availability, whereas network interfaces (ENIs) are restricted to the same AZ.
+
+Private IP Addresses
+Static: Private IPs remain the same even when the instance is stopped and restarted.
+Usage: Used in both public and private subnets, every instance will always have a private IP.
+
+Key Differences:
+Feature	                Public IP	      Private IP	    Elastic IP
+Static/Dynamic	        Dynamic	         Static	          Static
+Retention	          Lost when stopped	   Retained	       Retained
+Usage	               Public subnets	     All subnets	      Public subnets
+Cost	                  Free	           Free	          Charged if unused
+Movable               	No	             No            	Yes
+
+Summary
+Public IPs are dynamic and free but cannot be moved or relied upon.
+Private IPs are static, retained, and used across all subnets.
+Elastic IPs are static, can be reassigned, and incur costs if allocated but unused.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+NAT Network Adress Translation
+
+Overview
+This lesson explains how Network Address Translation (NAT) works for public IP addresses in an AWS EC2 environment. It highlights the role of 
+the Internet Gateway and how public IPs are managed differently from traditional setups.
+
+Key Concepts
+
+1. EC2 Instance and Network Interface:
+Every EC2 instance has a private IP address assigned to its network interface (ENI).
+If a public IP address is associated, the instance does not directly configure or recognize this public IP.
+
+2.Public vs. Private IP:
+>The private IP address is visible on the EC2 instance using tools like:
+ipconfig (Windows)
+ifconfig (Linux/MacOS)
+ip addr show eth0 (Linux)
+>The public IP address is not present on the instance. It is managed externally by AWS infrastructure.
+
+3.Role of the Internet Gateway:
+The Internet Gateway is a key component of the AWS networking setup. It handles one-to-one Network Address Translation (NAT) 
+between public and private IPs.
+
+
+How NAT Works for Public IPs
+
+1. Outbound Traffic:
+When an EC2 instance sends a packet:
+Source IP Address: The private IP of the instance. 172.10.12.1
+Destination IP Address: A public IP on the internet. 23.234.23.23
+
+The Internet Gateway intercepts this traffic and replaces the source IP with the public IP associated with the instance.
+
+2. Inbound Traffic:
+For responses from the internet:
+The packet is addressed to the public IP of the instance. 43.23.23.21
+The Internet Gateway translates the destination IP from the public IP to the instance's private IP. 43.23.23.21 is converted to provate ip that is 172.10.12.1
+The packet is then forwarded to the instance.
+
+Key Point:
+The EC2 instance itself is unaware of the public IP. It only "knows" its private IP.
+The mapping between private and public IPs is managed externally by the Internet Gateway.
+
+
+Practical Observations
+
+Command-Line Tools:
+When running tools like ipconfig, ifconfig, or ip addr, you will only see the private IP of the instance.
+The public IP will not appear because it is not configured directly on the instance.
+
+Why This Happens:
+In a traditional setup, public IPs are directly configured on the device’s network interface.
+In AWS, public IPs are only associated externally by the Internet Gateway, enabling seamless translation between private and public IPs.
+
+Elastic IPs:
+If an Elastic IP (EIP) is assigned, it behaves like a public IP.
+The NAT translation still applies, and the EC2 instance does not see the Elastic IP directly.
+
+
+
+Advantages of AWS NAT Setup
+
+1. Simplified Management:
+Private IPs remain static and are directly configured on the instance.
+Public IPs are dynamically assigned and managed externally.
+
+2. Enhanced Security:
+Instances communicate internally using private IPs, reducing exposure.
+NAT ensures that only traffic meant for the public IP reaches the instance.
+
+3. Flexibility:
+Public IPs (Elastic IPs) can be reassigned or detached without impacting the private IP or instance configuration.
+
+
+Important Takeaways
+Public IPs are Virtual:
+They are not directly configured on the EC2 instance.
+The public-to-private translation is done by the Internet Gateway.
+
+One-to-One NAT:
+Each public IP corresponds to one private IP.
+The Internet Gateway ensures seamless bidirectional communication.
+
+Summary
+Public IPs in AWS are externally managed and are not visible within the instance.
+The Internet Gateway performs one-to-one NAT between private and public IPs.
+For troubleshooting, focus on the private IP when working within the instance.
+Public IP management is external, so use AWS tools or services (like Elastic IP) for better control.
+
+
+
+
+HANDS ON
+
+
+You have a web server EC2 instance running on AWS, and you want to ensure that the public IP assigned to the instance does not change when you 
+stop and start the instance. You also want the instance to have multiple network interfaces for better networking isolation.
+
+Steps:
+
+Step 1: Launch EC2 Instance
+
+You launch an EC2 instance with the following configuration:
+
+AMI: Amazon Linux 2023 AMI (or any Linux AMI of your choice).
+Instance Type: T2 Micro (a low-cost option suitable for testing).
+Network Configuration:
+VPC: Default VPC.
+Subnet: A public subnet in the US East 1a availability zone.
+Auto-assign Public IP: Yes (so the instance will automatically receive a public IP).
+Security Group: Web access (to allow HTTP/HTTPS access).
+
+When the instance launches, it gets:
+Private IP: 172.31.23.12 (assigned from the VPC’s private IP range).
+Public IP: 34.210.45.67 (this is automatically assigned from the public IP range).
+
+
+Step 2: Instance Networking Behavior
+
+In the EC2 Instance Console, when you view the details of the instance:
+You’ll see both private IP (172.31.23.12) and public IP (34.210.45.67) associated with the instance.
+On the EC2 instance’s OS (via SSH or EC2 Instance Connect), when you run the ifconfig or ip addr command, you'll only see the private 
+IP (172.31.23.12), not the public IP (34.210.45.67), as it’s managed externally by the Internet Gateway.
+
+
+Step 3: Stopping and Starting the Instance
+
+You stop the EC2 instance to perform maintenance or update its configuration.
+
+After the instance is stopped, you notice the following:
+The private IP (172.31.23.12) is still assigned to the instance.
+The public IP (34.210.45.67) is released (since it’s dynamic and not static).
+
+You start the EC2 instance again:
+It gets a new public IP. For example, now it has 35.190.23.12 as the new public IP.
+The private IP remains the same (172.31.23.12).
+You will notice that the DNS name (associated with the public IP) changes to reflect the new IP address.
+
+
+Step 4: Assigning an Elastic IP (EIP)
+
+To ensure that your public IP doesn’t change when you stop and start your instance, you can allocate and associate an Elastic IP (EIP) with your instance.
+Go to the Elastic IPs section in the EC2 console and click on Allocate new address.
+An Elastic IP is allocated to your account (for example, 52.34.56.78).
+
+Now, associate the Elastic IP to your instance:
+Select your instance and associate the Elastic IP (52.34.56.78) to the primary ENI (Elastic Network Interface) of the instance.
+
+
+Step 5: Instance Behavior After Associating EIP
+
+Stop and Start the Instance:
+When you stop and start the instance now, the Elastic IP (52.34.56.78) remains the same.
+The private IP (172.31.23.12) remains the same as well.
+The public IP (Elastic IP) does not change, as it is static and associated with your instance.
+This ensures that no matter how many times you stop and start the instance, the public IP and its DNS name remain constant.
+
+
+Step 6: Attaching Additional ENIs
+
+Create an additional ENI (Elastic Network Interface):
+Go to the Network Interfaces section and create a new ENI (with a new private IP).
+You can either auto-assign a private IP or choose one manually.
+Attach this ENI to your instance.
+
+Multiple ENIs: Now, your instance has:
+Primary ENI with private IP 172.31.23.12 and Elastic IP 52.34.56.78.
+Secondary ENI with private IP 172.31.24.15 (from the new ENI).
+
+Manage Traffic:
+The instance can now receive traffic on both private IP addresses (from different ENIs) and the Elastic IP.
+You can assign different security groups to each ENI, giving more fine-grained control over inbound and outbound traffic.
+
+
+Step 7: Reassigning Elastic IP to a Different Instance
+
+Elastic IP Re-association:
+If you want to move the Elastic IP (52.34.56.78) to a different EC2 instance, you can:
+Disassociate the EIP from the current instance.
+Associate the EIP to the new instance or ENI.
+
