@@ -1,0 +1,171 @@
+
+BASTION HOSTS
+
+
+Here are the key points from the lesson about public vs private subnets and the use of a bastion host:
+
+
+1. VPC, Subnets, and Route Tables Overview
+
+A VPC (Virtual Private Cloud) is created within an AWS region.
+
+Within the VPC, we can have multiple subnets that are isolated networks for launching instances.
+
+Public Subnet:
+Route Table: A public subnet has a route table that includes a route to the internet gateway (IGW).
+Internet Gateway: This enables instances in the public subnet to access the internet.
+Public IP Address: Instances in the public subnet typically have public IP addresses assigned to them by default, allowing them to be accessed from the internet.
+
+Route Table Entries:
+The first entry is the CIDR block for the VPC (local routing).
+The second entry, 0.0.0.0/0, is a default route to send traffic not destined for the VPC's CIDR block to the internet gateway.
+
+
+Private Subnet:
+Route Table: A private subnet has its own route table but no route to the internet. It doesn’t have an internet gateway attached.
+No Public IP: Instances in private subnets do not have public IPs assigned by default.
+Isolation: Instances in private subnets can’t communicate with the internet directly, and the internet can't initiate communication
+with instances in the private subnet.
+Communication within VPC: Instances in both public and private subnets can communicate with each other using their private IP addresses
+because of the VPC router, which handles internal routing.
+
+
+Bastion Host (Jump Host):
+A bastion host is used to access instances in private subnets from the internet.
+Setup: You launch an EC2 instance in the public subnet. This instance will have a public IP address and a route to the internet via the internet gateway.
+Purpose: The bastion host acts as an intermediary for securely accessing instances in the private subnet. From the bastion host, you can SSH (or RDP) 
+to instances in the private subnet.
+You connect to the bastion host first (because it’s publicly accessible).
+From there, you use private IP addresses to connect to instances in the private subnet.
+
+
+
+Network Routing for Bastion Hosts:
+
+Public Subnet Instance: This instance has a public IP and can be accessed from the internet because of the internet gateway.
+Private Subnet Instance: This instance has no direct internet access and has a private IP. It can only be accessed internally within 
+the VPC, but not directly from the internet.
+
+Connection Flow:
+You initiate an SSH or RDP connection to the bastion host in the public subnet (which has a public IP).
+From the bastion host, you can SSH into the instance in the private subnet using its private IP address.
+Private Communication: Both the public and private instances can communicate with each other using their private IPs, routed internally by the VPC router.
+
+Security Considerations:
+The bastion host provides a controlled entry point to the private subnet.
+Typically, the bastion host has restrictive security group rules to limit access from trusted sources (e.g., only from your IP address).
+
+
+Why Use a Bastion Host?
+Security: Private subnet instances are isolated from the public internet, which improves security. However, 
+you still need a secure way to manage these instances.
+Controlled Access: A bastion host provides a single point of entry for management access to private instances, preventing
+the need to expose each private instance to the internet.
+SSH Proxy: The bastion host can act as a proxy for SSH connections, allowing access to multiple private instances 
+without requiring separate public IPs for each.
+
+Summary:
+Public Subnet: Instances can communicate with the internet via the internet gateway and have public IP addresses.
+Private Subnet: Instances do not have internet access or public IP addresses, making them isolated.
+Bastion Host: A publicly accessible EC2 instance in the public subnet that allows SSH or RDP access to instances in private subnets using private IP addresses.
+This setup allows secure management and communication with private instances while keeping them isolated from direct internet exposure.
+
+
+
+
+
+
+
+**********************************
+EXAMPLE:
+
+
+Scenario:
+
+You are deploying an application with two parts:
+A front-end web server: This will be publicly accessible from the internet.
+A back-end database server: This will contain sensitive data and should not be publicly accessible.
+
+You’ll create a VPC (Virtual Private Cloud) with two subnets:
+A public subnet for the web server, which will have access to the internet.
+A private subnet for the database server, which should not be directly accessible from the internet.
+
+Steps and Explanation:
+
+1. Create the VPC and Subnets
+VPC: The entire network where your resources will reside.
+Public Subnet: This subnet will have a route to the internet, so the web server can be accessed by anyone.
+Private Subnet: This subnet does not have internet access. It’s only accessible from other instances within the VPC, like your web server.
+
+2. Launch Instances
+Web Server (Public): Launch an EC2 instance in the public subnet. This instance will have a public IP address.
+Database Server (Private): Launch an EC2 instance in the private subnet. This instance will not have a public IP address,
+so it cannot be accessed directly from the internet.
+
+3. Route Tables
+Public Subnet Route Table: This has a route to the Internet Gateway (IGW). The route table for the public subnet allows the web server to access the 
+internet and receive incoming traffic from the internet.
+Private Subnet Route Table: This does not have a route to the Internet Gateway, so the database server cannot be accessed from the outside world.
+
+4. Bastion Host Setup
+To access the database server (which is in the private subnet), you need a bastion host (jump server):
+Bastion Host: You’ll create a third EC2 instance in the public subnet that will act as a bastion host. This instance 
+will have a public IP and will be accessible from the internet.
+
+5. Connecting to the Database Server (Private Subnet):
+Step 1: First, you SSH (Secure Shell) into the bastion host (the EC2 instance in the public subnet) using its public IP. This
+is like entering the front door of your network.
+For example, if the bastion host's IP is 203.0.113.5, you would connect to it from your local machine like this:
+
+ssh -i my-key.pem ec2-user@203.0.113.5  //
+
+***
+conneciting it form isntance connect so it will already be in bastion host or else you can ssh and connect to it first and then conenct to proivate
+
+or nano my-key.pem //paste all the access key info
+203.0.113.5>chmod 600 my-key.pem
+203.0.113.5>ssh -i my-key.pem ec2-user@10.0.1.5 //connected to bastion
+*********
+Step 2: Once you are inside the bastion host (SSH session), you can then connect to the private database server using its private IP address.
+
+The bastion host can communicate with the private subnet because it’s in the same VPC.
+If the private database server's private IP is 10.0.1.5, you would use SSH from the bastion host to connect to the database server:
+
+ssh -i my-key.pem ec2-user@10.0.1.5
+
+
+So, to clarify: the private key can be used to access both the bastion host and the private instance, provided both instances were 
+created using the same key pair.
+
+key-pair linked while creating the instance is same. once created launchin first isntance and then attached it in the next isntance lanch.
+
+6. Security Group Configuration
+Web Server (public instance): The security group allows incoming HTTP/HTTPS traffic from the internet (port 80/443).
+Database Server (private instance): The security group only allows inbound traffic from the web server’s private IP (so that 
+the web server can interact with the database).
+Bastion Host: The security group allows SSH access from specific IP addresses (e.g., your local machine or office IP).
+
+7. Why Use a Bastion Host?
+Without a bastion host, your private instance (database) would be completely isolated from the internet, which is great for security, but you would
+not be able to access it remotely for maintenance or troubleshooting. By using the bastion host:
+You can securely access your private instance without exposing it directly to the internet.
+The bastion host acts as the only publicly accessible machine, reducing the attack surface on the database server.
+
+Example Network Topology:
+
+VPC: 10.0.0.0/16 (entire address space for the VPC)
+Public Subnet: 10.0.0.0/24 (web server goes here)
+Web Server (Public IP: 203.0.113.5): Accessible from the internet.
+Private Subnet: 10.0.1.0/24 (database server goes here)
+Database Server (Private IP: 10.0.1.5): Not accessible from the internet.
+Internet Gateway: Attached to the VPC, allowing the public subnet to access the internet.
+
+Route Table:
+Public Subnet Route Table: Routes traffic to the Internet Gateway (0.0.0.0/0 → IGW).
+Private Subnet Route Table: No route to the Internet Gateway.
+
+************************************
+
+
+
+
