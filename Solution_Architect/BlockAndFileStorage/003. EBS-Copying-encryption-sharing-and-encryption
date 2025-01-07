@@ -1,0 +1,186 @@
+
+
+EBS Volumes Overview
+
+1. EBS (Elastic Block Store):
+A type of block-based storage accessed over the network by EC2 instances.
+Unlike network-attached file systems, EBS is still block-based storage.
+
+2. Availability Zone (AZ) Bound:
+EBS volumes exist in a specific Availability Zone (AZ) within a region.
+They are accessed by EC2 instances over the network but cannot be directly moved to another AZ or region.
+
+
+Snapshots
+
+1. Definition:
+A snapshot is a point-in-time backup of an EBS volume.
+Stored in Amazon S3, which is a regional service.
+
+2. Incremental Snapshots:
+The first snapshot (e.g., Snap A) contains all the data on the volume.
+Subsequent snapshots (e.g., Snap B, Snap C) only store changes since the previous snapshot.
+Despite this, each snapshot can fully restore a volume.
+
+3. Uses of Snapshots:
+Backup: Safeguard data by creating snapshots at regular intervals.
+Cross-AZ Movement: Create a volume from a snapshot in another AZ to move data.
+Cross-Region Movement: Copy snapshots across regions and create volumes in the target region.
+Create AMIs: Snapshots can be used to back AMIs for launching EC2 instances.
+
+
+AMIs (Amazon Machine Images)
+
+1. Definition:
+An AMI is a template that includes:
+An operating system.
+Application server configurations.
+Data volumes and other configurations.
+
+2. Creation from Snapshots:
+You can create an AMI from a snapshot.
+The AMI can be used to launch EC2 instances in the same or a different AZ.
+
+3. Sharing and Encryption:
+Unencrypted AMIs can be shared publicly or with other accounts.
+Encrypted AMIs require sharing the custom encryption key with the recipient account.
+
+
+
+Encryption in EBS
+
+1. Encrypted Snapshots and Volumes:
+Snapshots and volumes can be encrypted for data security.
+Encryption is retained during operations like copying or creating AMIs.
+
+2. Options for Encryption:
+Encrypt a volume while creating it from a snapshot.
+Create an encrypted snapshot from an unencrypted one.
+Use a custom encryption key for controlled access.
+
+3. Sharing Restrictions:
+
+Encrypted snapshots/AMIs:
+Can be shared with other accounts if a custom key is shared.
+Cannot be shared publicly.
+
+Unencrypted snapshots/AMIs:
+Can be shared publicly or with other accounts.
+
+
+
+Copying and Sharing Snapshots/AMIs
+
+
+Copying Snapshots:
+Snapshots can be copied to:
+Change regions.
+Modify encryption state (e.g., encrypt an unencrypted snapshot).
+Use a different encryption key.
+
+Copying AMIs:
+AMIs can be copied to:
+Change regions.
+Modify encryption keys.
+Encrypted AMIs can only be shared with accounts that have access to the encryption key.
+
+
+EC2 Instances and Volumes
+
+Launching EC2 from AMIs:
+EC2 instances can be created from both encrypted and unencrypted AMIs.
+During launch, you can:
+Change the encryption state of volumes.
+Change the AZ of the instance.
+
+
+Volume Creation from Snapshots:
+Volumes can be created from snapshots in the same or a different AZ.
+During creation, you can:
+Change the encryption state.
+Specify the AZ for the volume.
+Key Points and Best Practices
+
+
+Snapshots:
+Keep only the latest snapshot to reduce storage costs.
+Incremental backups save storage while retaining full restore capabilities.
+
+Encryption:
+Use custom encryption keys for controlled sharing.
+Ensure that recipient accounts have access to the custom key if sharing encrypted resources.
+
+
+
+
+
+V -> S :
+
+We have a volume and we want to create a snapshot.
+encryption state retained and it is in the same region and it is not within AZ now cause its almost free.
+
+S ->Copy-> En S
+
+
+If we take a snapshot and then we want to copy it and create an encrypted snapshot, we can do that.
+And we now have an encrypted snapshot.
+And while we do this, we can also optionally change the region in which we want the encrypted snapshot
+to be created.
+
+UEn S -> Enc V :
+
+If we have an unencrypted snapshot, we can create an encrypted volume.
+So at the time we create a volume from the snapshot, we can choose to encrypt it. And we can also change
+the availability zone, but not the region.
+
+
+Une S -> AMI :
+
+If we have an unencrypted snapshot, we can also create an AMI.
+However, it cannot be encrypted. When you create an AMI,
+It's backed by the snapshot. So in other words, this AMI is connected to this snapshot and this is not encrypted, 
+so the AMI can't be encrypted.
+Now, you can share the AMI with other accounts, and you can even share it publicly as well.
+
+
+S ->Copy-> S
+
+We then have a snapshot and we want a copy to create another snapshot. In this case, we can change the
+encryption key if it's encrypted and we can change regions. 
+
+
+En S -> EN AMI
+
+From an encrypted snapshot, we can create
+an encrypted AMI. This can be shared with other accounts, but only if you have a custom encryption key.
+Otherwise, they won't have access to your key, so they won't be able to read the data. And they cannot
+be shared publicly.
+So, if it's an unencrypted snapshot and you create an unencrypted AMI, it can be shared publicly.
+But if it's encrypted, you can't share it in the public space. From an encrypted AMI, we can copy
+
+
+Enc AMI ->Copy-> ENc AMI
+
+From an encrypted AMI, we can copy it to create another encrypted AMI.
+now, when we do that, we can change the encryption key.
+So, if you wanted to share an encrypted AMI with another account, but you used a key, it wasn't a
+custom key, then you can create a copy, change to a custom key, and then share that key with the account
+and they'll be able to access that encrypted AMI.
+You can also change the region as well. 
+
+Enc AMI -> EC2 Instance
+
+From an encrypted AMI, you can also create an EC2 instance. You can change the encryption key as you create the instance
+and also the availability zone
+
+
+Uenc AMI -> EC2 Insatnce
+
+From an unencrypted AMI, you could create an EC2 instance. Again,
+you can change the encryption state so you can encrypt it and change the availability zone.
+
+
+Enc S -> Enc V
+
+from an encrypted snapshot, you can create an encrypted volume and you can change
+the availability zone as well if you want to.
