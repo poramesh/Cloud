@@ -99,8 +99,9 @@ Volumes can be created from snapshots in the same or a different AZ.
 During creation, you can:
 Change the encryption state.
 Specify the AZ for the volume.
-Key Points and Best Practices
 
+
+Key Points and Best Practices
 
 Snapshots:
 Keep only the latest snapshot to reduce storage costs.
