@@ -1,0 +1,112 @@
+EC2 Instance Life Cycle: Detailed Notes
+
+The EC2 instance life cycle refers to the stages an EC2 instance goes through from launch to termination. Understanding these stages and how
+to manage your instances is essential for effective EC2 usage. 
+
+Here's a detailed breakdown of the different states in the life cycle of an EC2 instance:
+
+
+1. Launch (Pending State):
+Launching an EC2 instance begins with selecting an Amazon Machine Image (AMI).
+The instance is in the Pending state when it is starting up. It means the instance is being provisioned(When resources are "provisioned," it means that they
+have been prepared, configured, and made available for use.) but has not yet fully initialized.
+
+
+2. Running (Running State):
+Once the instance is fully initialized and operational, it enters the Running state.
+In the Running state, the instance is up and functioning. You can interact with it (e.g., SSH into a Linux instance or RDP into a Windows instance).
+Rebooting the instance from the running state will cause it to go into the Booting state, after which it will return to Running.
+
+
+3. Rebooting:
+Rebooting the instance is similar to restarting an operating system.
+It can be done via the AWS EC2 console or by using the operating system's reboot commands (though AWS recommends doing it via EC2 for consistency).
+What stays unchanged after reboot:
+The instance DNS name and IP addresses (IPv4 and IPv6) are retained.
+No charges for rebooting as it doesn't result in any stop or termination of the instance.
+Billing remains unaffected by a reboot.
+
+
+4. Stop / Hibernate (Stopping State):
+Stopping an instance is applicable only to EBS-backed instances. If the root volume is instance-store-backed, you cannot stop the instance.
+********
+Stopping is available only for EBS-backed instances.
+For instance-store-backed instances((temporary storage tied directly to the physical host that the instance is running on), you cannot stop them. Instead,
+when the instance is stopped, the data is wiped, and the instance cannot be
+resumed from its previous state. If you want to retain data on these instances, you'd need to store it on an EBS volume instead.
+*******
+Stop Process:
+The instance transitions into the Stopping state, then to the Stopped state.
+The instance is shut down, but the data on the attached EBS volumes remains intact. The instance is charged for the storage of EBS volumes,
+but there are no charges for compute.
+When restarted, it will boot again and regain its previous state, but the underlying hardware may be different as the instance could be migrated 
+to a new host (AWS will automatically manage this).
+stopping an instance will lose the data in RAM because RAM is a volatile memory, meaning it only holds data while the instance (or computer) is powered on.
+
+When to Stop an Instance:
+Stopping is useful when you no longer need to use the instance for a period of time but want to retain the instance and data on EBS volumes for future use.
+AWS uses the stop/start functionality to migrate instances to a different host if there’s scheduled maintenance or issues with the current host.
+Public IPv4 addresses are released when the instance is stopped (unless the instance uses Elastic IP addresses).
+Elastic IP addresses are retained even if the instance is stopped.
+
+Hibernate:
+
+Available on supported AMIs and requires enabling hibernation at the time of instance launch.
+When the instance is hibernated, the contents of RAM are saved to the EBS volume.
+Upon starting the instance again, the root volume is restored to its previous state, and the RAM contents are reloaded back into memory, resuming processes.
+Attached data volumes are also re-attached, and the instance retains its Instance ID.
+
+
+********
+How RAM is Storage
+
+Temporary/Volatile Storage:
+RAM stores data temporarily while a computer is running. It holds data that the CPU needs to access quickly for processing.
+Once the computer is turned off, all data stored in RAM is lost because it is volatile memory.
+
+High-Speed Storage:
+RAM is designed for speed rather than capacity. It can read and write data much faster than HDDs or SSDs.
+This speed makes RAM ideal for storing the operating system’s active processes, applications, and any data actively being used or processed.
+
+Examples:
+When you open an application:
+The operating system loads the program from the SSD/HDD into RAM so the CPU can access it quickly.
+Any changes made (e.g., editing a document) are stored in RAM temporarily until saved.
+
+When you save a file:
+The data is written from RAM to the HDD/SSD for long-term storage
+
+**********
+
+5. Terminating (Terminated State):
+Termination of an instance means permanent deletion. Once terminated:
+The instance cannot be recovered.
+The root EBS volume is deleted by default, meaning all data on the root volume is lost forever.
+The instance's associated public IPv4 (if applicable) is released.
+If the instance was using Elastic IP, the IP will be freed, but can be reassigned elsewhere.
+
+Terminate Process:
+The instance enters the Shutting down state and then moves to the Terminated state.
+Instances are typically terminated when no longer needed to avoid ongoing charges.
+Key Point: Terminated instances are gone forever, and you cannot recover them after termination. Snapshots and AMIs 
+can be used to back up and restore instances.
+
+6. Retiring Instances:
+AWS may retire instances if it detects an irreparable failure in the underlying hardware hosting the instance.
+When an instance is marked for retirement, AWS will schedule it to be stopped or terminated. This process is managed automatically by AWS.
+This is a precautionary measure for hardware failure, and AWS ensures minimal impact on your EC2 instances.
+
+
+7. CloudWatch Recovery:
+CloudWatch can monitor system status and notify you of potential issues (e.g., system status checks failures).
+If an instance becomes impaired due to underlying platform issues, CloudWatch allows you to recover the instance to restore its functionality.
+The recovered instance is identical to the original one, retaining the same configuration and data (if it was backed by EBS).
+
+
+Key Points Summary:
+Stopping and Hibernating are only for EBS-backed instances.
+Public IPv4 addresses are released when an instance is stopped or terminated, except for Elastic IPs.
+Rebooting does not affect the instance’s data or IP addresses.
+Terminating an instance results in permanent deletion of the instance and, by default, the root EBS volume.
+Elastic IP addresses are retained across stops, hibernations, and terminations (unless the Elastic IP is disassociated).
+Hibernation saves the contents of RAM to EBS and allows the instance to resume its previous state when started again.
