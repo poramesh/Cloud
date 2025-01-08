@@ -1,0 +1,227 @@
+Here are detailed notes on the video discussing Amazon EC2 pricing options:
+
+1. On-Demand Pricing
+Usage: This is the default pricing model when launching EC2 instances in hands-on lessons or in real-world usage.
+Details:
+Charged at a standard rate with no discounts or commitments.
+Ideal for development, testing, or short-term, unpredictable workloads.
+Flexibility to scale up or down as needed.
+
+2. Reserved Pricing
+Usage: For predictable, steady-state workloads.
+Commitment:
+You commit to using EC2 instances for 1 or 3 years.
+In return, you get up to a 75% discount on the standard pricing.
+Helps in reserving capacity to ensure it's available when needed.
+
+3. Spot Instances
+Discount: Up to 90% discount on unused EC2 capacity.
+Risk:
+AWS can terminate the instance at any time if they need the capacity for other customers.
+Best suited for low-cost computing where interruptions can be tolerated.
+
+4. Dedicated Instances
+Isolation: EC2 instances run on physically isolated hardware (from other AWS customers).
+Billing: Charged per instance.
+Use Case: Useful for workloads that need physical isolation from other customers.
+
+5. Dedicated Hosts
+Isolation: You get an entire physical server dedicated for your use.
+Cost: More expensive than dedicated instances, as you’re billed per host rather than per instance.
+Advanced Features:
+Socket and core visibility, which is useful for workloads using server-bound software licenses.
+You can assign licenses to specific cores or sockets on the dedicated host.
+
+6. Savings Plans
+Overview: A commitment to consistent usage of EC2, Lambda, or Fargate services.
+Duration: 1 or 3 years, where you commit to usage at an hourly rate.
+Types:
+Compute Savings Plans: Flexibility across EC2, Fargate, and Lambda across all regions, families, sizes, and OS types.
+EC2 Savings Plans: Limited to EC2 usage, but you select a region and instance family.
+
+
+Billing Mechanisms
+
+Per-Second Billing:
+Applies to Amazon Linux, Windows, and Ubuntu instances in On-Demand, Reserved, and Spot pricing models.
+Minimum charge: 1 minute.
+
+Per-Hour Billing:
+For commercial Linux distributions like Red Hat Enterprise Linux and SUSE Enterprise Server.
+
+Minimum charge: 1 hour.
+EBS Volumes: Billing is per second, with a minimum charge of 1 minute.
+
+
+
+
+Reserved Instances (RIs)
+
+Types:
+Standard Reserved Instances: Can modify Availability Zone (AZ) and instance size for Linux and networking
+type using the Modify Reserved Instances API.
+
+Convertible Reserved Instances: More flexibility to change not just the AZ, instance size, and networking type but 
+also family, OS, tenancy, and payment options using the Exchange Reserved Instances API.
+
+Payment Options:
+All upfront: Best discount.
+Partial upfront: Moderate discount.
+No upfront: Least discount, but billed periodically.
+Discounts are applied when instance attributes like instance type, OS, tenancy, and region match the reserved instance.
+
+
+
+
+On-Demand Capacity Reservations
+
+Purpose: Guarantees compute capacity in a specific Availability Zone (AZ).
+Duration: Can be reserved for any time period.
+Flexibility: Does not require any long-term commitments and can be cancelled at any time.
+Attributes: When creating a reservation, you specify:
+AZ where you want capacity reserved.
+Number of instances and instance attributes like instance type, tenancy, and platform/OS.
+
+
+AWS savings plans
+
+compute savings plan:
+1 or 3 year; hourly commitment to usage of fargate, lamda, and ec2; any region, fam, size, tenancy, and os
+
+ec2-saving plan: 
+1 0r 3 year; hourly commitment to usage of ec2 within a selected region n instance fam; ane size, tenancy n os
+
+
+
+Spot Instances vs Spot Fleets
+
+1. Spot Instances
+Definition: Spot Instances are EC2 instances that you can bid for based on unused EC2 capacity.
+Discount: Offers discounts up to 90% compared to On-Demand pricing, making it an affordable option for non-critical or flexible workloads.
+Risk: AWS can terminate Spot Instances at any time if they need the capacity for On-Demand or Reserved Instances.
+Use Case: Best for low-cost computing where interruptions are acceptable.
+
+2. Spot Fleet
+Definition: A Spot Fleet is a collection of Spot Instances and, optionally, On-Demand instances.
+Target Capacity: You can configure the Spot Fleet to meet a specific target capacity for your workload.
+Flexibility: Allows you to launch multiple Spot Instances and On-Demand instances across multiple availability
+zones and instance types.
+Management: The fleet is automatically managed to maintain the specified target capacity.
+
+3. EC2 Fleet
+Definition: An EC2 Fleet is an advanced version of Spot Fleet that can handle a mix of Spot, On-Demand, and Reserved instances.
+Single API Call: EC2 Fleets enable you to launch and manage instances with a single API call, simplifying the process.
+Capacity Targets: You can specify separate capacity targets for Spot and On-Demand instances.
+Pricing and Availability Zones: You can specify the price and instance types along with availability zones for your instances.
+Use Case: EC2 Fleets allow you to manage mixed workloads efficiently, ensuring both cost-effectiveness and availability.
+
+4. Two-Minute Warning for Spot Instance Termination
+Termination Warning: AWS provides a two-minute warning before reclaiming Spot Instance capacity.
+Instance Metadata and CloudWatch: This warning is available through instance metadata and CloudWatch events, enabling you to set up automation to respond to the termination.
+For example, you could create an automation to save state or perform other actions before the instance is terminated.
+
+5. Spot Block
+Definition: A Spot Block is a way to ensure that your Spot Instances run uninterrupted for a specific duration.
+Duration: You can specify a duration between 1 to 6 hours for the Spot Block.
+Pricing: Spot Blocks offer 30 to 45% savings compared to On-Demand prices. However, the discount is lower than that for regular Spot Instances.
+Benefit: The key advantage is that the Spot Instances will run uninterrupted during the specified block duration, which
+is useful for workloads that require consistent uptime.
+
+Key Differences:
+Spot Instances are cheaper but can be terminated at any time by AWS, making them suitable for flexible, non-time-sensitive tasks.
+Spot Fleets and EC2 Fleets provide a more advanced way to manage multiple instances across Spot, On-Demand, and Reserved types,
+allowing for greater flexibility and guaranteed capacity.
+Spot Blocks provide a balance between the cost of Spot Instances and the need for uninterrupted compute, ensuring
+your workload runs without interruptions for a predefined period.
+
+
+
+Dedicated Instances vs Dedicated Hosts
+
+Dedicated Instances:
+Instances are on physically isolated hardware but billed per instance.
+
+Dedicated Hosts:
+A physical server dedicated to your use.
+Billing is per host.
+Provides insights into hardware layer such as sockets, cores, and host affinity.
+
+Affinity: You can ensure that instances run on different dedicated hosts for greater resilience (important for
+clustering or ensuring redundancy at the hardware level).
+
+
+
+Key Takeaways:
+EC2 offers flexible pricing models to suit different workloads, from short-term testing to long-term steady-state operations.
+It's important to select the right model based on the predictability of your workload, budget, and performance needs.
+Consider using Reserved Instances or Savings Plans for steady usage to gain significant discounts, while Spot Instances are great for 
+cost-saving if interruptions are manageable.
+Dedicated Hosts and Spot Blocks are useful for specific requirements like software licensing or guaranteed uptime.
+These details should give you a comprehensive understanding of Amazon EC2 pricing and billing models for your exam and real-world scenarios.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+USE CASES:
+
+
+1. Developer Working on a Small Project for Several Hours (Ad Hoc Requirement)
+Best Model: On-Demand
+Reason: The developer needs flexibility to launch instances on-demand for a short period. On-Demand pricing is ideal because it allows
+launching instances without long-term commitments and without the risk of termination.
+Use Case: Ideal for short-term, unpredictable projects that need no interruption but don't require dedicated capacity.
+
+2. Compute-Intensive, Cost-Sensitive Distributed Computing Environment (Can Withstand Interruption)
+Best Model: Spot Instances
+Reason: Spot Instances offer significant cost savings (up to 90%) and are perfect for workloads that can tolerate interruption. In this case, a large-scale
+computing environment can benefit from the low cost of Spot Instances while managing the risk of termination.
+Use Case: For workloads like distributed computing where interruption is acceptable, and cost sensitivity is a priority (e.g., running 
+a large number of servers for heavy computations).
+
+3. Steady-State Business-Critical Line-of-Business Application (Continuous Demand)
+Best Model: Reserved Instances
+Reason: Reserved Instances are ideal for predictable, steady-state workloads that cannot afford to be interrupted, like critical business applications.
+Committing to 1 or 3 years of usage ensures capacity reservation and up to a 75% discount compared to On-Demand pricing.
+Use Case: For business-critical applications that require continuous availability and cannot be disrupted, Reserved Instances provide 
+the reliability and cost savings needed.
+
+4. Reporting Application That Runs for Six Hours a Day, Four Days a Week
+Best Model: Scheduled Reserved Instances
+Reason: Scheduled Reserved Instances allow you to reserve capacity for a specific time window, such as a few hours each day or on specific
+days of the week. This model is best when you know the exact timing of the workload but don't need continuous availability.
+Use Case: Ideal for applications with predictable but non-continuous demand, such as scheduled reporting tasks. (Note: Scheduled Reserved 
+Instances may be deprecated, but they are still relevant for exams).
+
+5. Database with Per-Socket Licensing
+Best Model: Dedicated Hosts
+Reason: Dedicated Hosts provide physical isolation at the server level, which is essential when using per-socket software licenses. Dedicated Hosts allow 
+you to control placement of instances on physical servers, and this is important for licensing models based on CPU sockets.
+Use Case: For workloads that need per-socket licensing and control over physical hardware. These include certain databases or enterprise applications 
+that have strict licensing requirements.
+
+6. Security-Sensitive Application That Requires Dedicated Hardware and Per-Instance Billing
+Best Model: Dedicated Instances
+Reason: Dedicated Instances provide physical isolation from other customers' instances, and the billing is per instance, which ensures security and 
+dedicated hardware for sensitive applications. While not as isolated as Dedicated Hosts, this model provides sufficient 
+isolation for many security-sensitive workloads.
+Use Case: For applications that need dedicated hardware for security reasons but don't require the detailed control of a
+physical server (which Dedicated Hosts provide).
+
+Summary of Best Models for Use Cases:
+On-Demand: Short-term, unpredictable workloads (e.g., small project by a developer).
+Spot Instances: Cost-sensitive, interruptible workloads (e.g., distributed computing environments).
+Reserved Instances: Steady-state, critical workloads (e.g., business-critical applications).
+Scheduled Reserved Instances: Predictable, non-continuous workloads (e.g., reporting applications with a fixed schedule).
+Dedicated Hosts: Workloads with per-socket licensing and hardware control (e.g., databases with specific licensing needs).
+Dedicated Instances: Security-sensitive workloads requiring dedicated hardware but with per-instance billing (e.g., sensitive applications).
