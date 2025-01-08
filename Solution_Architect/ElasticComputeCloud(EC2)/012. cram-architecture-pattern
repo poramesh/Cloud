@@ -1,0 +1,235 @@
+Overview of EC2:
+
+EC2 (Elastic Compute Cloud) allows you to launch virtual server instances in the AWS cloud.
+Key Pairs: Used to securely connect to EC2 instances.
+
+Storage Options:
+Amazon EBS (Elastic Block Store): Persistent storage.
+Instance Store: Non-persistent storage.
+
+Amazon Machine Image (AMI):
+AMI provides the template for launching an instance, including:
+>Root Volume template.
+>Launch Permissions.
+>Block Device Mapping (specifies attached volumes).
+AMIs are regional; they can only be launched in the region they were created, but you can copy them to other regions.
+Instance Metadata: Data about the instance for configuration and management.
+User Data: Script that runs at system startup (used to configure the instance).
+
+Key Benefits of Amazon EC2:
+Elastic Computing: Easily launch hundreds to thousands of EC2 instances quickly.
+Full Control: Root and administrative access to the instances.
+Flexibility: Choose instance types, OS, software packages, storage, and more.
+Reliability: High availability and rapid scaling.
+Security: Integrated with Amazon VPC and AWS security features.
+Cost-Effective: Pay only for what you use.
+
+EC2 IP Address Types:
+Public IP Address: Lost when the instance is stopped. Used in public subnets. No charge for them.
+Private IP Address: Retained when the instance is stopped. Used in all subnets.
+Elastic IP: Persistent, can be reassigned between instances or ENIs. Retained when the instance is stopped.
+
+Placement Groups:
+Cluster Placement Group: Instances placed close to each other for low latency. Suitable for high-performance 
+computing and tightly coupled applications.
+Partition Placement Group: Spreads instances across logical partitions for high availability. Suitable for 
+distributed workloads like Hadoop, Cassandra, Kafka.
+Spread Placement Group: Places instances on distinct hardware to reduce correlated failures.
+
+NAT Instances vs NAT Gateways:
+NAT Instance: Managed by you, older method, suitable for small scale, can be used as a bastion host.
+NAT Gateway: Managed by AWS, more scalable, provides automatic high availability. No security groups associated with NAT Gateways,
+but often better for larger-scale setups.
+
+EC2 Instance Lifecycle:
+Stopping Instances:
+Works for EBS-backed instances.
+No charge for stopped instances, but you pay for EBS volume storage.
+Public IP is released, but private IP is retained.
+
+Hibernation:
+For Linux instances, saves the RAM to EBS volume.
+Instance retains the state, and processes resume after restart.
+Useful for workloads that require suspension and later resumption without losing state.
+
+Rebooting:
+Equivalent to an OS reboot, doesn't affect billing.
+DNS name and IP address retained.
+
+Terminating:
+Deletes the instance; no recovery.
+Root EBS volume is deleted by default.
+CloudWatch can monitor system status and recover the instance in case of underlying hardware failure.
+
+Nitro System:
+Nitro is the platform for newer EC2 instances, aiming to improve:
+Performance (close to bare metal).
+Security (dedicated hardware for hypervisor functions).
+Network performance (via ENA/EFA).
+Optimization for HPC and bare-metal instances.
+
+EC2 Pricing Models:
+On-Demand: No commitment, ideal for short-term or unpredictable workloads. Full price without discounts.
+Reserved: Commit to 1 or 3 years, discounted prices (up to 75%). Best for predictable, steady workloads.
+Spot Instances: Low prices due to unused capacity, but can be terminated at any time. Ideal for cost-sensitive, interruptible workloads.
+Dedicated Instances: Physical isolation at the host hardware level. Billed per instance.
+Dedicated Hosts: Physical servers dedicated for your use. You get the actual hardware. Billed per host.
+Savings Plans: Commit to certain compute usage over 1 or 3 years. Offers discounts for a range of compute services.
+
+Dedicated Instances vs Dedicated Hosts:
+Dedicated Instances:
+Isolate your instances on hardware, but still share it with other customers' instances.
+Billed per instance.
+
+Dedicated Hosts:
+Provides full physical isolation with control over instance placement.
+Billed per host.
+Deeper insights and control over the hardware configuration.
+
+Key Terminology to Remember:
+Instance Metadata: Instance-specific data that helps configure and manage running instances.
+User Data: Scripts run at system startup for automation and configuration.
+Elastic IP: Static IP address that can be associated with EC2 instances and is retained even if the instance is stopped.
+
+Final Notes:
+EC2 instances come with a variety of configurations, enabling you to choose the best option for your workloads
+based on performance, cost, and flexibility needs.
+Understanding the lifecycle and pricing models for EC2 instances is crucial for the exam, as well as knowing
+the use cases for each EC2 pricing option.
+
+
+
+
+ARCHITECTURE:::
+
+
+
+1. Run a Short Batch Script for EC2 Linux Instances:
+Requirement: A company needs to run a short batch script to configure EC2 Linux instances after they are launched.
+Solution:
+Add the batch script to the user data of the EC2 instances.
+User data is executed at the instance’s first boot.
+Ensure the script is under the 16KB limit for user data.
+
+
+2. Tightly Coupled HPC Workload (Low Latency, High Network Performance):
+Requirement: High-performance computing (HPC) workload that requires low latency and optimal network performance.
+Solution:
+Launch EC2 instances in a single Availability Zone (AZ) using a cluster placement group.
+Use an Elastic Fabric Adapter (EFA) for low-latency, high-performance network connectivity between nodes.
+
+
+3. Line of Business Application with Weekly Traffic Bursts:
+Requirement: Line of business application with periodic traffic bursts, needing a cost-effective solution.
+Solution:
+Use reserved instances for the baseline workload to get a discounted price.
+Use spot instances for the occasional traffic bursts to reduce costs during short-lived peak times.
+
+
+4. Single Instance Application with Static Public IP Address:
+Requirement: A single EC2 instance that uses a static public IP address and needs failover support.
+Solution:
+Attach an elastic IP address to the instance.
+In the event of failure, remap the elastic IP to a failover instance. This can be done programmatically.
+
+
+5. EC2 Instances in Private Subnets with Redundant Path to the Internet:
+Requirement: EC2 instances in private subnets need redundant internet access.
+Solution:
+Use NAT gateways in multiple AZs for redundancy.
+Update route tables to route traffic from the private subnets through the NAT gateway.
+
+
+6. Administer EC2 Instances in Private Subnets Remotely Using SSH:
+Requirement: Engineers need to manage EC2 instances in private subnets using SSH from remote locations.
+Solution:
+Deploy a bastion host in a public subnet.
+Engineers can SSH into the bastion host and then access the private instances.
+
+
+
+7. Eliminate Risk of Correlated Hardware Failures:
+Requirement: Ensure high availability by eliminating the risk of correlated hardware failures.
+Solution:
+Use a spread placement group to distribute EC2 instances across distinct underlying hardware in separate racks, ensuring no correlated hardware failures.
+
+
+8. Application Requiring Enhanced Networking Capabilities:
+Requirement: Application needs enhanced networking.
+Solution:
+Choose an instance type that supports enhanced networking (ENA).
+Ensure the ENA module is installed and enabled. Some AMIs like Amazon Linux 2 have ENA support by default, while others require manual configuration.
+
+
+*Your application requires enhanced networking to achieve higher network throughput, lower latency, or both. For example, workloads that require high
+network bandwidth like data analytics, video processing, or high-performance computing may benefit from ENA.*
+
+9. Instance with Bare Metal Performance and High-Performance Networking:
+Requirement: Need for bare-metal performance and high-performance networking.
+Solution:
+Use AWS Nitro instance types for close to bare metal performance.
+These instances also support Elastic Fabric Adapter (EFA) for high-performance networking.
+
+These architecture patterns are designed to address specific use cases, balancing performance, cost, redundancy, and ease of management depending 
+on the requirements of the application or workload.
+
+
+
+
+
+ARCHITECTURE:
+
+
+1. Automated Backup of EBS Volumes:
+Requirement: Need a simple, automated method of backing up Amazon EBS volumes.
+Solution: Use Data Lifecycle Manager to create and automate a backup schedule for EBS volumes.
+
+2. Best Performance for Distributed Application:
+Requirement: A distributed application with many nodes that synchronize data, and performance is crucial.
+Solution: Use instance stores to store the data. Instance stores provide great performance, and since the data is synchronized, 
+you don’t need to worry about it being ephemeral.
+
+3. Fast Application Startup in ASG:
+Requirement: Application must start quickly when launched by an Auto Scaling Group (ASG), but it requires dependencies
+and code to be installed.
+Solution: Create an Amazon Machine Image (AMI) that includes the application dependencies and code. This eliminates the need to install dependencies
+during startup, speeding up the application launch time.
+
+4. Shared File System for Many Linux Instances:
+Requirement: Multiple Linux instances need to attach to a shared, scalable file system.
+Solution: Use Amazon EFS (Elastic File System), which allows multiple instances to mount and access the shared file system that scales elastically.
+
+5. Managed NTFS File System:
+Requirement: A managed file system using NTFS (a Microsoft file system).
+Solution: Use Amazon FSx for Windows File Server, which provides a managed Windows file system that supports NTFS.
+
+6. On-Premises Servers with Block Storage and S3 Backup:
+Requirement: On-premises servers need to attach to a block storage system, and 
+the data should be backed up to S3.
+Solution: Use AWS Storage Gateway, specifically the Volume Gateway in Stored Volume Mode. 
+This setup allows local block storage with S3 backups as snapshots.
+
+7. Move EBS Volumes Between Regions:
+Requirement: Need to move an EBS volume between regions.
+Solution: Create a snapshot of the EBS volume and copy the snapshot to another region.
+
+8. Prevent Deletion of Critical EBS Volumes on Termination:
+Requirement: Root EBS volumes for critical applications should not be deleted when the instance is terminated.
+Solution: Modify the DeleteOnTermination attribute for the root EBS volume when launching instances to ensure it is not deleted on termination.
+
+9. On-Premises NFS File System Replaced with AWS Service Using S3 with Local Cache:
+Requirement: On-premises servers use NFS to attach to a file system, and this should be replaced with an AWS service that uses S3 with a local cache.
+Solution: Use AWS Storage Gateway, specifically the File Gateway. This service provides local caching while backing the file system on S3.
+
+
+Summary of Services Mentioned:
+Data Lifecycle Manager: For EBS volume backup automation.
+Instance Stores: For high-performance storage in distributed applications.
+Amazon AMI: For speeding up application launch by pre-installing dependencies.
+Amazon EFS: For shared, scalable file storage for Linux instances.
+Amazon FSx for Windows File Server: For managed Windows file systems with NTFS support.
+
+AWS Storage Gateway:
+Volume Gateway (Stored Volume Mode): For on-premises block storage with S3 backup.
+File Gateway: For NFS replacement with S3-backed local caching.
+This lesson covers common block and file storage solutions in AWS and how they can b
