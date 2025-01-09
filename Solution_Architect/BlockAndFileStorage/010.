@@ -1,0 +1,188 @@
+Block and File Storage Services
+
+
+Amazon EBS (Elastic Block Store)
+Persistence: EBS volumes persist independently of the EC2 instance lifecycle.
+
+Attachment:
+EBS volumes do not require attachment to an EC2 instance.
+Multiple EBS volumes can be attached to a single instance.
+Using Multi-Attach, a volume can connect to multiple instances with certain constraints.
+Volumes must reside in the same AZ as the instance they are attached to.
+
+Termination Behavior:
+Root volumes are deleted upon instance termination by default.
+Non-boot volumes are retained unless specified otherwise.
+
+Volume Types:
+SSD-backed volumes (e.g., gp2 and io1) provide high performance.
+Newer options like gp3 and io2 Block Express may not appear in the exam.
+HDD-backed volumes are cost-effective for specific use cases but lack Multi-Attach and cannot serve as boot volumes.
+
+
+Data Lifecycle Manager (DLM):
+Automates EBS snapshot and AMI management, enabling regular backups, compliance, and disaster recovery.
+Allows backup policies across accounts and reduces storage costs by removing outdated backups.
+
+
+EBS vs. Instance Store
+
+Instance Store:
+High-performance, ephemeral local storage attached to the host machine.
+Suitable for temporary and frequently changing data.
+Cannot be detached or reattached.
+Root devices are created from AMI templates stored in S3.
+
+EBS:
+Persistent block storage specific to an AZ.
+Snapshots enable data migration and backup, stored regionally in S3.
+
+
+AMIs (Amazon Machine Images)
+AMIs contain the data required to launch EC2 instances, including EBS snapshots or instance store templates.
+
+Types:
+Community AMIs: Publicly available.
+Marketplace AMIs: Pre-configured for specific applications or services.
+Custom AMIs: Created and managed by users.
+
+Usage:
+AMIs control launch permissions and define volume attachments through block device mapping.
+
+
+EBS Snapshots
+Purpose:
+Capture point-in-time states of EBS volumes for backup and migration.
+Useful for encrypting unencrypted volumes.
+
+Storage:
+Snapshots are stored in S3, making them region-specific.
+
+
+RAID with EBS
+Overview: RAID is configured at the OS level.
+Supported Types:
+RAID 0: Data striping for improved performance (requires two or more volumes; failure of one volume affects all).
+RAID 1: Data mirroring for redundancy (data is duplicated across volumes).
+Unsupported Types: RAID 5 and 6 are not recommended by AWS.
+
+
+EBS Encryption
+Scope: Encrypts boot volumes, data volumes, data in transit, snapshots, and volumes created from snapshots.
+Compatibility: Supported by all EBS volume types and EC2 instance families.
+
+
+
+Amazon EFS (Elastic File System)
+Features:
+Fully managed, elastic file storage accessed via NFS.
+Scales to petabytes and supports thousands of concurrent connections across AZs.
+Data stored redundantly across multiple AZs.
+
+Access:
+Connect from on-premises systems via Direct Connect or VPN.
+AWS Data Sync simplifies data migration.
+
+Security:
+IAM manages file system administration.
+POSIX permissions control access to files and directories.
+Data encryption is supported both at rest (via KMS) and in transit (using TLS).
+Use Cases: General-purpose or high-throughput workloads with read-after-write consistency.
+
+
+Amazon FSx
+Overview: Fully managed third-party file systems.
+
+Types:
+FSx for Windows File Server:
+Designed for Windows-based applications.
+Supports SMB, NTFS, Active Directory, ACLs, shadow copies, and user quotas.
+High availability with active-standby file servers in Multi-AZ setups.
+
+FSx for Lustre:
+High-performance storage for compute-intensive workloads (e.g., ML, HPC).
+Seamless integration with S3 for object-to-file access.
+
+
+AWS Storage Gateway
+File Gateway:
+Provides on-premises file server functionality.
+Offers NFS/SMB access to S3 with local caching.
+
+Volume Gateway:
+Block storage accessed via iSCSI protocol.
+Cached Volumes: Stores data in S3 with frequently accessed data cached locally.
+Stored Volumes: Entire dataset stored locally and backed up asynchronously to S3.
+
+Tape Gateway:
+Virtual tape library for backup solutions.
+Compatible with tools like NetBackup, Veeam, and Backup Exec.
+Uses SSL encryption for data transfer and server-side encryption (SSE-S3) for stored data.
+
+
+
+
+
+
+
+
+
+
+
+
+ARCHITECTURE:
+
+
+1. Automated Backup of EBS Volumes:
+Requirement: Need a simple, automated method of backing up Amazon EBS volumes.
+Solution: Use Data Lifecycle Manager to create and automate a backup schedule for EBS volumes.
+
+2. Best Performance for Distributed Application:
+Requirement: A distributed application with many nodes that synchronize data, and performance is crucial.
+Solution: Use instance stores to store the data. Instance stores provide great performance, and since the data is synchronized, 
+you don’t need to worry about it being ephemeral.
+
+3. Fast Application Startup in ASG:
+Requirement: Application must start quickly when launched by an Auto Scaling Group (ASG), but it requires dependencies
+and code to be installed.
+Solution: Create an Amazon Machine Image (AMI) that includes the application dependencies and code. This eliminates the need to install dependencies
+during startup, speeding up the application launch time.
+
+4. Shared File System for Many Linux Instances:
+Requirement: Multiple Linux instances need to attach to a shared, scalable file system.
+Solution: Use Amazon EFS (Elastic File System), which allows multiple instances to mount and access the shared file system that scales elastically.
+
+5. Managed NTFS File System:
+Requirement: A managed file system using NTFS (a Microsoft file system).
+Solution: Use Amazon FSx for Windows File Server, which provides a managed Windows file system that supports NTFS.
+
+6. On-Premises Servers with Block Storage and S3 Backup:
+Requirement: On-premises servers need to attach to a block storage system, and 
+the data should be backed up to S3.
+Solution: Use AWS Storage Gateway, specifically the Volume Gateway in Stored Volume Mode. 
+This setup allows local block storage with S3 backups as snapshots.
+
+7. Move EBS Volumes Between Regions:
+Requirement: Need to move an EBS volume between regions.
+Solution: Create a snapshot of the EBS volume and copy the snapshot to another region.
+
+8. Prevent Deletion of Critical EBS Volumes on Termination:
+Requirement: Root EBS volumes for critical applications should not be deleted when the instance is terminated.
+Solution: Modify the DeleteOnTermination attribute for the root EBS volume when launching instances to ensure it is not deleted on termination.
+
+9. On-Premises NFS File System Replaced with AWS Service Using S3 with Local Cache:
+Requirement: On-premises servers use NFS to attach to a file system, and this should be replaced with an AWS service that uses S3 with a local cache.
+Solution: Use AWS Storage Gateway, specifically the File Gateway. This service provides local caching while backing the file system on S3.
+
+
+Summary of Services Mentioned:
+Data Lifecycle Manager: For EBS volume backup automation.
+Instance Stores: For high-performance storage in distributed applications.
+Amazon AMI: For speeding up application launch by pre-installing dependencies.
+Amazon EFS: For shared, scalable file storage for Linux instances.
+Amazon FSx for Windows File Server: For managed Windows file systems with NTFS support.
+
+AWS Storage Gateway:
+Volume Gateway (Stored Volume Mode): For on-premises block storage with S3 backup.
+File Gateway: For NFS replacement with S3-backed local caching.
+This lesson covers common block and file storage solutions in AWS and how they can b
