@@ -1,0 +1,588 @@
+Amazon Elastic File System (EFS)
+
+EFS (Elastic File System) is a shared file system designed for Linux-based workloads.
+It can be accessed by multiple EC2 instances across multiple availability zones.
+Protocol: EFS uses the Network File System (NFS) protocol (NFS v4), which supports file-level operations like file locking.
+Linux-Only:
+EFS is natively supported only for Linux-based operating systems.
+While NFS can work on other operating systems like Windows, AWS EFS itself is a Linux-only solution.
+
+
+EFS Deployment Options
+
+Regional File System:
+Default option for EFS.
+Deployed across multiple availability zones (AZs) within a region.
+Each AZ has a mount target (appearing as an Elastic Network Interface) that instances in the same AZ connect to.
+Durability: Data is durably stored across AZs, ensuring high availability and fault tolerance.
+Data remains consistent and supports locking for read/write operations.
+
+
+            Amazon Region
+        ----------------------------------------------------------------------
+        |                       |                       |                     |
+        |   AZ 1                |   AZ 2                |   AZ 3              |
+        |   ---------           |   ---------           |   ---------         |
+        |   | EC2   |           |   | EC2   |           |   | EC2   |         |
+        |   ---------           |   ---------           |   ---------         |
+        |       |               |       |               |       |             |
+        |    Mount Target       |    Mount Target       |    Mount Target     |
+        |    (ENI)              |    (ENI)              |    (ENI)            |
+        |       |               |       |               |       |             |
+        |---------------------------------------------------------------------
+                |                       |                       |
+                |                       |                       |
+                 ------------------------------------------------
+                                        |
+                                       EFS
+
+Amazon Region: The entire architecture is deployed within a single region.
+Availability Zones (AZs): There are multiple AZs (e.g., AZ 1, AZ 2, AZ 3) within the region.
+Mount Targets (ENIs): Elastic Network Interfaces act as access points (mount targets) for EC2 instances to connect to the EFS file system.
+EFS: The file system spans across all AZs, ensuring durability and fault tolerance.
+EC2 Instances: Each instance connects to the EFS file system through its local AZ’s mount target.
+
+MOUNT TARGET IS  /EFS/MNT
+
+
+
+One Zone File System:
+Deployed in a single AZ only.
+Less durable than a regional file system (data not replicated across AZs).
+Cost-effective for workloads where cross-AZ durability is not required.
+Instances in other AZs can connect to the file system, but this increases latency and risks during AZ failures.
+
+                One Zone File System
+                --------------------
+              
+         -------|----------------------------------------------------
+        |       |                                                   |
+        |   ---------                                               |
+        |   | EC2   |  -----------------/efs/mnt ---------EFS       |
+        |   --------                        |                       |
+        |                                   |                       |
+        |         Single AZ (e.g., AZ-1)    |                       |
+         -----------------------------------------------------------
+                                            |
+                            Instances in Other AZs
+                             Connect via Network
+                               |
+        --------------------------
+        | Instances in AZ-2, AZ-3 |
+        --------------------------
+
+
+Storage Classes in EFS
+
+EFS Standard:
+Uses SSD storage for low-latency, high-performance workloads.
+Best for frequently accessed data.
+
+EFS Infrequent Access (IA):
+Optimized for data that is accessed infrequently.
+Offers lower cost compared to EFS Standard.
+
+EFS Archive:
+Designed for data that is rarely accessed (e.g., once or twice a year).
+Lowest cost among the storage classes.
+
+Durability Across Storage Classes:
+All storage classes provide 11 nines (99.999999999%) durability, similar to S3.
+
+
+
+Replication and Disaster Recovery
+
+Cross-Region Replication:
+Enables you to replicate an EFS file system from one region to another for disaster recovery (DR).
+Replication provides a read-only copy of the file system in the target region.
+During a failure in the primary region, you can failover to the target region, making it read-write.
+RPO and RTO (Recovery Point Objective and Recovery Time Objective): Both are in the minutes range.
+
+On-Premises Access:
+On-premises Linux clients can connect to EFS using:
+NFS protocol.
+A VPN or AWS Direct Connect connection.
+
+
+
+EFS Performance Options
+
+Provisioned Throughput:
+
+Allows you to specify throughput regardless of the size of the file system.
+Ideal for workloads requiring consistent high performance, regardless of data size.
+
+Bursting Throughput:
+Throughput scales based on the amount of data stored.
+More storage = higher throughput.
+Supports bursts to handle high-demand periods.
+
+
+
+Automatic Backups
+EFS integrates with AWS Backup to provide automated backups for file system data.
+These backups can be used for recovery in case of accidental deletions or corruption.
+
+
+Key Advantages of EFS
+
+Highly Scalable:
+Automatically scales as more data is added.
+Ideal for applications with unpredictable or fluctuating workloads.
+
+High Durability and Availability:
+Data is replicated within and across AZs in a region for regional file systems.
+11 nines durability ensures almost no data loss.
+
+Multiple Access Points:
+Multiple EC2 instances can connect to the same file system, enabling shared storage.
+
+Cost Efficiency:
+Different storage classes (Standard, IA, Archive) help optimize costs based on data access patterns.
+
+
+Key Use Cases for EFS
+Shared storage for multiple EC2 instances.
+Big data analytics and machine learning.
+Content management systems (e.g., WordPress).
+Media processing and file streaming.
+Backup and disaster recovery solutions.
+
+
+Comparison Between EFS and Other AWS Storage
+
+Feature         EFS	                    EBS                         	S3
+Storage Type	  Shared file system	    Block storage	               Object storage
+Use Case      	Multi-instance access	  Single-instance use	         Static web hosting, backups
+Protocol	      NFS (Linux only)	      Block storage (e.g., NTFS)	 HTTP/HTTPS (REST API)
+Scalability	    Automatic scaling	      Fixed size (resizable)	     Virtually unlimited
+Durability	    99.999999999%	          99.999%	                     99.999999999%
+
+
+
+
+PRACTICALS:
+
+
+Working with EFS
+
+Launch instances in multiple AZs
+
+1. Create a security group aws ec2 create-security-group --group-name StorageLabs --description "Temporary SG for the Storage Service Labs"
+{
+
+"groupid" = sgroup1212
+
+}
+
+2. Add a rule for SSH inbound to the security group aws ec2 authorize-security-group-ingress --group-name StorageLabs --protocol tcp --port 22 --cidr 0.0.0.0/0
+
+{
+"Return": true,
+ "SecurityGroupRules":[
+   
+{
+"SecutiryGroupRuleId": "sgroupruleid123",
+"GroupId": "sgroup1212",
+"GroupOwnerId": "123",
+"IsEgress": false,
+"IsProtocol": "tcp",
+"FromPort": 22,
+"IoPort": 22,
+"CidrIpv4":"0.0.0.0/0"
+}
+]
+}
+
+3. Launch instance in US-EAST-1A aws ec2 run-instances --image-id ami-0440d3b780d96b29d --instance-type t2.micro --placement AvailabilityZone=us-east-1a --security-group-ids  <id>
+4. Launch instance in US-EAST-1B aws ec2 run-instances --image-id ami-0440d3b780d96b29d --instance-type t2.micro --placement AvailabilityZone=us-east-1b --security-group-ids  <id>
+
+
+Create an EFS File System
+
+1. Add a rule to the security group to allow the NFS protocol from group members
+aws ec2 authorize-security-group-ingress --group-id <SECURITY-GROUP-ID> --protocol tcp --port 2049 --source-group <SECURITY-GROUP-ID>
+
+{
+"Return": true,
+ "SecurityGroupRules":[ 
+{
+"SecutiryGroupRuleId": "sgroupruleid124",
+"GroupId": "sgroup1212",
+"GroupOwnerId": "123",
+"IsEgress": false,
+"IsProtocol": "tcp",
+"FromPort": 2049,
+"ReferenceGroupInfo":{
+"groupId":"Sgroup1212"
+"userId":"123"
+}
+}
+]
+}
+
+
+secutrityruleGroup_id  IP version    Type	  Protocol	PortRange	  Source
+sgroupruleid124                      NFS     TCP       2049       Sgroup1212
+sgroupruleid123        IPV4          SSH     TCP       22         0.0.0.0/0
+
+
+2. Create an EFS file system through the console, and add the StorageLabs security group to the mount targets for each AZ
+
+
+Mount using the NFS Client (perform steps on both instances)
+
+1. Create an EFS mount point mkdir ~/efs-mount-point
+2. Install NFS client sudo yum -y install nfs-utils
+3. Mount using the EFS client sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport <efs_file_if>:/ ~/efs-mount-point
+4. Create a file on the file system cd ~/efs-mount-point and then touch file.txt
+5. Add a file system policy to enforce encryption in-transit(when we do this we should need EFS util and we cant mount it with NFS client which we did it later)
+6. Unmount (make sure to change directory out of efs-mount-point first) sudo umount ~/efs-mount-point
+7. Mount again using the EFS client (what happens?)
+
+
+Mount using the EFS utils (perform steps on both instances)
+1. Install EFS utils sudo yum install -y amazon-efs-utils
+2. Mount using the EFS mount helper sudo mount -t efs -o tls <efile_name> :/ ~/efs-mount-point
+
+
+
+
+
+in detail:
+
+Step 1: Creating a Security Group
+First, a security group called storage-labs is created. Security groups control inbound and outbound traffic to your EC2 instances. You'll 
+need to use the AWS CLI to create the security group.
+
+aws ec2 create-security-group --group-name storage-labs --description "Security group for file system access"
+
+this willcreate and generate the security group id 
+After creating the security group, the output will contain the Security Group ID, which is important for the next steps, as you'll need to 
+replace placeholder values in other commands.
+
+
+Step 2: Add Inbound Rule for SSH Access
+You allow SSH (port 22) access from anywhere (0.0.0.0/0) so that you can manage your EC2 instances.
+
+aws ec2 authorize-security-group-ingress --group-id sg-xxxxxxxx --protocol tcp --port 22 --cidr 0.0.0.0/0
+
+Replace sg-xxxxxxxx with your actual Security Group ID.
+
+
+
+Step 3: Launch EC2 Instances
+You'll launch two EC2 instances. To do so, you need to find the correct AMI (Amazon Machine Image) ID for Amazon Linux 2023.
+You can find it in the EC2 Console or using the AWS CLI.
+
+Go to EC2 Console → Launch Instance → Select Amazon Linux 2023.
+Copy the AMI ID.
+Then, use the following command to launch the instances:
+
+aws ec2 run-instances --image-id ami-xxxxxxxx --count 1 --instance-type t2.micro --key-name my-key --security-group-ids sg-xxxxxxxx --subnet-id subnet-xxxxxxxx
+
+Replace:
+ami-xxxxxxxx with your actual AMI ID.
+sg-xxxxxxxx with your Security Group ID.
+
+Do this for both instances, in different Availability Zones (e.g., us-east-1a and us-east-1b).
+
+
+
+Step 4: Add Inbound Rule for NFS Access
+Now, add a rule to allow NFS (Network File System) traffic (port 2049) between the EC2 instances. You only want these instances to 
+access the NFS service, so the source will be the security group itself:
+
+aws ec2 authorize-security-group-ingress --group-id sg-xxxxxxxx --protocol tcp --port 2049 --source-group sg-xxxxxxxx
+
+
+
+*****
+
+why secutiry and not instance id
+
+Instance ID vs. Security Group ID
+
+Instance ID:
+Directly ties access to a specific instance. If you specify an instance ID, only that
+particular instance can access the resource.
+Limited scalability: If you need to add more instances or scale up the system, you would need to
+update the rule to include each new instance manually.
+
+Security Group ID:
+Group-based control: Security groups allow you to specify a group of instances by their security group rather than their
+individual instance IDs. This means any instance within the security group gets access without needing to update rules for each instance.
+Scalability and flexibility: Adding or removing instances from the security group automatically grants or revokes 
+access, making it much easier to manage multiple instances that need access to the same resources.
+
+****
+
+Step 5: Create an EFS File System
+Next, you'll create an EFS file system using the AWS Console. Here, you can choose some configurations:
+
+File System Name: my-efs
+VPC: Default VPC
+Availability Zones: Select us-east-1a and us-east-1b (same as your EC2 instances)
+Security Group: Use the storage-labs security group.
+Then, click Create File System. After creation, the EFS file system is available.
+
+
+Step 6: Mount the EFS File System
+To mount the file system on both EC2 instances, you’ll need to install the NFS client.
+
+Install NFS client on both instances:
+sudo yum install -y nfs-utils
+
+Create a mount point on each instance:
+sudo mkdir /mnt/efs
+
+Mount the EFS file system on both instances. Use the EFS file system's DNS name (found in the EFS console) and replace fs-xxxxxxxx.efs.us-east-1.amazonaws.com with your DNS:
+sudo mount -t nfs4 fs-xxxxxxxx.efs.us-east-1.amazonaws.com:/ /mnt/efs
+
+Verify the mount by listing the files:
+ls /mnt/efs
+
+
+
+Step 7: Create and Share Files
+Now that the file system is mounted on both EC2 instances, create files on each instance to confirm that they share the same file system.
+
+On the first instance, create a file:
+sudo touch /mnt/efs/instance1.txt
+
+On the second instance, create another file:
+sudo touch /mnt/efs/instance2.txt
+
+List the files from both instances to see that they are shared:
+ls /mnt/efs
+
+This confirms that both instances can read and write to the same shared EFS file system.
+
+
+
+Step 8: Enable Encryption in Transit
+To secure the data in transit, enable encryption for the file system. Go to EFS Console → File System Policy → Edit and 
+check the box to enforce encryption in transit.
+
+
+Step 9: Unmount and Remount the File System
+Unmount the file system on both instances:
+sudo umount /mnt/efs
+
+If you try to remount without encryption enabled, you might face issues. You need to install EFS client tools from AWS to support encryption in transit.
+
+Install EFS utilities:
+sudo yum install -y amazon-efs-utils
+
+Then, remount with encryption enabled:
+sudo mount -t efs -o tls fs-xxxxxxxx.efs.us-east-1.amazonaws.com:/ /mnt/efs
+
+This uses the -o tls option to enable encryption in transit. Verify the mount:
+ls /mnt/efs
+
+You should see your files again.
+
+Step 10: Cleanup
+Finally, terminate the EC2 instances and delete the EFS file system to clean up the resources:
+
+Terminate Instances:
+aws ec2 terminate-instances --instance-ids i-xxxxxxxx i-yyyyyyyy
+
+Delete EFS File System:
+
+Go to EFS Console, select the file system, and click Delete.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Amazon Elastic File System (EFS) and block storage systems (like Amazon Elastic Block Store (EBS)) are both storage solutions offered by AWS, 
+but they differ significantly in terms of how they work and their use cases. Here’s a detailed comparison:
+
+1. Storage Type
+EFS: It is a file storage system that allows multiple instances to access the same data concurrently. EFS is designed for shared access 
+across multiple EC2 instances, similar to how a traditional file system works on your local computer.
+File System: Organizes data in a hierarchical structure (directories, subdirectories, files).
+Use Case: Best for applications that require a shared file system across multiple instances, such as web servers,
+content management systems, and big data analytics.
+
+
+Block Storage (EBS): EBS is block-level storage, meaning it provides raw storage volumes that you can mount to EC2 instances as if they were 
+physical hard drives. It does not have a file system on its own and needs to be formatted before use.
+
+Block Storage: Works at a lower level, where data is stored in fixed-size blocks.
+Use Case: Suitable for databases, transactional systems, or applications that need high-performance storage for a single EC2 instance.
+
+
+2. Access and Scalability
+EFS:
+Concurrent Access: EFS can be accessed by multiple EC2 instances simultaneously, even across multiple availability zones (AZs). It is highly 
+scalable and automatically adjusts its capacity to accommodate growing data.
+Scalable: Automatically scales up and down based on how much data is stored.
+Shared Access: Ideal for workloads that require multiple instances to access the same data, such as web servers in a clustered environment.
+
+Block Storage (EBS):
+Single Instance: EBS volumes can be attached to only one EC2 instance at a time (though you can detach it and attach it to another). It’s not designed 
+for concurrent access across multiple instances.
+Scalable: You can manually resize EBS volumes (e.g., increase the size or adjust performance), but the scaling is not automatic like EFS.
+Direct Access: EBS is ideal for single-instance applications that need low-latency, high-throughput storage.
+
+
+3. Performance
+EFS:
+Latency: Slightly higher latency compared to block storage due to its distributed nature.
+Throughput and IOPS: EFS automatically adjusts throughput and IOPS (Input/Output Operations Per Second) based on the amount of data stored,
+making it suitable for a variety of workloads.
+Use Case: Ideal for large-scale, distributed applications that need shared data access with variable performance needs.
+
+Block Storage (EBS):
+Latency: Lower latency because it's tightly coupled with a single EC2 instance and provides direct block-level access.
+Performance Options: Offers multiple types of performance (e.g., SSD-based for high performance or HDD for cost-effective storage), and you can choose 
+between different volume types based on your needs (e.g., General Purpose SSD, Provisioned IOPS SSD).
+Use Case: Suitable for applications where low-latency, high-performance storage is needed, such as databases or high-transactional workloads.
+
+
+4. Data Management
+EFS:
+Data Consistency: Provides strong data consistency for file-based access. Changes to a file are visible to all instances that have it mounted.
+Backup and Snapshot: EFS supports automatic backups and file versioning, but it does not provide snapshots in the same way EBS does.
+Access Control: Integrates with AWS Identity and Access Management (IAM) for fine-grained access control, as well as NFS permissions to manage file system access.
+
+Block Storage (EBS):
+Snapshots: EBS supports snapshots, which allow you to take backups of volumes, making it easy to create point-in-time backups of your data.
+Volume Types: Offers different volume types (SSD, HDD) to optimize cost, performance, and durability for different use cases.
+Access Control: You control access via EC2 instance permissions, and it integrates with IAM for fine-grained permissions at the instance level.
+
+
+5. Pricing
+EFS:
+Pricing Model: EFS pricing is based on the amount of storage you use. You pay for the storage that is consumed, and there may be additional costs for data transfer.
+Pricing Advantage: EFS can be cost-effective for use cases where you need scalable, shared storage but don't want to manage storage capacity manually.
+
+Block Storage (EBS):
+Pricing Model: EBS is priced based on the amount of storage you provision and the volume type (e.g., SSD or HDD). You also pay for IOPS if you 
+choose a provisioned IOPS (PIOPS) volume type.
+Pricing Advantage: EBS can be more cost-effective for single-instance workloads, especially if you need high-performance storage with a fixed size.
+
+
+6. Use Cases
+EFS:
+Shared file system for web servers or application servers in a clustered environment.
+Backup or archive storage for scalable workloads.
+Shared data access for containerized applications running on Amazon ECS or Kubernetes.
+Content management, media workflows, or any application requiring simultaneous access from multiple instances.
+
+Block Storage (EBS):
+Storage for databases (e.g., MySQL, PostgreSQL).
+Boot volumes for EC2 instances.
+High-performance applications with intensive read/write operations (e.g., NoSQL databases, big data analytics).
+Persistent storage for a single EC2 instance, such as for virtual machines or applications with specific data storage needs.
+
+
+
+
+
+1. Amazon EFS - Shared Storage for Web Servers
+Scenario: You are building a web application that requires multiple EC2 instances to share the same data. For instance, you have multiple web 
+servers (EC2 instances) behind a load balancer, and they need to access and serve the same media files (images, videos, documents) to users.
+
+Solution: You would use Amazon EFS to create a shared file system. Each web server can mount the same EFS file system, ensuring all servers access 
+the same files, allowing users to upload or download media content from any server, and data will be consistent across all of them.
+
+Example:
+You have an e-commerce platform where users upload product images. These images need to be accessible from multiple web servers. By mounting EFS on all the EC2 instances running your web application, each server can access the images, ensuring that no matter which server handles the request, the image is available.
+
+Steps to implement:
+Create an EFS file system.
+Create a security group to allow NFS access between EC2 instances and the EFS file system.
+Mount the EFS file system to all EC2 instances running the web application.
+Serve files (e.g., images) from the mounted EFS to users through the web application.
+
+
+2. Amazon EBS - Database Storage
+Scenario: You are building a relational database (such as MySQL or PostgreSQL) and need to store large amounts of data in a high-performance
+block storage system. The database needs low-latency, high-throughput access to disk storage.
+
+Solution: You would use Amazon EBS to provision high-performance block storage volumes for your EC2 instance. This ensures that your 
+database can handle frequent read/write operations with low latency, which is critical for transactional applications.
+
+Example:
+You are running a high-transactional e-commerce site where users are constantly making purchases, updating profiles, and interacting 
+with the system. The database needs fast and reliable storage for handling real-time transactions.
+Using an EBS volume (such as Provisioned IOPS SSD for high performance), your MySQL database can write transaction logs and data
+with low latency and high throughput, ensuring fast database operations and minimal delays.
+
+Steps to implement:
+Create an EBS volume with the required performance (e.g., Provisioned IOPS SSD).
+Attach the EBS volume to your EC2 instance running the database.
+Format and mount the EBS volume to store database files (data, logs).
+Configure the database to use the mounted volume for data storage.
+
+
+3. Amazon EFS - Media Workflow (Video Editing)
+Scenario: You run a video production company where multiple video editors work on the same video files across 
+different EC2 instances. 
+The files need to be accessed and modified simultaneously, but there’s no need for block-level storage.
+
+Solution: Amazon EFS is ideal for this scenario because video editors need to access the same media files simultaneously from different EC2 instances.
+
+Example:
+In a media production environment, multiple editors are working on the same video projects stored in an EFS file system. Each editor has an EC2 instance 
+mounted with EFS, so when one editor makes changes to a video file (e.g., applying an effect or changing a clip), other editors can instantly see and work on the file.
+
+Steps to implement:
+Create an EFS file system to store the video files.
+Mount the EFS file system to multiple EC2 instances running video editing software.
+Allow each editor to work on the same project files stored in EFS, enabling collaboration.
+
+
+4. Amazon EBS - Boot Storage for EC2 Instances
+Scenario: You are using EC2 instances to run custom software, and each EC2 instance needs to have its own boot disk to run the OS and software.
+Solution: Amazon EBS is ideal for storing the operating system and application data on individual EC2 instances, providing fast access to the boot disk.
+
+Example:
+You have a fleet of EC2 instances running a custom application (such as a machine learning model or web application). Each instance is launched with
+an EBS boot volume that contains the OS, software, and any local application data.
+If one instance fails, the boot volume can be reattached to a new instance, ensuring high availability.
+
+Steps to implement:
+Launch an EC2 instance and specify an EBS volume for the root device (boot disk).
+After instance launch, the EBS volume will automatically contain the operating system and any application software.
+If the instance needs to be replaced, create a new EC2 instance and reattach the EBS volume to it.
+
+
+5. Amazon EFS - Containerized Applications with ECS/EKS
+Scenario: You’re running a containerized web application in Amazon ECS (Elastic Container Service) or Amazon EKS (Elastic Kubernetes Service), 
+where multiple containers across different instances need shared access to the same file storage.
+Solution: Amazon EFS allows multiple containers to access the same data, providing shared file storage across your ECS/EKS cluster.
+
+Example:
+You are running a containerized application that needs to store user-uploaded files. Instead of storing them locally in each container’s
+file system (which would be lost when containers are scaled or terminated), you can mount an EFS file system to all the containers, ensuring 
+they have shared persistent storage for user files.
+Each container running in ECS/EKS can mount the same EFS file system, allowing it to store and retrieve files across multiple container instances.
+
+Steps to implement:
+Create an EFS file system.
+Configure the ECS task definition or EKS pod spec to mount the EFS file system.
+Deploy containers that share data stored in the mounted EFS file system.
+
+Conclusion
+In real-time scenarios, Amazon EFS is ideal for use cases where multiple instances (or containers) need shared file access, such as web servers, media workflows, or 
+containerized applications. Amazon EBS, on the other hand, is suited for single-instance use cases that require low-latency, high-throughput block storage, 
+such as databases, boot volumes, or high-performance applications. Each of these storage options serves different needs depending on your workload requirements.
+
