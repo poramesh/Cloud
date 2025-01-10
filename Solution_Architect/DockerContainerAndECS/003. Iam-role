@@ -1,0 +1,100 @@
+Roles in Amazon ECS
+ECS relies on several AWS IAM roles to provide permissions for different components to interact with AWS services. These roles
+ensure secure access to APIs and resources.
+
+1. Amazon ECS Container Instance IAM Role
+Purpose: Provides permissions to EC2 instances running the ECS container agent (relevant for the EC2 launch type).
+Functionality:
+Allows the container agent on EC2 instances to call AWS APIs on behalf of the instance.
+Enables communication between container instances and the ECS service.
+Grants permissions for tasks like:
+Registering the instance with ECS.
+Pulling images from Amazon Elastic Container Registry (ECR).
+Sending logs to Amazon CloudWatch.
+Policy Example: AWS provides a managed policy (AmazonEC2ContainerServiceforEC2Role) that includes permissions for ECS, EC2, ECR, and CloudWatch Logs.
+
+
+
+2. Task IAM Role
+Purpose: Provides permissions to containers (tasks) to access other AWS services.
+Functionality:
+Enables containers to assume the role defined in the task definition.
+Ensures tasks can securely access resources like S3, DynamoDB, or any AWS API needed by the application running in the container.
+Best Practice: Tasks can only retrieve credentials for the specific IAM role defined in their task definition.
+Security Note: Containers within one task cannot access credentials for roles defined in another task.
+
+3. ECS Task Execution Role
+Purpose: Grants permissions required to execute tasks, especially for the Fargate launch type.
+Functionality:
+Enables ECS agents (Fargate or EC2) to:
+Pull container images from registries like ECR or Docker Hub.
+Write logs to CloudWatch.
+Perform any necessary task setup.
+Example Use Case: When running a Fargate task, this role allows the Fargate agent to pull the container image and write logs.
+
+4. ECS Infrastructure IAM Role
+Purpose: Used for ECS to manage infrastructure resources such as EBS volumes.
+Functionality:
+Grants permissions to ECS to provision and manage supporting infrastructure required by tasks.
+
+5. ECS Anywhere IAM Role
+Purpose: Provides permissions for on-premises servers or VMs using ECS Anywhere to interact with ECS services.
+Functionality:
+Allows on-premises resources to communicate with AWS APIs for ECS service integration.
+
+6. ECS CodeDeploy IAM Role
+Purpose: Used for blue/green deployments when integrating ECS with CodeDeploy.
+Functionality:
+Grants permissions to manage task sets and perform deployments.
+
+7. ECS EventBridge IAM Role
+Purpose: Enables ECS to integrate with EventBridge for scheduled tasks and event rules.
+Functionality:
+Provides permissions for EventBridge to trigger ECS tasks or services based on rules.
+Applying Permissions in ECS
+EC2 Launch Type (ECS EC2 Cluster)
+Container Instance (EC2 Instance):
+Runs the ECS container agent.
+Requires an IAM instance role to:
+Communicate with ECS APIs.
+Pull container images from ECR.
+Send logs to CloudWatch.
+Policy Example:
+Use the managed policy AmazonEC2ContainerServiceforEC2Role.
+Grants permissions for ECS, EC2, ECR, and CloudWatch Logs.
+Tasks:
+Require a Task IAM Role.
+Provides containers with permissions to interact with AWS services (e.g., S3, DynamoDB).
+Important Note:
+Tasks running on EC2 instances can potentially access the credentials of the IAM instance role. Limit the permissions assigned to the instance role
+to avoid exposing unnecessary access to tasks.
+Fargate Launch Type
+No container instances are managed by the user.
+Task IAM Role:
+Required to grant permissions to containers for accessing AWS services.
+Task Execution Role:
+Required to grant permissions for pulling container images and sending logs to CloudWatch.
+Key Difference:
+Since AWS manages the infrastructure, the Container Instance Role is not relevant in Fargate.
+Key Security Considerations
+Separation of Roles:
+Tasks can only access credentials for their own Task IAM Role.
+They cannot access credentials intended for other tasks.
+EC2 Instance Role Exposure:
+Tasks on EC2 instances may access the credentials of the IAM instance role.
+Minimize permissions assigned to the container instance IAM role to limit potential exposure.
+Fargate Security:
+Fargate tasks are isolated from infrastructure-level credentials since AWS manages the underlying instances.
+Summary of Roles by Launch Type
+Role	EC2 Launch Type	Fargate Launch Type
+Container Instance Role	Required for EC2 instances to interact with ECS and APIs.	Not applicable.
+Task IAM Role	Required for containers to access AWS services.	Required for containers to access AWS services.
+Task Execution Role	Required for ECS agent tasks (e.g., image pull, logs).	Required for Fargate tasks (e.g., image pull, logs).
+Practical Example
+EC2 Launch Type:
+Container Instance Role: Grants permissions to register with ECS and pull images.
+Task IAM Role: Grants S3 read/write access for tasks needing to process data in S3.
+Fargate Launch Type:
+Task IAM Role: Grants access to a DynamoDB table for tasks.
+Task Execution Role: Grants ECS agents permission to pull images and write logs.
+These roles enable ECS to manage containers securely and efficiently, adhering to the principle of least privilege.
