@@ -1,0 +1,251 @@
+Introduction to Amazon ECS
+
+Purpose: ECS is a managed service for running Docker containers on AWS.
+Key Concept: Allows the deployment, scaling, and management of containerized applications.
+
+
+Core Components of ECS
+
+1. ECS Cluster:
+Definition: A logical grouping of tasks or services.
+Role: Hosts and organizes running tasks (containers) and services.
+Setup: Must create a cluster before deploying tasks or services.
+
+2. Tasks:
+Definition: A running Docker container in ECS terminology.
+Source: Tasks are launched based on Task Definitions.
+Task Definition:
+A blueprint that defines:
+>Container settings: Image name, ports, memory, CPU, etc.
+>Example:
+A task with a WordPress container linked to a MySQL container.
+WordPress serves a website on port 80, and MySQL provides the database layer.
+>Image: Points to container images stored in a registry like:
+Amazon Elastic Container Registry (ECR).
+Docker Hub (or other registries).
+
+3. ECS Service:
+Definition: Maintains a desired number of tasks (e.g., always run 10 tasks).
+Role: Similar to EC2 Auto Scaling but specific to container tasks.
+Ensures:
+High availability.
+Consistency in the number of running tasks.
+
+
+4. ECS Container Instance:
+Definition: An EC2 instance that runs Docker containers.
+Agent: Must have the ECS Container Agent installed to communicate with ECS.
+Management:
+Add container instances to the cluster for hosting tasks.
+Enable auto scaling for these EC2 instances to handle workloads dynamically.
+
+
+
+Launch Types in ECS
+
+1.AWS Fargate:
+Definition: Serverless compute engine for containers.
+Benefits:
+No need to manage underlying infrastructure.
+Eliminates the concept of container instances.
+Use Case: Ideal for teams wanting a hands-off approach to infrastructure.
+
+2. EC2 Launch Type:
+
+Definition: Uses EC2 instances as hosts for tasks.
+Requirements:
+Must provision and manage EC2 instances.
+EC2 instances must be added to the cluster.
+Auto Scaling:
+EC2 instances can scale up or down based on demand.
+
+
+Container Images
+Definition: Pre-packaged applications with code, dependencies, and configurations.
+Storage Options:
+Amazon Elastic Container Registry (ECR): A managed container image registry service by AWS.
+Docker Hub: Public or private container image repository.
+Task Definition Role:
+Specifies the container image to use.
+ECS pulls the image from the specified registry when starting tasks.
+
+
+Scaling in ECS
+
+1.Task Auto Scaling (via ECS Service):
+Ensures a fixed or dynamic number of tasks are running based on defined conditions.
+Example: Always maintain 10 tasks.
+
+2. EC2 Instance Auto Scaling:
+If using the EC2 launch type, configure EC2 Auto Scaling to manage the container instances.
+Scales the number of EC2 instances in response to task load.
+
+
+Comparison: Fargate vs. EC2 Launch Type
+Feature         	Fargate	                              EC2 Launch Type
+Infrastructure  	Fully managed by AWS (serverless).	  Requires provisioning and managing EC2 instances.
+Auto Scaling	    Scales tasks automatically.	          Must configure auto scaling for EC2 instances and tasks.
+Use Case	        Simplicity and minimal management.	  Greater control over underlying infrastructure.
+
+
+Key Takeaways
+ECS simplifies container orchestration on AWS.
+Cluster is the foundation for managing tasks and services.
+Task Definitions are crucial for defining how containers run.
+ECS supports two launch types: Fargate (serverless) and EC2 (user-managed infrastructure).
+ECS Service ensures tasks maintain desired availability and scale dynamically.
+
+
+
+
+
+
+
+Detailed Notes on Amazon Elastic Container Service (ECS)
+
+Key Features of ECS
+
+1. AWS Fargate (Serverless Option):
+No need to manage EC2 container instances.
+Fully scalable and managed by AWS.
+Handles cluster optimization automatically.
+
+2. Managed Control Plane:
+Fully managed container orchestration.
+Simplifies deployment and scaling of Docker containers.
+
+3. Docker and Windows Support:
+Runs Docker containers with integration into the Docker Compose CLI.
+Supports both Linux and Windows containers.
+
+4. Elastic Load Balancing Integration:
+Can distribute traffic using:
+>Application Load Balancers (ALBs).
+>Network Load Balancers (NLBs).
+Defined at the ECS service level.
+
+5. ECS Anywhere:
+Extends ECS capabilities to on-premises implementations.
+Uses the ECS control plane to manage containers across environments.
+
+
+
+Core ECS Components
+
+1. Cluster:
+A logical grouping of tasks and services.
+The foundation for running ECS workloads.
+
+2. Container Instance:
+Relevant only for the EC2 launch type.
+EC2 instances running the ECS container agent.
+Must be provisioned, managed, and joined to the cluster.
+
+3. Task Definition:
+A JSON blueprint for running containers.
+Describes:
+Container settings (e.g., image, ports, memory, and CPU).
+Up to 10 containers per task definition.
+
+4. Task:
+A running container based on the Task Definition.
+Pulls images from registries like ECR or Docker Hub.
+
+5. Service:
+Defines long-running tasks and maintains a desired task count.
+Supports auto-scaling and integration with Elastic Load Balancers (ALBs/NLBs).
+
+
+Container Images and Registries
+
+Images:
+Built from Dockerfiles and used to create containers.
+Stored as read-only templates with application instructions.
+
+Supported Registries:
+Amazon Elastic Container Registry (ECR):
+>Managed, secure, reliable, and scalable.
+>Supports private Docker repositories with resource-based IAM permissions.
+Docker Hub and self-hosted registries.
+
+Managing Images:
+Use the Docker CLI to push, pull, and manage container images.
+
+
+
+
+ECS Launch Types
+
+EC2 Launch Type:
+Requires provisioning EC2 instances with the ECS agent installed.
+Cost: Charged for running EC2 instances, not tasks.
+Features:
+Greater control over infrastructure.
+Supports storage integrations (EFS, FSx, EBS).
+Requires cluster optimization for scaling.
+
+
+Fargate Launch Type:
+Serverless; automatically provisions and manages compute resources.
+Cost: Charged per running task.
+Features:
+Simplifies management by handling cluster optimization.
+Only supports EFS for storage integration.
+Reduced control compared to EC2 launch type.
+
+
+
+
+
+Permissions in ECS
+
+1. Container Instance Role (EC2 Launch Type):
+Attaches an IAM role to EC2 instances running the ECS agent.
+Grants permissions for the ECS service to manage the container instances.
+
+2. Task IAM Role:
+Provides permissions to the task (container).
+Used when tasks need access to AWS services like S3 or DynamoDB.
+
+3. Task Execution Role (Fargate Launch Type):
+Replaces the container instance role.
+Grants permissions to execute tasks in Fargate.
+Tasks still require the Task IAM Role for AWS service access.
+
+
+Comparison: EC2 vs. Fargate Launch Types
+Feature	                   EC2 Launch Type	                          Fargate Launch Type
+Infrastructure	           User-managed EC2 instances.	              Fully managed serverless compute.
+Cost Model                 Charged for running EC2 instances.	        Charged per running task.
+Cluster Optimization       Manual scaling and optimization required.	Handled automatically by AWS.
+Storage Options	Supports   EFS, FSx, and EBS.	                        Supports EFS only.
+Control	                   Granular control over infrastructure.	    Less control but simpler to manage.
+
+
+
+Additional Notes on ECS Images and Tasks
+
+Task Definitions:
+Written in JSON format.
+Define:
+Container images.
+Resource allocation (CPU, memory).
+Networking and storage configurations.
+
+Integration with Registries:
+ECS tasks pull images from registries based on the task definition.
+Popular registries:
+ECR: Secure, managed by AWS.
+Docker Hub: Public or private repositories.
+
+Scaling:
+Services enable auto-scaling for tasks.
+EC2 instances can also be auto-scaled when using the EC2 launch type.
+
+
+Key Takeaways
+ECS provides a flexible and scalable platform for running containerized applications.
+Fargate simplifies container management by eliminating infrastructure concerns but offers less control.
+EC2 launch type provides more granular control but requires managing and scaling EC2 instances.
+The choice of launch type depends on cost, control, and operational complexity considerations.
+ECS integrates seamlessly with other AWS services, such as IAM for permissions, ECR for image storage, and Elastic Load Balancing for traffic distribution.
