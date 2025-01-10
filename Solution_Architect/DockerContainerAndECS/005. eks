@@ -1,0 +1,59 @@
+1. What is EKS?
+EKS is a managed service for running Kubernetes applications in AWS or on-premises.
+Kubernetes is an open-source platform for automating the deployment, scaling, and management of containerized applications (like those using Docker).
+
+2. When to Use EKS?
+Use EKS to standardize container orchestration across multiple environments, such as AWS and on-premises data centers.
+
+3. Key Features of EKS:
+Hybrid Deployments: Manage Kubernetes clusters and applications across both AWS and on-premises.
+Batch Processing: Run sequential or batch workloads using the Kubernetes Jobs API.
+Machine Learning: Use Kubeflow with EKS for machine learning workflows, leveraging EC2 GPU-powered instances.
+Web Applications: Build scalable and highly available web applications that auto-scale across multiple availability zones (AZs).
+
+4. EKS Architecture:
+VPC (Virtual Private Cloud) with multiple availability zones and EKS service running on EC2, Fargate, and Outposts.
+Control Plane: Managed by AWS.
+Worker Nodes: Run your applications.
+Pods: Groups of containers in Kubernetes.
+Load Balancers: EKS supports ALB (Application Load Balancer), NLB (Network Load Balancer), and CLB (Classic Load Balancer, deprecated).
+
+5. Autoscaling in EKS:
+Cluster Autoscaling: Scales the worker nodes.
+Vertical Pod Autoscaler: Adjusts CPU and memory for individual pods (vertical scaling).
+Horizontal Pod Autoscaler: Scales the number of pods in a deployment (horizontal scaling).
+Workload Autoscaling:
+Kubernetes Cluster Autoscaler: Uses AWS scaling groups.
+Karpenter: An open-source autoscaling project that works with EC2 fleets.
+
+6. Load Balancing with EKS:
+NLB and ALB are the main load balancers.
+AWS Load Balancer Controller manages these load balancers in Kubernetes.
+The controller provisions an ALB when creating a Kubernetes ingress and an NLB when creating a Kubernetes service of type LoadBalancer.
+
+7. EKS Distro:
+A distribution of Kubernetes that replicates EKS with the same dependencies.
+You can run Kubernetes clusters anywhere (on AWS EC2 or on-premises hardware).
+It includes open-source Kubernetes binaries, networking, and storage plugins, with regular updates for compatibility.
+
+8. EKS and ECS Anywhere:
+Allows running EKS or ECS on customer-managed infrastructure, including bare-metal servers or VMware vSphere.
+Can be deployed both on-premises and on AWS Outposts.
+
+9. Conclusion:
+EKS is highly versatile, supporting hybrid deployments, scalable workloads, and various environments such as on-premises and cloud-based infrastructure.
+It enables efficient Kubernetes cluster management, autoscaling, and integrated load balancing.
+This overview should give you a solid foundation for understanding EKS and its core components.
+
+
+
+
+
+
+
+
+
+
+
+
+
