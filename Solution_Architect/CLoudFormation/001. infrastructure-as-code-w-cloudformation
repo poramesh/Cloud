@@ -373,9 +373,62 @@ The VpcId output includes the retrieved VPC ID as its value, making it available
 If the VpcId needs to be referenced by another stack (e.g., in a nested stack setup), you must define it in the Outputs section. Outputs make 
 it possible to export values from one stack and import them into another using Fn::ImportValue.
 
+
+and
+
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+
+!GetAZs ''
+What it does: This intrinsic function retrieves a list of all the Availability Zones (AZs) available in the current AWS region.
+Input: The empty string ('') as the parameter means it will fetch AZs for the default region of the AWS account or the region where the stack is being created
+
+The AvailabilityZone is dynamically set to the second AZ in the current region.
+If the AZs for the region are ["us-east-1a", "us-east-1b", "us-east-1c"], the value assigned to AvailabilityZone will be "us-east-1b".
+
+
+
+and
+
+aws s3api list-objects --bucket my-cloudformation-s3-bucket-3121s2 --query "Contents[].{Key: Key}" --output text | 
+awk '{ print "https://my-cloudformation-s3-bucket-3121s2.s3.amazonaws.com/" $1 }'
+
+whats this ? this is what i asked chatgpt
+
+a. aws s3api list-objects
+This is an AWS CLI command to list the objects in an S3 bucket.
+The --bucket flag specifies the name of the S3 bucket: my-cloudformation-s3-bucket-3121s2.
+
+b. --query "Contents[].{Key: Key}"
+Purpose: Filters and extracts the Key (the object name) from the output.
+Contents[]: Refers to the list of objects in the bucket returned by the list-objects command.
+{Key: Key}: Maps the Key (object name) of each item in Contents to a simpler format that only includes the Key field.
+
+Example Output (raw object names):
+file1.yaml
+file2.yaml
+folder/file3.yaml
+
+c. --output text
+Specifies that the output should be in plain text format (instead of JSON or table).
+This strips away unnecessary formatting, making it easier to process programmatically.
+
+d. | awk '{ print "https://my-cloudformation-s3-bucket-3121s2.s3.amazonaws.com/" $1 }'
+Purpose: Processes the output of the AWS CLI and transforms it into full S3 object URLs.
+awk: A text-processing tool that iterates through each line of input.
+print Statement: Constructs the full S3 object URL by appending each object’s Key to the S3 bucket URL.
+
+https://my-cloudformation-s3-bucket-3121s2.s3.amazonaws.com/file1.yaml
+https://my-cloudformation-s3-bucket-3121s2.s3.amazonaws.com/file2.yaml
+https://my-cloudformation-s3-bucket-3121s2.s3.amazonaws.com/folder/file3.yaml
+
+
 ****************
 
 1. Create a file named vpc.yaml with the following content
+
+
+we start it off by nano vpc.yaml and paste the content in the file and then saving it.
+>if nano is not installed we can just "sudo yum install nano"
 
 ```yaml
 AWSTemplateFormatVersion: '2010-09-09'
@@ -396,6 +449,8 @@ Outputs:
 ```
 
 2. Create a file named subnet1.yaml with the following content
+
+and we nano and save this as well
 
 ```yaml
 AWSTemplateFormatVersion: '2010-09-09'
@@ -419,6 +474,8 @@ Outputs:
 ```
 
 3. Create a file named subnet2.yaml with the following content
+
+and save this in nano as well.
 
 ```yaml
 AWSTemplateFormatVersion: '2010-09-09'
@@ -445,7 +502,10 @@ Outputs:
 
 aws s3 cp <file-name> s3://<bucketname>
 
+aws s3 mb s3://my-cloudformation-s3-bucket-3121s2
+
 aws s3api list-objects --bucket my-cloudformation-s3-bucket-3121s2 --query "Contents[].{Key: Key}" --output text | awk '{ print "https://my-cloudformation-s3-bucket-3121s2.s3.amazonaws.com/" $1 }'
+
 
 5. Create a file named main.yaml with the following content (replace your-bucket-name with the name of the S3 bucket where you uploaded the templates)
 
