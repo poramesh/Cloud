@@ -1,3 +1,18 @@
+Create a Container Image:
+
+Build a Docker image (myapp:v1) containing your application.
+Push it to Amazon Elastic Container Registry (ECR).
+
+Define a Task Definition:
+Specify the container image (myapp:v1).
+Set memory, CPU, ports, and other configurations.
+
+Run a Task:
+ECS schedules and launches the task on a container instance or Fargate.
+The task uses the container image to start a running container.
+
+
+
 Introduction to Amazon ECS
 
 Purpose: ECS is a managed service for running Docker containers on AWS.
