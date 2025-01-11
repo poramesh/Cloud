@@ -93,5 +93,195 @@ HANDS ON LESSON
 
 
 
+AWS CloudFormation is an Infrastructure as Code (IaC) service that automates the provisioning and management of AWS resources using templates.
+
+CloudFormation Components:
+Stack: A collection of AWS resources managed as a single unit.
+Template: A JSON or YAML file that defines the resources and their configurations.
+Change Set: A preview of proposed changes to a stack, showing what will be created, updated, or deleted.
+
+
+Steps to Work with CloudFormation Stacks
+
+1. Create a Stack:
+Navigate to AWS CloudFormation in the AWS Management Console.
+Choose to create a stack and upload a pre-defined YAML/JSON template.
+Provide a stack name and optional parameters.
+Submit the stack and monitor the progress in the Events tab.
+
+2. Update a Stack:
+Use a Change Set to update an existing stack.
+Replace the current template, preview the changes, and execute the change set to apply updates.
+
+3. Delete a Stack:
+Deleting a stack removes all associated resources, adhering to any deletion policies defined in the template.
+
+
+
+Example Walkthroughs
+
+1. Creating an EC2 Instance with a Security Group
+
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Create an EC2 instance with a security group for SSH access
+Resources:
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable SSH access
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+  MyInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-0440d3b780d96b29d
+      InstanceType: t2.micro
+      SecurityGroups:
+        - !Ref InstanceSecurityGroup
+
+Template Details:
+Defines a security group for SSH access (port 22).
+Creates an EC2 instance and attaches the security group.
+
+Key Points:
+Security group uses an ingress rule allowing traffic from 0.0.0.0/0 (all IPs).
+Update the template with the latest AMI ID before deployment.
+
+Monitoring:
+Check the Events tab for progress.
+Verify the instance and security group in the EC2 dashboard.
+
+2. Updating the Stack to Add an EBS Volume
+
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Attach an EBS volume to the EC2 instance, retaining original resources
+Resources:
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable SSH access
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+  MyInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-0440d3b780d96b29d
+      InstanceType: t2.micro
+      SecurityGroups:
+        - !Ref InstanceSecurityGroup
+  MyVolume:
+    Type: AWS::EC2::Volume
+    Properties:
+      AvailabilityZone: !GetAtt MyInstance.AvailabilityZone
+      Size: 10
+  MyVolumeAttachment:
+    Type: AWS::EC2::VolumeAttachment
+    Properties:
+      InstanceId: !Ref MyInstance
+      VolumeId: !Ref MyVolume
+      Device: /dev/sdf
+
+Template Updates:
+Adds an EBS volume (10 GB) to the EC2 instance.
+
+Process:
+Use a Change Set to preview changes before updating the stack.
+Ensure the volume's availability zone matches the instance’s zone.
+
+Monitoring:
+Verify the volume attachment in the EC2 console under the Storage tab.
+
+
+3. Updating the Stack to Add an S3 Bucket
+
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Add an Amazon S3 bucket to the setup, retaining all previous resources
+
+Resources:
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable SSH access
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+
+  MyInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-0440d3b780d96b29d  # Ensure this AMI ID is valid for your region
+      InstanceType: t2.micro
+      SecurityGroups:
+        - !Ref InstanceSecurityGroup
+
+  MyVolume:
+    Type: AWS::EC2::Volume
+    Properties:
+      AvailabilityZone: !GetAtt MyInstance.AvailabilityZone
+      Size: 10
+
+  MyVolumeAttachment:
+    Type: AWS::EC2::VolumeAttachment
+    Properties:
+      InstanceId: !Ref MyInstance
+      VolumeId: !Ref MyVolume
+      Device: /dev/sdf
+
+  MyS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: my-unique-bucket-name-4rw3dda34  # Ensure this is globally unique
+
+Template Updates:
+Adds an S3 bucket for application logging.
+
+Key Points:
+Ensure the bucket name is unique (e.g., append random characters).
+
+Process:
+Use a Change Set to preview and execute the changes.
+
+Verification:
+Check the new bucket in the S3 console.
+
+
+Important Notes
+
+Template Best Practices:
+Use YAML for easier readability.
+Reuse and modify existing templates to save time.
+Validate templates before deploying.
+
+Intrinsic Functions:
+Ref Function: References other resources within the template.
+Used for attaching the security group to the EC2 instance and ensuring the EBS volume matches the instance's zone.
+
+Deletion Policies:
+Configure deletion policies in the template to retain specific resources (e.g., S3 buckets) after the stack is deleted.
+
+Order of Deletion:
+CloudFormation deletes resources in a specific order to ensure dependencies are respected (e.g., volumes are deleted before instances).
+
+Error Handling:
+If a resource fails to create or delete, the stack rolls back to its previous state or stops with an error. Review the Events tab for troubleshooting.
+
+
+
+Action                 	Key Steps
+Create a Stack	        Upload template → Provide stack name → Submit → Monitor progress in Events tab.
+Update a Stack	        Use a Change Set → Preview changes → Execute Change Set → Verify updates in the AWS console.
+Delete a Stack	        Initiate deletion → Monitor progress in Events tab → Ensure all resources are removed successfully.
+Key Intrinsic Functns	  Ref (resource references), Fn::GetAtt (resource attributes).
+Template Types	        YAML (preferred for readability) or JSON.
+Best Practices	        Validate templates, use the latest AMI, ensure unique S3 bucket names, and configure deletion policies.
+
   
   
