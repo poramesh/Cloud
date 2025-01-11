@@ -1,0 +1,97 @@
+AWS CloudFormation
+
+AWS CloudFormation is an Infrastructure as Code (IaC) tool that automates the provisioning and management of AWS resources using template files.
+Purpose:
+Allows developers to define, deploy, update, and manage AWS infrastructure in a consistent, repeatable way.
+Comparison:
+Similar to HashiCorp Terraform but designed specifically for AWS.
+
+  
+Key Features and Benefits
+
+Declarative Syntax:
+Define infrastructure using JSON or YAML templates.
+Templates describe resources (e.g., VPCs, Auto Scaling Groups, Elastic Load Balancers).
+
+Automation and Reusability:
+Reuse templates across multiple deployments to ensure consistency and reduce human error.
+
+Rollbacks:
+Automatically deletes resources when a stack is deleted.
+Ensures a clean removal of resources and rollback on deployment failures.
+
+  
+  
+Core Components of AWS CloudFormation
+
+Template Files:
+Define the desired AWS environment in JSON or YAML.
+Includes resource configurations, parameters, and conditions.
+
+Stacks:
+Represents the entire deployed environment described by a template file.
+
+Lifecycle:
+Create: Deploy resources described in the template.
+Update: Modify existing resources by supplying an updated template.
+Delete: Removes all resources associated with the stack.
+
+Stack Sets:
+AWS CF stacksets extends the functionality of staacks by enabling you to create, update, or deelete stacks across 
+multiple accounts and regions with a single operation
+
+Change Sets:
+Allows previewing of changes to a stack before deployment.
+Highlights differences between the deployed infrastructure and the updated template.
+Prevents unintended changes by enabling review before implementation.
+
+  
+  
+Process of Using AWS CloudFormation
+Create a Template File:
+Define resources and configurations using JSON or YAML.
+
+Deploy a Stack:
+Upload the template to CloudFormation.
+CloudFormation provisions resources based on the template definition.
+
+Update a Stack:
+Modify the template file to include changes or new resources.
+Use Change Sets to preview updates before applying them.
+
+Delete a Stack:
+Automatically removes all resources created by the stack.
+
+
+
+Benefits of AWS CloudFormation
+Consistency and Reliability:
+Reduces human error by automating resource creation and updates.
+Ensures uniformity across deployments.
+
+Simplified Management:
+Manage entire infrastructure as a single entity using stacks.
+
+Preview Changes:
+Use Change Sets to review and validate changes before implementation.
+
+Multi-Account and Multi-Region Management:
+Stack Sets allow centralized management across multiple environments.
+
+Summary of Key Terms
+Term               	Description
+Template	    JSON or YAML file defining AWS resources and their configurations.
+Stack	        Deployed resources as described in a CloudFormation template.
+Stack Set	    Extends stack functionality for managing resources across multiple accounts and regions.
+Change Set	  Preview of changes between deployed infrastructure and the updated template.
+Rollback	    Automatic deletion of resources in case of stack creation or update failure.
+
+
+
+
+HANDS ON LESSON
+
+
+
+  
+  
