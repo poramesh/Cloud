@@ -284,4 +284,198 @@ Template Types	        YAML (preferred for readability) or JSON.
 Best Practices	        Validate templates, use the latest AMI, ensure unique S3 bucket names, and configure deletion policies.
 
   
-  
+
+
+
+
+
+Nested Stack:
+
+Definition:
+A nested stack is a stack created as a resource within another CloudFormation stack using the AWS::CloudFormation::Stack resource.
+
+Parent Stack (Top-Level Stack):
+This stack includes a resource of type AWS::CloudFormation::Stack that refers to another CloudFormation template (for the nested stack).
+
+Resources:
+  VPCStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://s3.amazonaws.com/mybucket/vpc.yaml
+
+Child Stack (Nested Stack):
+The vpc.yaml template referenced in the parent stack creates resources such as a VPC.
+
+**The phrase "another CloudFormation stack" simply means that a nested stack (child) is treated as a subcomponent (resource) of a parent stack.***
+
+
+Purpose:
+Allows splitting a large, complex infrastructure into smaller, reusable components (e.g., separate VPC and subnets).
+
+Structure:
+Main template (top-level): References other templates (VPC, Subnet1, Subnet2).
+Nested templates: Individual templates for specific resources.
+
+
+# Created Nested Stack using the AWS CLI
+
+
+************
+
+Why is VPC under EC2?
+Historically, the EC2 service included both compute (instances) and networking features. Over time, AWS introduced separate services 
+for networking, like VPC, but these resources remained under the EC2 namespace for consistency and backward compatibility.
+
+Examples of EC2 Namespace Resources:
+
+Here are a few resources under the AWS::EC2 namespace:
+AWS::EC2::Instance: For creating EC2 instances.
+AWS::EC2::VPC: For creating Virtual Private Clouds.
+AWS::EC2::Subnet: For creating subnets within a VPC.
+AWS::EC2::RouteTable: For defining route tables.
+AWS::EC2::SecurityGroup: For configuring security groups.
+
+Key Takeaway:
+The presence of AWS::EC2::VPC doesn't mean you're creating EC2 instances. It simply reflects that VPC is 
+part of the EC2 namespace in AWS CloudFormation.
+
+
+and 
+
+Defining the Parameter
+When you define a parameter like this in a CloudFormation template:
+Parameters:
+  VpcId:
+    Type: String
+This simply sets up a placeholder for the VpcId that must be provided when creating or updating the stack.
+it acts as an input parameter that you or the system must provide when deploying the CloudFormation stack. 
+
+
+and 
+
+Outputs:
+  VpcId:
+    Description: VPC ID
+    Value: !Ref VPC
+
+During Stack Creation:
+
+When CloudFormation processes the Resources section, it creates the VPC using the properties specified (e.g., CidrBlock, EnableDnsSupport, etc.).
+AWS assigns a unique ID to the created VPC, such as vpc-0abcd1234efgh5678.
+When !Ref VPC is Used:
+
+The !Ref function fetches the VPC's ID from the created resource.
+This ID is then assigned to the VpcId output.
+Output Section:
+
+The VpcId output includes the retrieved VPC ID as its value, making it available for other stacks, external systems, or users who query the stack.
+
+If the VpcId needs to be referenced by another stack (e.g., in a nested stack setup), you must define it in the Outputs section. Outputs make 
+it possible to export values from one stack and import them into another using Fn::ImportValue.
+
+****************
+
+1. Create a file named vpc.yaml with the following content
+
+```yaml
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: NestedStackVPC
+Outputs:
+  VpcId:
+    Description: VPC ID
+    Value: !Ref VPC
+```
+
+2. Create a file named subnet1.yaml with the following content
+
+```yaml
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  VpcId:
+    Type: String
+Resources:
+  Subnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+      CidrBlock: 10.0.1.0/24
+      VpcId: !Ref VpcId
+      Tags:
+        - Key: Name
+          Value: NestedStackSubnet1
+Outputs:
+  Subnet1Id:
+    Description: Subnet 1 ID
+    Value: !Ref Subnet1
+```
+
+3. Create a file named subnet2.yaml with the following content
+
+```yaml
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  VpcId:
+    Type: String
+Resources:
+  Subnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Select [ 1, !GetAZs '' ]
+      CidrBlock: 10.0.2.0/24
+      VpcId: !Ref VpcId
+      Tags:
+        - Key: Name
+          Value: NestedStackSubnet2
+Outputs:
+  Subnet2Id:
+    Description: Subnet 2 ID
+    Value: !Ref Subnet2
+```
+
+4. Upload the vpc.yaml, subnet1.yaml, and subnet2.yaml files to an S3 bucket and retrieve the URLs
+
+aws s3 cp <file-name> s3://<bucketname>
+
+aws s3api list-objects --bucket my-cloudformation-s3-bucket-3121s2 --query "Contents[].{Key: Key}" --output text | awk '{ print "https://my-cloudformation-s3-bucket-3121s2.s3.amazonaws.com/" $1 }'
+
+5. Create a file named main.yaml with the following content (replace your-bucket-name with the name of the S3 bucket where you uploaded the templates)
+
+```yaml
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  VPCStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://my-cloudformation-s3-bucket-3121s2.s3.amazonaws.com/vpc.yaml
+
+  Subnet1Stack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://my-cloudformation-s3-bucket-3121s2.s3.amazonaws.com/subnet1.yaml
+      Parameters:
+        VpcId: !GetAtt VPCStack.Outputs.VpcId
+
+  Subnet2Stack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://my-cloudformation-s3-bucket-3121s2.s3.amazonaws.com/subnet2.yaml
+      Parameters:
+        VpcId: !GetAtt VPCStack.Outputs.VpcId
+```
+
+7. Deploy the main stack using the AWS CloudFormation CLI
+
+aws cloudformation create-stack --stack-name NestedStackExample --template-body file://main.yaml --capabilities CAPABILITY_NAMED_IAM
+
+8. The stack can be deleted with the following command
+
+aws cloudformation delete-stack --stack-name NestedStackExample
