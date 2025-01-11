@@ -1,0 +1,164 @@
+What is AWS App Runner?
+
+Fully Managed Service: AWS App Runner is a fully managed service designed for deploying containerized web applications and APIs.
+
+
+Create an App Runner Service (with ECR image):
+aws apprunner create-service \
+  --service-name my-web-app \
+  --source-configuration "ImageRepository={ImageIdentifier=123456789012.dkr.ecr.us-east-1.amazonaws.com/my-web-app:latest,ImageRepositoryType=ECR}"
+
+Check the Status of the Service:
+aws apprunner describe-service --service-arn arn:aws:apprunner:us-east-1:123456789012:service/my-web-app/xxxxxx
+
+
+List All Services:
+aws apprunner list-services
+
+Delete the Service:
+aws apprunner delete-service --service-arn arn:aws:apprunner:us-east-1:123456789012:service/my-web-app/xxxxxx
+
+This should help you get started with managing AWS App Runner using the AWS CLI. You can also refer to the official AWS CLI App Runner documentation for
+more details and advanced options.
+
+
+
+
+_______________________________
+
+
+
+Key Features:
+Simple Deployment: Use CLI, console, or API to create a service with just a few commands.
+Source Options: You can use Elastic Container Registry (ECR) or GitHub repositories as the source for your containerized applications.
+Automatic Scaling: App Runner can automatically scale your applications.
+Integrated Load Balancing: Attach a load balancer for traffic distribution.
+Health Checks: Ensure your applications are functioning correctly.
+Observability: Integration with AWS X-Ray for tracing.
+
+App Runner Architecture
+Configuration: You need a configuration document to define how your service will behave, including source and autoscaling configurations.
+Deployment: App Runner creates a service and manages all components for you.
+Platform-as-a-Service (PaaS): Like Elastic Beanstalk, but more focused on web apps and APIs with tight integration with GitHub and ECR for automated deployments.
+
+
+Step-by-Step Walkthrough
+
+
+
+*************************
+## Create Image and Push to ECR Repository
+
+Launch EC2 instance - Amazon Linux 2 AMI, t2.micro
+Connect to instance using EC2 Instance Connect
+
+Run the following commands on EC2:
+
+sudo su
+yum update
+yum install docker
+systemctl enable docker.service
+systemctl start docker.service
+docker pull nginx
+docker images
+
+Create an IAM role and use policy "ecr-allow-all.json"
+{
+    "Version": "2012-10-17",
+    "Id": "ECRPolicy",
+    "Statement": [
+        {
+            "Sid": "AllowAll",
+            "Effect": "Allow",
+            "Action": "ecr:*",
+            "Resource": "*"
+        }
+    ]
+}
+Attach role to EC2 instance and then run the following commands (replace account number):
+
+aws ecr create-repository --repository-name nginx --region us-east-1
+docker tag nginx:latest 111111111111.dkr.ecr.us-east-1.amazonaws.com/nginx:latest
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 111111111111.dkr.ecr.us-east-1.amazonaws.com/nginx
+docker push 111111111111.dkr.ecr.us-east-1.amazonaws.com/nginx:latest
+
+
+
+1111 needs to be replaced with acc id of our acc
+************************************
+
+Create EC2 Instance to Push Image to ECR:
+Launch an EC2 instance (use Amazon Linux 2, t2.micro).
+Install Docker and pull the nginx image.
+Enable Docker and start the service.
+Tag the image to be uploaded to the Elastic Container Registry (ECR).
+
+Create IAM Role with ECR Permissions:
+Create a policy to allow EC2 to interact with ECR.
+Attach this policy to an EC2 instance role.
+This role will be used to create a repository and push images.
+
+Push Image to ECR:
+Create an ECR repository (for example, nginx).
+Authenticate to ECR using AWS CLI (aws ecr get-login-password).
+Tag the image and push it to the ECR repository.
+
+Configure AWS App Runner:
+Go to AWS App Runner service in the console.
+Select ECR as the source for your container image.
+Choose your repository and image tag (e.g., nginx:latest).
+Define deployment options (manual or automatic).
+Set the port (e.g., port 80 for nginx).
+Configure autoscaling, health checks, and other settings as needed.
+
+Create and Deploy App Runner Service:
+Define service name and other configurations.
+Deploy the service, which will take a few minutes.
+Once the service is up and running, you'll receive a URL where you can access your application.
+
+Monitoring and Configuration:
+View Activity: Monitor the service's health, metrics, and logs.
+Tracing with AWS X-Ray: If enabled, use X-Ray for detailed tracing.
+Custom Domains: Link your own domain instead of using the default AWS URL.
+Scaling: The service automatically scales based on traffic.
+
+Key Benefits of AWS App Runner
+Simplicity: No infrastructure management—just deploy containerized applications.
+Integration: Easily integrates with GitHub for code-based deployments and ECR for container images.
+Automatic Scaling: Scale your application as needed without manual intervention.
+Cost-effective: Pay only for the resources you use, with no upfront costs.
+
+This solution is particularly useful for quickly deploying web apps and APIs without worrying about managing the underlying infrastructure, 
+allowing you to focus on the app itself.
+
+
+
+
+
+__________________________________________________________________________________
+
+
+Feature	               AWS App Runner                     	AWS Fargate
+Service Type	        Platform-as-a-Service (PaaS)	       Compute Engine for Containers
+Source of Deployment 	ECR or GitHub	                       ECS or EKS
+Use Cases	            Web apps, APIs, Microservices	       Any containerized workloads, backend jobs, microservices
+Management	          Minimal, AWS handles most aspects	   More management of ECS/EKS configurations
+Scaling	              Automatic scaling based on traffic 	 Autoscaling with ECS/EKS, configurable
+Customization	        Simple, fewer options              	 More customizable, flexible configurations
+Networking	          Managed automatically by AWS	       Requires manual configuration (VPC, Security Groups)
+Pricing	              Based on resources used by the app	 Based on CPU, memory, and task usage
+
+
+Level of Abstraction
+App Runner: Platform-as-a-Service (PaaS). App Runner abstracts most of the infrastructure management. It allows you to 
+deploy containerized web apps and APIs with minimal configuration.
+Fargate: Compute Engine for containers. Fargate abstracts the infrastructure but still requires you to manage and configure more 
+components like ECS (Elastic Container Service) or EKS (Elastic Kubernetes Service) for container orchestration.
+
+Which One to Use?
+AWS App Runner: If you’re building simple web applications or APIs and want to minimize infrastructure management.
+AWS Fargate: If you need more control over container orchestration, networking, or complex workloads with ECS or EKS.
+
+
+
+
