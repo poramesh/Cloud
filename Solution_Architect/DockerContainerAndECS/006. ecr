@@ -1,0 +1,82 @@
+Amazon Elastic Container Registry (ECR):
+
+ECR is a fully managed container registry service integrated with Amazon ECS and EKS.
+Supports open container initiative and docker register HTTP API V2 standards 
+Docker Registry HTTP API V2 standards are supported, making it compatible with Docker tools and CLI commands (e.g., push, pull, list, tag).
+The container images and artifacts are stored in Amazon S3.
+Namespaces are used to organize repositories.
+Public repositories allow everyone to access images, while private repositories have access control.
+
+Access Control:
+
+IAM (Identity and Access Management) can be used to control access to private repositories, 
+I am access control- set policies to define access to container images in private repo
+Resource based policies - access control down to the individual actions like like create, list, describe, delete, and get.
+
+
+Key Components of ECR:
+
+Registry: Each AWS account is provided with a private registry where one or more repositories can be created.
+Authorization Token: Clients must authenticate using an authorization token before pushing or pulling images.
+Repository: Contains Docker images, OCI (Open Container Initiative) images, and artifacts.
+Repository Policy: Defines access control for the repositories.
+Images: push and pull container images to your repositories.
+
+Features:
+
+Lifecycle Policies: Manage the lifecycle of container images.
+Image Scanning: Identifies software vulnerabilities in the images.
+Cross Region and Cross Account Replication: Facilitates replication of container images across regions and accounts.
+Pull Through Cache Rules: Cache repositories from remote registries in private ECR repositories.
+
+
+Process of Working with ECR:
+
+Download and Customize an Image: For example, download an Ubuntu image, make modifications, and then upload it to the ECR registry.
+Push Image to a Private Repository: The process involves authentication, tagging the image, and pushing it using the Docker CLI.
+
+
+Permissions for Pushing Images:
+
+To push an image to a private repository, you need specific IAM permissions:
+Complete Layer Upload
+Get Authorization Token (for authentication)
+Upload Layer Part
+Initiate Layer Upload
+Batch Check Layer Availability
+Put Image
+Resource Element: You can further limit these permissions by scoping them to a specific repository ARN.
+
+
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ecr:GetAuthorizationToken",
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:UploadLayerPart",
+        "ecr:InitiateLayerUpload",
+        "ecr:CompleteLayerUpload",
+        "ecr:PutImage"
+      ],
+      "Resource": "arn:aws:ecr:region:account-id:repository/repository-name" //or '*'
+    }
+  ]
+}
+
+
+Steps to Push an Image to ECR:
+
+Authenticate Docker Client: Use the AWS CLI to authenticate:
+aws ecr get-login-password --region <region> | docker login --username AWS --password-stdin <aws_account_id>.dkr.ecr.<region>.amazonaws.com
+
+Tag the Image: Use Docker to tag the image with the repository name and image tag:
+docker tag <image_name> <aws_account_id>.dkr.ecr.<region>.amazonaws.com/<repository_name>:<tag>
+
+Push the Image: Push the tagged image to the private repository:
+docker push <aws_account_id>.dkr.ecr.<region>.amazonaws.com/<repository_name>:<tag>
+
+This process allows you to securely push images to private repositories in Amazon ECR and use them within ECS or EKS.
