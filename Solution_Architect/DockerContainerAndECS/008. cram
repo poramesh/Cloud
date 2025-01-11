@@ -1,0 +1,181 @@
+Elastic Container Service (ECS) Overview
+
+Key Features:
+Serverless computing with AWS Fargate: Fully managed, scalable, and eliminates infrastructure management.
+Fully managed container orchestration: AWS manages the control plane.
+Docker support: Run and manage Docker containers with integration into the Docker Compose CLI.
+Windows Container Support: ECS supports Windows-based containers.
+Elastic Load Balancer (ELB) integration: Use ALB (Application Load Balancer) or NLB (Network Load Balancer) for traffic distribution across containers.
+ECS Anywhere: Use the ECS control plane to manage on-premises container workloads.
+
+
+Core ECS Components
+Cluster:
+Logical grouping of EC2 instances where your containers are hosted.
+A cluster is composed of container instances running the ECS agent.
+
+Container Instance:
+An EC2 instance that runs the ECS agent, enabling it to connect to the ECS cluster.
+
+Task Definition:
+A blueprint for running Docker containers.
+Specifies:
+Container image.
+Resources (CPU, memory).
+Networking, logging, and other configurations.
+
+Task:
+A running container instance derived from the task definition.
+Tasks are created as per the task definition.
+
+Service:
+Used to run and maintain a specified number of tasks.
+Supports auto-scaling and ELB integration.
+
+
+Launch Types
+
+EC2 Launch Type:
+You manage EC2 instances where containers run.
+Responsibilities include:
+Provisioning, patching, and upgrading EC2 instances.
+Cluster optimization.
+Offers granular control over the infrastructure.
+
+Fargate Launch Type:
+Fully serverless. Fargate provisions and manages the compute infrastructure.
+Reduces management overhead.
+AWS handles cluster optimization and scaling.
+
+
+Docker and ECS Images
+
+Images:
+Containers are built from read-only templates called images.
+Images are created using a Dockerfile.
+Images are stored in:
+Docker Hub
+Elastic Container Registry (ECR): A secure, scalable, and private AWS registry.
+
+
+ECS Tasks and Clusters
+
+Task Definition:
+A JSON file describing the configuration of containers.
+Supports up to 10 containers in a single task definition.
+Defines:
+Docker images.
+Number of tasks/containers to run.
+
+Clusters:
+Logical grouping of container instances (EC2 instances or Fargate tasks).
+Can contain tasks using both Fargate and EC2 launch types.
+IAM policies can control user access to clusters.
+
+ECS Container Agent:
+Connects container instances to ECS clusters.
+Pre-installed on ECS-optimized AMIs.
+Linux and Windows-based; must be manually installed on non-AWS systems.
+
+
+Auto Scaling in ECS
+
+Service Auto Scaling:
+Adjusts the desired task count.
+Policies supported:
+Target tracking: Scales to maintain a target metric (e.g., CPU utilization).
+Step scaling: Scales in response to metric thresholds.
+Scheduled scaling: Scales based on a predefined schedule.
+
+Cluster Auto Scaling:
+Adjusts the number of EC2 instances in the cluster.
+Uses a Capacity Provider linked to an EC2 Auto Scaling Group (ASG).
+Features:
+Managed scaling: Automatically adjusts EC2 instance counts.
+Managed instance termination protection: Prevents critical EC2 instances from being terminated.
+
+
+
+
+Elastic Kubernetes Service (EKS) Overview
+
+Use Cases:
+Standardizing container orchestration across environments.
+Kubernetes-based hybrid deployments (AWS + on-premises).
+Machine learning and batch processing with Kubernetes Jobs API.
+Web applications requiring Kubernetes features.
+
+Key Differences from ECS:
+
+ECS:
+AWS-specific.
+Simpler to use.
+Supports Docker containers only.
+Tasks are individual containers.
+
+EKS:
+Kubernetes-compatible (ideal for lift-and-shift Kubernetes workloads).
+Feature-rich but more complex.
+Containers are grouped into pods (co-located containers with shared resources).
+Extensible via third-party and community add-ons.
+
+
+ECS vs EKS
+Feature          ECS	                      EKS
+Orchestration	   AWS-specific	              Kubernetes-compatible
+Complexity	     Simpler to learn and use	  Steeper learning curve
+Terminology	     Tasks	                    Pods
+Extensibility	   Limited	                  Extensible with Kubernetes add-ons
+Integration	     Deep AWS integration	      Hybrid/multi-cloud capable
+
+
+
+
+
+
+Architecture Patterns for Amazon ECS
+
+Scaling Based on Memory:
+Requirement: An application deployed on Amazon ECS must scale based on memory usage.
+Solution: Use service auto scaling and configure memory utilization as the target metric.
+Key Note: ECS supports memory-based auto scaling metrics.
+
+Accessing S3 Buckets from ECS Tasks:
+Requirement: An application running on ECS tasks across multiple hosts needs access to an S3 bucket.
+Solution: Use a task execution IAM role to grant permissions to the S3 bucket.
+Key Note: This is a task-level role, not tied to the underlying host.
+
+Using Standardized Docker Orchestration Across Environments:
+Requirement: A company wants to standardize Docker container automation and management across multiple environments.
+Solution: Use Amazon EKS for Kubernetes-based container orchestration.
+Why EKS?
+Supports industry-standard Kubernetes.
+Can be deployed across multiple clouds and on-premises environments.
+Key Note: EKS is better suited for hybrid or multi-cloud scenarios compared to ECS.
+
+Deploying Docker Containers at the Lowest Cost:
+Requirement: Deploy Docker containers on AWS at the lowest cost.
+Solution 1: Use ECS with a cluster of Spot Instances and enable Spot Instance draining.
+Solution 2: Use Fargate, which charges based on tasks instead of maintaining an EC2 cluster.
+Key Note:
+Spot Instances are cheaper but depend on availability.
+Fargate may be cost-effective for smaller workloads since there’s no cluster overhead.
+
+Migrating Docker Containers Without Managing Operating Systems:
+Requirement: Migrate Docker containers to AWS without managing operating systems.
+Solution: Use Fargate, as it is serverless and eliminates the need to manage container hosts.
+
+Routing Based on HTTP Headers for ECS Microservices:
+Requirement: Multiple microservices running on ECS need routing based on HTTP header information.
+Solution: Use an Application Load Balancer (ALB) in front of ECS.
+Configure routing based on query string parameters or header-based rules.
+Key Note: ALBs provide advanced routing capabilities for ECS workloads.
+
+Monitoring Metrics and Logs for Amazon EKS:
+Requirement: A containerized app on Amazon EKS requires centralized metrics and log collection, including namespace and service-specific data.
+Solution: Use Amazon CloudWatch with Container Insights.
+Key Note:
+Container Insights provides visibility into EKS namespaces, services, and performance metrics.
+View all metrics in the CloudWatch console.
+
+
