@@ -76,4 +76,93 @@ AWS RAM simplifies resource sharing across accounts and organizations, making it
 
 
 
+AWS Resource Access Manager (RAM) for Subnet Sharing
 
+Objective
+Share a public subnet across two AWS accounts within an organization.
+Deploy EC2 instances into the shared subnet and verify connectivity between them using private IP addresses.
+
+Setup Overview
+
+1. Accounts Setup
+Management Account: Contains the subnet to be shared.
+public-subnet 10.0.1.0/24
+Production Account: Participant account that will deploy resources into the shared subnet.
+
+2. Subnet Sharing Process
+Share a Public Subnet (Public-1A) from the Management Account to the Production Account using AWS RAM.
+Enable bidirectional communication between EC2 instances in the shared subnet.
+
+
+Steps to Share and Use a Subnet
+
+Management Account
+
+1. Security Group Configuration
+
+>Navigate to EC2 Management Console → Security Groups.
+>Edit inbound rules of the security group:
+Add a new rule with custom ICMP IPv4.
+Specify the CIDR block of the shared subnet (Public-1A).
+
+2. Launch EC2 Instance
+
+> Launch a Linux 2 AMI instance with:
+Instance Type: t2.micro.
+Network: MyVPC.
+Subnet: Public-1A.
+Security Group: Select the updated security group.
+
+3. Enable Sharing in AWS RAM
+
+Navigate to Resource Access Manager (RAM) Console → Settings.
+Enable Sharing with AWS Organizations.
+Save the settings.
+
+
+4. Create a Resource Share
+
+>Go to Resource Shares and create a new share:
+Name: Public-1A Subnet.
+Select the Public-1A subnet.
+Set permissions to allow sharing with principals in the organization.
+Select the Production Account under the Production OU.
+>Create the resource share (wait for the status to change to "Associated").
+
+
+
+Production Account
+
+1. Launch EC2 Instance in Shared Subnet
+>Switch to the Production Account.
+>Launch a Linux 2 AMI instance with:
+Instance Type: t2.micro.
+Network: Shared VPC.
+Subnet: The shared Public-1A Subnet.
+Security Group:
+Create a new group (e.g., Shared Subnet).
+Add an inbound rule for all ICMP IPv4 with the CIDR block of the subnet.
+
+
+Verification
+
+1. Ping Test
+>Use EC2 Instance Connect to connect to each instance.
+>Ping the private IP address of the instance in the other account.
+>A successful ping confirms:
+Both instances are in the same subnet.
+Private IP communication is functioning correctly.
+
+
+Key Points
+>Participants’ Privileges: A participant account can manage its own resources within the shared subnet but 
+cannot modify the resources of the VPC owner or other participants.
+>Bi-Directional Connectivity: To enable two-way communication, appropriate ICMP rules must be
+added in the security groups of both accounts.
+>Resource Access Manager: RAM allows sharing AWS resources (e.g., subnets) across
+accounts in an organization efficiently.
+
+
+Use Cases
+>Sharing resources in a centralized VPC with multiple accounts.
+>Simplifying cross-account resource sharing while maintaining account-level isolation.
