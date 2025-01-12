@@ -155,7 +155,8 @@ Let me know if you'd like to dive deeper into any part of this!
 
 
 
-
+https://aws.amazon.com/blogs/architecture/disaster-recovery-dr-architecture-on-aws-part-i-strategies-for-recovery-in-the-cloud/
+https://aws.amazon.com/blogs/architecture/disaster-recovery-dr-architecture-on-aws-part-iii-pilot-light-and-warm-standby/
 
 what is asynchronos replication?
 
@@ -209,3 +210,4 @@ Data Consistency 	    Strong (no lag)	                    Eventual (may lag behi
 Write Latency	        High (waits for acknowledgment)	    Low (no waiting for acknowledgment)
 Risk of Data          Loss	None (real-time replication)	Possible (data may not be replicated yet)
 Geographical Distance	Short (low latency required)	       Long (can handle high latency)
+
