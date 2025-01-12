@@ -1,0 +1,79 @@
+AWS Resource Access Manager (RAM)
+
+1. Purpose
+AWS Resource Access Manager (RAM) enables sharing of AWS resources:
+Across AWS accounts.
+Within an AWS Organization.
+Across Organizational Units (OUs) within the organization.
+With specific IAM roles or IAM users (for select resources).
+
+2. Key Features
+
+Cross-Account Resource Sharing:
+Share resources between accounts without duplicating resources.
+Facilitates better collaboration and cost efficiency.
+
+Integration with AWS Organizations:
+Share resources with accounts or OUs in your AWS Organization.
+
+Sharing Through Multiple Interfaces:
+Resources can be shared using:
+RAM Console.
+RAM APIs.
+AWS CLI.
+AWS SDKs for programmatic access.
+
+
+3. Shareable Resources
+
+Amazon VPC Resources:
+Subnets.
+Transit Gateways.
+
+Database Resources:
+Aurora DB clusters.
+RDS DB snapshots.
+
+Other Resources:
+Resource Groups.
+AWS License Manager configurations.
+Route 53 Resolver rules.
+AWS Outposts.
+(For a full list, refer to AWS documentation on shareable resources.)
+
+
+
+4. Benefits
+
+Centralized Resource Management:
+Share resources without duplication, ensuring better cost efficiency.
+
+Improved Collaboration:
+Enable multiple accounts to access shared resources seamlessly.
+
+Security and Control:
+Granular control over which resources are shared and with whom.
+
+
+5. Practical Use Case
+A company with multiple AWS accounts wants to share subnets and databases between accounts to centralize resource usage and minimize duplication.
+AWS RAM can be used to share these resources securely and efficiently within the organization.
+
+
+6. Setup and Workflow
+Create a Resource Share:
+Define the resource(s) to share.
+Specify the accounts, OUs, or IAM roles/users to share with.
+
+Accept Resource Share Invitation:
+Shared accounts must accept the resource share to access the resources.
+
+Use the Shared Resource:
+Once accepted, the resources are available for use in the recipient account(s).
+AWS RAM simplifies resource sharing across accounts and organizations, making it an essential service for efficient resource utilization and centralized management.
+
+
+
+
+
+
