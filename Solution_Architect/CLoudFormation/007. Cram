@@ -1,0 +1,145 @@
+Exam Cram Notes: AWS Deployment and Management Services
+
+CloudFormation
+Purpose: Automates infrastructure provisioning using code in JSON or YAML.
+
+Key Benefits:
+Consistent and error-free provisioning.
+Saves time compared to manual resource configuration.
+Supports version control and peer review.
+Free to use (you only pay for provisioned resources).
+Manage updates, dependencies, rollbacks, and stack deletion.
+
+Core Components:
+Templates: JSON/YAML files defining infrastructure.
+Stacks: Environments created from templates.
+Stack Sets: Extend stacks across accounts and regions.
+Change Sets: Show proposed changes before applying them.
+
+
+Elastic Beanstalk
+Purpose: Platform as a Service (PaaS) for deploying and managing web apps.
+
+Key Features:
+Supports multiple programming languages (e.g., Java, .Net, PHP, Node.js).
+Automates capacity provisioning, load balancing, auto-scaling, and health monitoring.
+
+Components:
+Applications: Contain environments, configs, and versions.
+Application Versions: Reference to deployable code (stored in S3).
+Environments: Deployed resources (e.g., EC2 instances).
+
+Environment Types:
+Web Servers: Handle HTTP requests on port 80.
+Workers: Handle long-running background tasks using SQS queues.
+
+
+
+SSM Parameter Store
+Purpose: Secure, hierarchical storage for configuration data and secrets.
+
+Key Features:
+Scalable, highly available, and durable.
+Stores plain text or encrypted values (e.g., passwords, database strings).
+Values are referenced using unique parameter names.
+No native key rotation (use Lambda for custom rotation).
+
+
+
+Secrets Manager
+Purpose: Secure storage for secrets with built-in automatic rotation.
+
+Key Features:
+Native support for rotating secrets (e.g., RDS, Redshift, DocumentDB).
+Requires custom Lambda functions for unsupported services.
+Stores strings or binary encrypted data.
+No hierarchical keys (unlike Parameter Store).
+Slightly different pricing model than Parameter Store.
+Comparison: Secrets Manager vs. Parameter Store
+
+
+Featur             	Secrets Manager            	Parameter Store
+Automatic Rotation	Built-in for some services	Not built-in (Lambda required)
+Key Types	          String/Binary encrypted	    String/Binary with more options
+Hierarchical Keys  	Not Supported	               Supported
+
+
+
+
+AWS Config
+Purpose: Tracks and evaluates resource configurations.
+
+Key Features:
+Provides snapshots of resource configurations.
+Tracks historical configurations and changes.
+Sends notifications for creation, modification, or deletion of resources.
+Visualizes relationships between resources.
+
+
+AWS OpWorks
+Purpose: Configuration management service using Chef and Puppet.
+
+Key Features:
+Automates patching, updating, backups, and compliance management.
+
+
+
+AWS Resource Access Manager (RAM)
+Purpose: Share AWS resources across accounts, organizations, and OUs.
+
+Key Features:
+Share resources like VPCs.
+Create resource shares via console, APIs, CLI, or SDK.
+
+
+
+Key Points to Remember
+CloudFormation: Infrastructure as code; templates define environments (stacks).
+Elastic Beanstalk: Simplified app deployment with web server and worker environments.
+SSM Parameter Store vs. Secrets Manager:
+Secrets Manager: Automatic rotation for supported services.
+Parameter Store: Hierarchical storage, Lambda for rotation.
+AWS Config: Resource configuration tracking and compliance.
+RAM: Share resources across AWS accounts and orgs.
+
+
+
+
+architecture:
+
+1. Securely Storing Credentials with Automatic Rotation
+Scenario: Application needs to authenticate to Amazon Aurora and securely store credentials with monthly automatic rotation.
+Solution: Use Secrets Manager to store credentials.
+Enable automatic rotation for credentials on a monthly basis.
+
+Alternative:
+You can use SSM Parameter Store for credential storage, but automatic rotation is not built-in for Aurora. You would need to write a Lambda function to handle the rotation.
+
+
+2. Moving from Chef to AWS for Infrastructure Management
+Scenario: A company uses Chef cookbooks to manage infrastructure and is moving to the cloud, needing to minimize migration complexity.
+Solution: Use AWS OpsWorks for Chef Automate to leverage existing Chef cookbooks and maintain familiarity with the technology while migrating to the cloud.
+
+
+3. Managed Environment for Running a Simple Web Application with Long-Running Tasks
+Scenario: You need a managed environment for a web application that processes incoming data (tasks may take several minutes).
+Solution: Use Elastic Beanstalk with:
+A web server for the app frontend (handles HTTP requests).
+A decoupled worker tier for handling long-running tasks (e.g., using SQS to queue tasks for background processing).
+
+
+4. Standardizing VPC Configurations for Multiple Customers
+Scenario: A systems integrator deploys standardized Amazon VPC configurations for multiple customers and needs to reduce complexity and errors.
+Solution: Use CloudFormation with a standardized template to automate VPC deployment across different customers and reduce errors.
+
+
+5. Previewing Changes Before Applying Updates to a CloudFormation Stack
+Scenario: A company has issues with rolling out updates to CloudFormation stacks and wants to preview changes before applying them.
+Solution: Use Change Sets in CloudFormation to preview proposed changes before they are applied to the live stack.
+
+
+6. Monitoring and Enforcing Configuration Compliance for AWS Resources
+Scenario: A manager wishes to monitor and enforce configuration compliance for AWS resources (e.g., S3 buckets, security groups).
+Solution: Use AWS Config to:
+Create rules to monitor compliance for resources.
+Use auto-remediation to automatically enforce compliance when violations are detected.
