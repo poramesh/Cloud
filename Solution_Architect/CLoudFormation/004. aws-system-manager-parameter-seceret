@@ -1,0 +1,128 @@
+Notes: AWS Systems Manager Parameter Store
+
+1. Overview of AWS Systems Manager
+AWS Systems Manager is primarily used for managing resources, such as EC2 instances.
+It's covered more extensively in the SysOps Administrator Associate certification than the Solutions Architect Associate exam.
+
+
+2. Parameter Store in AWS Systems Manager
+Purpose:
+Securely store configuration data and secrets like passwords, database connection strings, license codes, etc.
+Key Features:
+Hierarchical storage: Organize parameters in a hierarchical structure (e.g., /app/staging/db-password).
+Secure storage:
+Plaintext: Store unencrypted values.
+Ciphertext: Encrypt values using AWS Key Management Service (KMS).
+Highly scalable, durable, and available.
+
+
+3. How Parameter Store Works
+
+Create Parameters:
+Each parameter has a unique name for identification.
+Use a hierarchical naming structure for better organization and referencing.
+
+Application Usage:
+Applications (e.g., running on EC2) can retrieve parameter values at runtime.
+Parameters can store secrets like database passwords, API keys, or any other sensitive data.
+
+Example Workflow:
+An EC2 instance needs to connect to an RDS database.
+Instead of hardcoding the connection string or password in application code:
+Store the database credentials in Parameter Store.
+The application retrieves these credentials securely at runtime from Parameter Store.
+The EC2 instance uses the credentials to connect to the RDS database.
+
+4. Characteristics
+
+No Native Rotation:
+Parameter Store does not support automatic rotation of secrets like passwords.
+To rotate keys, you must use external services such as AWS Lambda to implement custom logic.
+Encryption:
+For sensitive data, encrypt parameters using AWS KMS keys.
+Decrypting the parameters requires IAM policies that grant access to the necessary KMS key.
+
+5. Comparison with AWS Secrets Manager
+
+Parameter Store and Secrets Manager are both used for managing secrets and sensitive configuration data.
+Key Difference:
+Secrets Manager supports automatic rotation of secrets like database passwords, whereas Parameter Store does not.
+
+6. Benefits of Parameter Store
+Centralized management of configuration and secrets.
+Enhanced security with encrypted storage and fine-grained IAM permissions.
+Simplifies application development by externalizing sensitive data.
+
+7. Practical Use Case
+
+An application running on EC2 connects to RDS.
+Store the database password and connection string in Parameter Store.
+The application fetches the password and connection details at runtime.
+This eliminates the need to hardcode sensitive information in the application, enhancing security and flexibility.
+
+Parameter Store is a simple yet powerful service for securely managing application configurations and secrets. It is especially useful for maintaining security and
+scalability in cloud-native applications
+
+
+
+
+
+
+
+AWS Secrets Manager
+
+
+1. Purpose
+AWS Secrets Manager is designed for securely storing and managing secrets such as database credentials, API keys, and passwords.
+It provides automatic rotation for certain supported services.
+
+2. Key Features
+
+Automatic Rotation of Secrets:
+Built-in for specific services:
+Amazon RDS (MySQL, PostgreSQL, MariaDB, Oracle, SQL Server).
+Amazon Redshift.
+Amazon DocumentDB.
+
+For other services, you need to write a custom AWS Lambda function to handle rotation.
+
+Integration with AWS Services:
+Secrets Manager integrates with other services like Lambda, RDS, and IAM for seamless authentication and security management.
+Example: A Lambda function retrieves credentials from Secrets Manager to authenticate to an RDS database.
+
+Encryption:
+Secrets are always encrypted using AWS KMS (Key Management Service).
+
+Size Limit:
+Each secret can store up to 64 KB of data.
+
+
+3. Comparison: Secrets Manager vs. SSM Parameter Store
+Feature                 	Secrets Manager                     	SSM Parameter Store
+Automatic Key Rotation	   Built-in for specific services.	    Not available (manual with Lambda).
+Key Types	                 String or binary.	                  String, string list, or secure string.
+Encryption	               Always encrypted with KMS.         	Optional encryption with KMS.
+Hierarchy Support	         Not supported.	                      Supported (hierarchical keys).
+Storage Limit              per Secret	Up to 64 KB.	            Up to 4 KB for standard parameters.
+Pricing	Charged            per secret.	F                       ree (standard tier), advanced tier incurs cost.
+
+
+4. Use Case Example
+A Lambda function retrieves a secret (e.g., database credentials) stored in Secrets Manager.
+The secret is used to authenticate and connect to an RDS database.
+Secrets Manager automatically rotates the credentials periodically for supported RDS engines, ensuring secure management without manual intervention.
+
+5. Advantages of Secrets Manager
+
+Automatic Rotation: Simplifies credential management for supported services.
+Ease of Integration: Works seamlessly with AWS services.
+Enhanced Security: Enforced encryption and no need to store sensitive data in application code.
+
+
+6. Considerations
+Use Secrets Manager for managing secrets requiring automatic rotation or when the storage size exceeds SSM Parameter Store limits.
+Opt for SSM Parameter Store for hierarchical configurations, smaller secrets, or lower-cost requirements (e.g., standard-tier storage).
+
+Secrets Manager enhances security and reduces the operational overhead of managing sensitive credentials, making it an ideal choice for secure,
+automated secret rotation and storage.
+
