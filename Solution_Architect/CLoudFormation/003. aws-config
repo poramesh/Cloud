@@ -1,0 +1,212 @@
+
+
+
+AWS Config Service
+
+
+1. Overview of AWS Config
+AWS Config is a service for viewing and managing resource configurations on AWS.
+Often used in compliance and governance scenarios to ensure resource configurations align with organizational policies.
+
+
+2. Benefits of AWS Config
+
+Evaluate Resource Configurations:
+Continuously checks if resources align with desired settings.
+
+Snapshot of Current Configuration:
+Provides a snapshot of the current state of all resources in your account.
+
+Retrieve Resource Configurations:
+Access details of existing and historical resource configurations.
+
+Track Configuration Changes:
+Monitors and records changes to resources over time.
+
+Receive Notifications:
+Alerts for resource creation, modification, or deletion.
+
+View Resource Relationships:
+Visualizes relationships between resources, aiding in dependency management and troubleshooting.
+
+
+3. AWS Config Workflow
+
+Resource Configuration Evaluation:
+AWS Config evaluates configurations against desired rules.
+
+Configuration Recording:
+Records all configuration data in Amazon S3.
+
+Notifications:
+Sends alerts via SNS topics or CloudWatch Events.
+
+Remediation:
+Triggers actions (e.g., Lambda functions, Systems Manager Automation) to remediate non-compliant configurations automatically.
+
+
+4. Key Features of AWS Config
+
+Rules:
+AWS Config uses rules to define desired configurations.
+Rules are either AWS Managed or Custom.
+
+Example AWS Managed Rules:
+S3-bucket-server-side-encryption-enabled:
+Ensures S3 buckets have server-side encryption enabled.
+
+restricted-ssh:
+Verifies that security groups do not allow unrestricted SSH access from the internet.
+
+rds-instance-public-access-check:
+Checks if any RDS instances are publicly accessible.
+
+cloudtrail-enabled:
+Confirms that AWS CloudTrail is enabled for auditing API actions.
+
+Change Notifications:
+Notifications can be configured for any changes to resource configurations.
+
+Historical Configurations:
+Stores and provides access to previous resource configurations for auditing or troubleshooting.
+
+
+5. AWS Config Use Cases
+Compliance Monitoring:
+Ensures that resources comply with organizational and regulatory policies.
+
+Troubleshooting:
+Identifies resource misconfigurations or unauthorized changes.
+
+Automation:
+Automatically remediates non-compliant configurations using Systems Manager Automation or Lambda functions.
+
+Auditing:
+Tracks historical configurations for investigation and reporting.
+
+
+6. Key Components in AWS Config Workflow
+
+Resource Data:
+Resources send configuration information to AWS Config.
+
+Data Storage:
+Configuration data is stored in Amazon S3.
+
+Alerts & Actions:
+Use SNS Topics for notifications.
+Trigger CloudWatch Events or Lambda functions for reactive actions.
+
+Remediation:
+Use Systems Manager Automation for automatic corrections.
+
+
+AWS Config provides a robust framework for monitoring, evaluating, and maintaining compliance for AWS resources, making it an essential tool for governance, 
+
+
+
+
+
+HOL
+ 
+AWS Config Rule with SSM Automation for Security Group Compliance
+
+
+
+Create an AWS Config rule and remediation - removes any SG rules that have 0.0.0.0/0 as a source unless they use TCP port 80
+Create an IAM role with a custom trust policy for Systems Manager and add the 'AmazonSSMAutomationRole' policy
+Add an inline policy to the role with the JSON from the 'automation-iam-role.json' document
+Create a config rule using the 'pc-sg-open-only-to-authorized-ports' managed rule
+Add port 80 next to 'authorizedTcpPorts'
+Add a remediation rule using the automatic action 'AWS-DisablePublicAccessForSecurityGroup'
+For Resource ID parameter specify 'GroupId'
+For IpAddressToBlock specify '0.0.0.0/0'
+For AutomationAssumeRole specify the ARN of the role created earlier
+
+1. Objective
+Create an AWS Config rule to ensure security group rules do not allow unrestricted access to ports other than port 80 (HTTP).
+Use AWS Systems Manager (SSM) Automation to remediate non-compliant security groups by revoking rules that violate this policy.
+
+2. Steps to Implement
+
+Create IAM Role for SSM Automation:
+Navigate to IAM.
+Create a role for AWS Systems Manager.
+Attach the managed policy "AmazonSSMAutomationRole."
+
+Add an inline policy to allow revocation of security group ingress rules:
+Use the JSON policy to define permissions for revoke-security-group-ingress.
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+              "ec2:RevokeSecurityGroupIngress"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+
+
+Create AWS Config Rule:
+
+Use the AWS Config console to create a managed rule:
+Rule name: VPC-SG-open-only-to-authorized-ports.
+Purpose: Ensure only specified TCP ports (e.g., port 80) are open for unrestricted access.
+
+Specify rule parameters:
+Authorized TCP ports: 80 (HTTP).
+Authorized UDP ports: (Optional, leave empty if not required).
+
+Set Up Remediation with SSM Automation:
+In AWS Config, attach a remediation action to the rule:
+Use the predefined remediation action: AWS-DisablePublicAccessForSecurityGroup.
+
+Specify:
+Resource ID parameter: GroupId.
+IP address to block: 0.0.0.0/0.
+Automation Assume IAM Role: ARN of the IAM role created earlier.
+
+Test the Rule and Remediation:
+Navigate to EC2 > Security Groups.
+Identify security groups with unrestricted access to non-authorized ports (e.g., SSH, RDP).
+Re-evaluate the rule in AWS Config to identify non-compliant resources.
+Manually trigger remediation to remove non-compliant rules.
+Verify changes in security group rules.
+
+Remove Temporary Setup (Optional):
+After testing, remove the remediation action and delete the Config rule to allow unrestricted configuration changes.
+
+
+3. Key Components
+
+IAM Role:
+Grants Systems Manager permissions to modify security group rules.
+Inline policy allows the revoke-security-group-ingress action.
+
+AWS Config Managed Rule:
+VPC-SG-open-only-to-authorized-ports ensures only approved ports are open for unrestricted access.
+
+SSM Automation Document:
+Remediation action: AWS-DisablePublicAccessForSecurityGroup.
+Automatically revokes ingress rules that violate the policy.
+
+Testing and Validation:
+Use the AWS Config console to identify and remediate non-compliant resources.
+Verify changes in EC2 Security Groups.
+
+4. Outcome
+After remediation, security groups only allow unrestricted access on authorized ports (e.g., port 80).
+Unauthorized ports (e.g., SSH, RDP) are blocked for unrestricted access.
+AWS Config continuously monitors compliance and can trigger SSM automation for remediation.
+This setup ensures compliance with organizational security policies while allowing for automatic remediation of violations.
+
+
+
+
+
+
+
+security, and operational efficiency.
