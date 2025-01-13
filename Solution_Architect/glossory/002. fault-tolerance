@@ -1,0 +1,11 @@
+Fault Tolerance
+Definition: Designed for zero service interruption, even during multiple failures.
+
+Key Concepts:
+No downtime or data loss: Needs specialized hardware that can provide instantaneous failover.
+Costly: Higher cost than HA due to complex infrastructure.
+
+Example Services:
+>RAID 1: Disk mirroring for data redundancy.
+>Synchronous DB replication: Guarantees zero data loss by writing data simultaneously to multiple locations.
+>Redundant power sources and networking.
