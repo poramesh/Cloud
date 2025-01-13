@@ -1,0 +1,12 @@
+High Availability (HA)
+Definition: Ensures minimal service interruption for applications and services. It’s about keeping services up and running with redundancy.
+
+Key Concepts:
+No single point of failure: Design systems to handle failure at any point.
+Replicating across multiple Availability Zones (AZs): Spread across geographically separate data centers to ensure continuous service.
+Cost-Effective: Typically cheaper than fault tolerance.
+
+Example Services:
+>Elastic Load Balancing (ELB): Distributes incoming traffic across multiple targets in different AZs.
+>Auto Scaling: Ensures there are enough instances running.
+>Route 53: DNS service, can help with load balancing and failover.
