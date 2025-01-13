@@ -47,50 +47,37 @@ Use for microservices architectures or applications requiring detailed routing.
 
 
 Use Cases:
-
 Use for web applications (HTTP/HTTPS).
 Useful for microservices architectures like Docker containers.
 Supports Lambda as a target.
 Good for complex routing needs (path-based, host-based).
 
-
 performances:
-
 While ALB can handle high traffic, it’s not as fast as NLB in terms of raw performance, since it operates at the 
 application layer and makes more complex routing decisions.
 It can handle more complex routing logic but may introduce slightly higher latencies compared to NLB.
 
 Routing capabilities:
-
 Advanced routing: Routes based on content, such as URL paths, HTTP headers, HTTP methods, query strings, and hostnames.
 Can perform path-based routing (e.g., routing /api traffic to one backend and /static to another) or host-based routing
 (e.g., routing example.com traffic to one backend and api.example.com to another).
 Supports SSL termination and WebSocket connections.
 
-
 SSL Termination:
-
 Supports SSL/TLS termination, meaning the ALB can decrypt the HTTPS traffic and forward it to backend servers as HTTP, reducing the load on the backend instances.
 
-
 Health checks:
-
 Supports HTTP/HTTPS health checks (checking if an application responds with a specific HTTP status code, like 200 OK).
 Provides more granular checks for application health based on HTTP responses.
 
 IP adressing
-
 ALB is DNS-based, so it doesn’t use static IP addresses. Instead, it uses a DNS name to resolve the IP addresses of the load balancer.
 Typically used for web applications where you don't need fixed IPs.
 
-
 WebSocket Support:
-
 Fully supports WebSockets, making it suitable for real-time applications like chat applications or live updates.
 
-
 cost:
-
 ALB might incur higher costs in scenarios with complex routing or when handling large volumes of HTTP/HTTPS traffic due to the additional features and capabilities provided.
 
 
@@ -114,37 +101,30 @@ Suitable for hybrid cloud or on-premises applications that need to forward traff
 without deep inspection of the application layer.
 
 Performance:
-
 High performance: Designed to handle millions of requests per second while maintaining low latencies.
 Ideal for workloads that require very fast, efficient packet forwarding with minimal processing.
 
 Routing Capabilities:
-
 Simple routing: Routes based on IP protocol and port.
 It does not inspect the content of the traffic and forwards requests based on basic network attributes.
 
 
 SSL Termination:
-
 Does not support SSL termination. If you need to use SSL/TLS, you must handle the encryption/decryption on your application or at the EC2 instances themselves.
 
 
 Health Checks:
-
 Supports TCP health checks (checking if a port is open and available).
 It doesn't inspect the application response, only checking if the network connection is healthy.
 
 IP Adressing:
-
 NLB has the ability to assign static IP addresses to the load balancer, making it more predictable for applications that require fixed IP addresses.
 It also supports Elastic IPs (EIP) for high availability.
 
 WebSocket Support:
-
 Does not support WebSockets natively. It can forward traffic to WebSocket servers but requires TCP-level handling.
 
 Cost:
-
 Generally, NLB can be more cost-effective in scenarios that require low-latency and high throughput, especially when using simple TCP/UDP routing.
 
 
