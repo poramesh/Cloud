@@ -1,0 +1,105 @@
+************
+The command sudo yum update is used to update all installed packages on a Linux system that uses the YUM package manager.
+The term sudo stands for "superuser do" and is a command in Unix/Linux systems that allows a user to execute commands with superuser (root) privileges.
+
+yum update -y //Updates all installed packages on the system to their latest available versions.
+// Automatically answers "yes" to prompts, allowing the command to run without user
+
+Other Package Managers:
+On Debian-based distributions (e.g., Ubuntu), you would use APT:
+sudo apt update
+sudo apt install apache2
+
+*****
+
+yum update -y // Updates all installed packages to the latest versions without user interaction (-y).
+yum install -y httpd // Installs the Apache HTTP server, which will host the web page.
+
+3. Start and Enable the Apache Web Server
+
+systemctl start httpd // Starts the Apache server immediately.
+systemctl enable httpd //Configures Apache to start automatically on instance reboot.
+
+4. Fetch the Availability Zone using IMDSv2
+
+
+*******
+curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"
+is used to request a temporary session token from the metadata service.
+The PUT method is used to indicate that you're creating a new token with a specific TTL (Time to Live) value (21600 seconds in this case).
+The server processes this as a request to "create" or "update" the session token, which aligns with the semantics of the HTTP PUT method.
+
+The -X option in the curl command specifies the HTTP method to be used when making a request. By default, curl uses the GET method if no -X option is
+provided, but -X allows you to override this and explicitly define the method
+
+eg: curl -X PATCH -H "Content-Type: application/json" -d '{"key":"new_value"}' http://example.com/resource
+The PATCH HTTP method is used to apply partial updates to a resource on the server. It allows you to send only the changes or updates to an existing resource,
+rather than sending the entire resource as you would with a PUT request.
+
+The  method allows the client to specify how long the token remains valid (21600 seconds = 6 hours in this case).
+*******
+
+TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600"`
+AZ=`curl -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/placement/availability-zone`
+
+IMDSv2 (Instance Metadata Service Version 2):
+A secure way to retrieve metadata about an instance, such as its availability zone.
+It uses a temporary token-based authentication system.
+and the token is passed as a header (X-aws-ec2-metadata-token) to authenticate the request.
+
+
+
+
+Steps:
+
+curl -X PUT ...: Requests an authentication token from the IMDS endpoint. The token is valid for 21600 seconds (6 hours).
+curl -H ...: Uses the token to query the instance metadata service for the Availability Zone of the instance. The result is stored in the variable AZ.
+
+
+5. Create a Custom Web Page
+
+cat > /var/www/html/index.html <<EOF
+<html>
+<head>
+    <title>Instance Availability Zone</title>
+    <style>
+        body {
+            background-color: #6495ED; /* Cornflower Blue - a darker shade */
+            color: white;
+            font-size: 36px; /* Significantly larger text */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div>This instance is located in Availability Zone: $AZ</div>
+</body>
+</html>
+EOF
+
+
+Creates an HTML page:
+
+The cat command writes the HTML content to /var/www/html/index.html.
+This file will be served as the default page by Apache.
+
+HTML Highlights:
+
+Displays the message: "This instance is located in Availability Zone: $AZ", where $AZ is dynamically replaced by the instance's Availability Zone.
+Includes CSS styling:
+Background color: #6495ED (Cornflower Blue).
+Text color: White.
+Text size: 36px (large and readable).
+Full-page alignment: Centers the text horizontally and vertically.
+
+
+6. Ensure Apache Starts on Boot
+
+chkconfig httpd on
+Configures Apache (httpd) to start on boot in Amazon Linux.
+Equivalent to systemctl enable httpd in many distributions.
