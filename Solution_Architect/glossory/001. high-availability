@@ -10,3 +10,14 @@ Example Services:
 >Elastic Load Balancing (ELB): Distributes incoming traffic across multiple targets in different AZs.
 >Auto Scaling: Ensures there are enough instances running.
 >Route 53: DNS service, can help with load balancing and failover.
+
+
+
+Durability vs. Availability
+
+Durability: Refers to protection against data loss or corruption. AWS S3 offers 11 9's of durability (99.999999999%), meaning data is extremely unlikely to be lost.
+Availability: Refers to the uptime and ability to access the data. Services like S3 and EFS provide high durability and you can choose the level of availability.
+
+Key Differences:
+High Availability (HA) aims to minimize downtime, while Fault Tolerance aims for zero downtime and data loss.
+Durability is about how safe your data is from loss or corruption, while Availability is about the uptime and access to data.
