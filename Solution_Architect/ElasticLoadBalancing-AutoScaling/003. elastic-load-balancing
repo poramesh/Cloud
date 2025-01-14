@@ -432,3 +432,8 @@ Cross-Zone Load Balancing: Traffic is distributed evenly across instances in dif
 Scaling Policy:
 Configure policies to automatically adjust the number of instances in response to changing traffic loads.
 Test the setup by adding load and observing how the Auto Scaling group reacts.
+
+
+
+
+
