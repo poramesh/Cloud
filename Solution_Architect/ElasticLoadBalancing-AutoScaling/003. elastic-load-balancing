@@ -111,7 +111,42 @@ It does not inspect the content of the traffic and forwards requests based on ba
 
 SSL Termination:
 Does not support SSL termination. If you need to use SSL/TLS, you must handle the encryption/decryption on your application or at the EC2 instances themselves.
+*******
+SSL (Secure Sockets Layer) is the predecessor of TLS (Transport Layer Security). It is a cryptographic protocol that was originally developed to secure 
+communications over a network. SSL has been largely replaced by TLS due to improvements in security and performance, but the term "SSL" is 
+still commonly used interchangeably with TLS in practice.
 
+Key Features of SSL:
+
+Encryption:
+Protects data transmitted between two parties (e.g., a client and a server) by encrypting it, ensuring confidentiality.
+Data Integrity:
+Prevents data from being altered or corrupted during transmission.
+Authentication:
+Verifies the identity of the server (and optionally the client) using digital certificates.
+
+
+How TLS Works (Simplified Steps):
+
+Handshake:
+The client (e.g., browser) and server agree on the TLS version, encryption methods, and exchange keys.
+The server provides its digital certificate to prove its identity.
+Optionally, the client can also authenticate itself to the server.
+Session Key Generation:
+Using a key exchange mechanism, the client and server generate a shared session key for encrypting the communication.
+Encrypted Communication:
+All subsequent communication is encrypted using the session key.
+
+Why is TLS Important?
+
+Protects Sensitive Data:
+Encrypts data like passwords, credit card numbers, and personal information, preventing attackers from accessing it during transmission.
+Maintains Trust:
+Secure connections help establish trust between users and services, especially for online banking, e-commerce, and other sensitive applications.
+Compliance:
+Many regulatory frameworks (e.g., GDPR, PCI DSS) require encryption for sensitive data, which TLS fulfills.
+
+********
 
 Health Checks:
 Supports TCP health checks (checking if a port is open and available).
@@ -176,13 +211,24 @@ Different types of load balancers (ALB, NLB, GLB) are suited for different use c
 
 
 
+_______________________________________________________________________________________
 
-Overview of Load Balancer Deployment:
+
+ Load Balancer Deployment:
 
 1. Target Groups:
 Target groups define the type of target and protocol used.
 Targets can be EC2 instances, Lambda functions, or IP addresses.
 Health checks determine the availability and readiness of targets, and the load balancer only forwards traffic to healthy targets.
+
+Example Use Case
+Microservices Architecture:
+One target group routes /user requests to a service managing user data.
+Another target group routes /orders requests to a service managing order data.
+
+Static and Dynamic Content:
+A target group for /dynamic/* routes requests to EC2 instances running application logic.
+A target group for /static/* routes requests to EC2 instances optimized for serving static files or even to an S3 bucket.
 
 
 2. VPC and Availability Zones:
@@ -206,7 +252,8 @@ Supported Configurations for ALB vs NLB:
 
 Supported Target Types: EC2 instances, IP addresses, Lambda functions.
 Protocol: Must be HTTP or HTTPS.
-Health Check Protocol: Must be HTTP or HTTPS (TCP is not supported).
+Health Check Protocol: Must be HTTP or HTTPS (TCP is not supported).So now you can have a static public IP address assigned
+to those nodes that are running in each availability zone.
 Advanced Request Routing: Supports path-based and host-based routing.
 
 
@@ -215,8 +262,11 @@ Advanced Request Routing: Supports path-based and host-based routing.
 Supported Target Types: EC2 instances, IP addresses, Application Load Balancers.
 Protocol: Must be TCP or UDP.
 Health Check Protocol: Any protocol is supported (e.g., TCP, HTTP).
-Elastic IPs: NLB supports Elastic IPs per subnet for static public IP addresses.
+Elastic IPs: can define Elastic IPs per subnet. something that is specific to NLB.
 No Advanced Request Routing: Unlike ALB, NLB does not support advanced request routing but can create multiple listeners for different ports.
+
+http://example.com:8080
+
 
 _______________________________________
 
@@ -245,6 +295,25 @@ A listener is a process that checks for incoming connection requests. NLB can ha
 port 443 for HTTPS, port 8080 for custom applications, etc.).
 Each listener can route traffic to a target group based on the port, but it will not inspect the request further for advanced routing decisions.
 
+
+
+Why Create Multiple Listeners?
+
+Creating multiple listeners is necessary when:
+You want to handle traffic on different protocols or ports.
+Example: An ALB with listeners for HTTP on port 80 and HTTPS on port 443.
+You have multiple applications or microservices, each using a different port.
+Example: An NLB with listeners for TCP traffic on port 3306 (MySQL) and port 6379 (Redis).
+
+Why Only One Listener per Port per Load Balancer?
+
+The limitation of one listener per port per load balancer exists because:
+Port Conflict: A listener operates on a specific port (e.g., port 80 for HTTP or port 443 for HTTPS). Allowing multiple listeners to operate on the
+same port would cause conflicts since the load balancer wouldn't know which listener should handle incoming requests on that port.
+Port Uniqueness: A port on a network interface can only bind to one application or process at a time. The load balancer enforces this 
+uniqueness for efficient routing and simplicity.
+
+
 External Targets:
 NLB can route traffic to on-premises data centers or targets outside of the VPC.
 
@@ -254,22 +323,36 @@ _____________________________________________________________________
 
 Source IP Address:
 
-ALB: Uses the private IP address of the load balancer node as the source IP.
+ALB: Uses the private IP address of the load balancer node as the source IP. here the instance wont see ip adress of the client.
+
+ip-b = ipadress of load balancer
+ip-a = ip adress of client 
+
+ALB (CLB AS WELL we get the ip adress of the load balancer)
+
+source protcol port
+ip-b    https   80
+
 NLB: When targets are registered by instance ID, the client's IP address is visible to the application (important for logging and security).(wchi means while creating target if we
 select instances then we can see the ip if we seelct ip then we wont)
 When registered by IP address, the IP seen by the application is the IP address of the load balancer node.
 
+and also when using global accelator, source ips are private ips of NLB nodes
+applicable for TCP and TLS  and for TCP_UDP should be ip = client address
 
 
 Handling Source IP Addresses:
 
 ALB:
-The X-Forwarded-For header can be used to capture the client's IP address when using ALB.
+The X-Forwarded-For*(type of header and if enable this ) can be used to capture the client's IP address when using ALB.
 
 NLB:
 The source IP for clients is either the load balancer node IP or the client's IP address depending on target registration (instance ID or IP address).
 When using VPC Endpoint or Global Accelerator, the source IPs are the private IPs of the NLB nodes.
 
+
+
+((You might have two EC2 instances running the same application, one in AZ us-east-1a and another in AZ us-east-1b. Both instances can be part of the same target group.))
 
 
 Key Differences Between ALB and NLB:
@@ -284,3 +367,68 @@ Advanced Routing	     Path-based, Host-based routing	                      Not s
 Use Cases	             Web applications, Microservices, Lambda	            High performance, Low latency applications
 Listener	             HTTP, HTTPS                                         	TCP, UDP
 Source IP	             Private IP of the Load Balancer node	                 Client's IP or Load Balancer node IP (depends on registration)
+
+
+
+
+
+HOL:
+
+
+1. Initial Setup
+Auto Scaling Group: Two EC2 instances deployed across two Availability Zones (e.g., us-east-1a and us-east-1b), managed by an Auto Scaling group.
+Goal: Place an Application Load Balancer (ALB) in front of the Auto Scaling group to route and distribute traffic evenly between the instances.
+
+2. Target Group Creation
+Definition: A target group defines the targets (e.g., instances, Lambda functions) for the load balancer.
+Steps:
+Navigate to Target Groups in the AWS Management Console.
+Select Instances as the target type (compatible with ALB).(here we can also select lambda, another alb as target group)
+Configure:
+Protocol: HTTP.
+Port: 80 (where the web server is running).
+Health Checks: Use default settings (e.g., check HTTP / on port 80).
+Avoid manually adding instances to the target group; instead, allow the Auto Scaling group to handle dynamic target registration.
+Create the target group (e.g., TG1).
+
+3. Application Load Balancer (ALB) Creation
+Definition: ALB routes HTTP/HTTPS traffic and supports advanced routing features like path-based and host-based routing.
+Steps:
+Go to Load Balancers → Create an ALB.
+Configure:
+Name: ALB1.
+Type: Internet-facing (public DNS name for external access).(we got internal as option as well where we will route internally)
+VPC and Subnets: Select subnets in the two AZs (us-east-1a and us-east-1b).
+Security Group: Attach a web access security group that allows HTTP traffic on port 80.
+Define Listeners and routinng:
+Protocol: HTTP.
+Port: 80.
+Routing: Forward traffic to TG1 (target group).
+Create the ALB and wait for provisioning.
+
+4. Linking the Auto Scaling Group to the Target Group
+Objective: Ensure the Auto Scaling group dynamically registers new or replaced instances in the target group. (we avoidede manual addition of instnace so we do it here) 
+Steps:
+Go to Auto Scaling Group → Edit Load Balancing settings.
+Select the target group TG1 under "Application, Network, or Gateway Load Balancer Target Groups."
+Save the configuration.
+
+5. Testing the Setup
+Target Registration:
+Check the Target Group page.
+Verify that the instances are automatically registered with the target group.
+Initial health status: Initial → changes to Healthy after health checks pass.
+Access ALB:
+Copy the DNS name of the ALB from the Load Balancer details.
+Paste it into a browser to test connectivity.
+Refresh the page to observe traffic being routed to instances in different AZs.
+
+6. Key Takeaways
+Dynamic Target Assignment: Auto Scaling dynamically registers instances to the target group, eliminating the need for manual intervention.
+Health Checks: The load balancer performs periodic health checks on targets to ensure traffic is only routed to healthy instances.
+Cross-Zone Load Balancing: Traffic is distributed evenly across instances in different AZs, providing fault tolerance and high availability.
+
+7. Next Steps
+Scaling Policy:
+Configure policies to automatically adjust the number of instances in response to changing traffic loads.
+Test the setup by adding load and observing how the Auto Scaling group reacts.
