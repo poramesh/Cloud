@@ -1,0 +1,41 @@
+Cross-Zone Load Balancing Notes
+
+
+Definition:
+Cross-Zone Load Balancing ensures that traffic is distributed evenly across all available targets in enabled Availability Zones (AZs) 
+or just within a single AZ, depending on whether it's enabled or not.
+
+
+When Cross-Zone Load Balancing is Disabled:
+Each load balancer node distributes traffic only within its own AZ.
+
+Example:
+AZ-A has 3 targets: Each target receives 16.6% of traffic.
+AZ-B has 2 targets: Each target receives 25% of traffic.
+Traffic is uneven across AZs, especially when there is an unequal number of targets.
+
+
+When Cross-Zone Load Balancing is Enabled:
+The load balancer distributes traffic evenly across all targets in all enabled AZs.
+Example:
+There are 5 targets in total (3 in AZ-A and 2 in AZ-B).
+Each target receives 20% of traffic, resulting in more even distribution.
+Traffic is more balanced, even if the number of targets in each AZ is unequal.
+
+
+Application Load Balancer (ALB):
+Cross-zone load balancing is always enabled by default.
+
+Network Load Balancer (NLB) and Gateway Load Balancer (GLB):
+Cross-zone load balancing is disabled by default.
+
+Benefits of Cross-Zone Load Balancing:
+Helps distribute traffic evenly across targets in different AZs.
+Useful when there is an uneven distribution of instances across AZs.
+
+In cases where Auto Scaling Groups (ASGs) are used, the scaling ensures instances are evenly distributed, making cross-zone load balancing less 
+critical, but still beneficial in some cases.
+
+Use Case:
+If your instances are not evenly distributed across AZs, enabling cross-zone load balancing will make sure the traffic is more evenly balanced.
+Helps avoid overloading targets in one AZ while underutilizing targets in another AZ.
