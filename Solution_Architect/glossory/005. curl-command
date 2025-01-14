@@ -1,0 +1,50 @@
+***replace with your alb dns name***
+```for i in {1..200}; do curl http://your-alb-address.com & done; wait```
+
+
+for i in {1..200}: This creates a loop that runs 200 times.
+curl http://your-alb-address.com &: The curl command sends an HTTP request to the specified ALB address (replace your-alb-address.com
+with the actual ALB DNS name). The & at the end of the curl command runs the request in the background, allowing multiple requests to be sent in parallel.
+done: This marks the end of the loop. It repeats the curl request 200 times.
+wait: The wait command ensures that the script waits for all background processes (the curl requests) to finish before it exits.
+
+
+the command you provided will generate 200 requests at once, or in parallel.
+
+Here's how it works:
+
+Each iteration of the loop starts a curl request in the background using &.
+So, when the loop runs, it sends multiple curl requests in parallel (up to 200 concurrent requests).
+The & allows the curl commands to run in the background, rather than waiting for each request to complete before starting the next one.
+The wait command ensures that the script waits until all 200 requests have finished before it completes.
+This results in 200 concurrent requests being sent almost simultaneously, which can be a way to generate a spike in load for your Application 
+Load Balancer (ALB) and test your auto-scaling setup.
+
+If you want to control the rate or timing of the requests, you can modify the script accordingly. For example, to send 200 requests with a delay between each, you could use:
+for i in {1..200}; do curl http://your-alb-address.com; sleep 0.1; done
+
+This will send a request every 0.1 seconds instead of all at once.
+
+
+Without & (sequential execution):
+for i in {1..200}; do curl http://your-alb-address.com; done
+
+This would execute one curl request, wait for it to complete, then move to the next one. So, it sends 200 requests one by one, sequentially.
+
+The output will look like:
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=UTF-8
+...
+(HTML content from the webpage)
+
+
+
+To See the Output:
+
+for i in {1..3}; do curl http://your-alb-address.com > output.txt & done
+wait
+
+If you want to see the output of each request printed to the terminal, you can use echo like this:
+
+for i in {1..3}; do curl http://your-alb-address.com & echo "Request $i done"; done
+wait
