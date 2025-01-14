@@ -1,0 +1,88 @@
+Amazon EC2 Auto Scaling Policies
+
+Amazon EC2 Auto Scaling provides  policies to dynamically or predictably adjust the number of instances in an Auto Scaling group (ASG) 
+based on demand or predefined schedules. There are four main types of scaling policies:
+
+Target Tracking Scaling (Recommended by AWS)
+Simple Scaling
+Step Scaling
+Scheduled Scaling
+
+
+******************
+important keywords:
+Alarm
+An alarm is a rule set up in Amazon CloudWatch to monitor a specific metric. When the metric exceeds or falls below a defined threshold, the alarm triggers an
+action, such as scaling up or down.
+
+Target Metric
+A target metric is a measurable parameter that the scaling policy monitors and attempts to maintain at a specific value or range. This metric is 
+typically gathered by Amazon CloudWatch and is associated with the performance of the resources in an Auto Scaling Group (ASG).
+
+Aspect	      Target Metric	                              Alarm
+Definition	  A performance parameter to maintain.    	  A monitoring rule for specific metrics.
+Purpose	      Defines the goal for a scaling policy.	    Triggers actions when thresholds are breached.
+Example	      Maintain 60% average CPU utilization.	      Trigger scaling when CPU ≥ 80%.
+************
+
+
+Target Tracking Scaling (Recommended)
+
+How it Works: Automatically adjusts the number of instances to maintain a target metric value, such as "average" CPU utilization.
+
+Example:
+ASG has 4 instances reporting an average CPU utilization of 71.5%.
+
+Target metric: CPU utilization set to 60%.
+The Auto Scaling group will launch additional instances to bring the average CPU utilization closer to the target.
+
+Key Features:
+Instances are considered active after their warm-up period expires (time needed for the instance to become operational).
+
+Recommendation: Use metrics with a 1-minute frequency for better responsiveness.
+
+
+
+Simple Scaling
+
+How it Works: Adds or removes instances when a specific alarm (e.g., from CloudWatch) is triggered.
+
+Example:
+Alarm: CPU utilization ≥ 60%.
+When the threshold is breached (e.g., utilization reaches 70%), CloudWatch triggers the scaling action.
+After launching new instances, the system waits for 300 seconds (default cooldown period) before allowing further scaling.
+
+Limitations:
+Fixed response (e.g., adding a set number of instances) regardless of the severity of the breach.
+
+
+
+Step Scaling
+
+How it Works: Similar to Simple Scaling but adjusts the number of instances based on the magnitude of the alarm breach.
+
+Example:
+Alarm: CPU utilization ≥ 60%.
+Breach Severity:
+If CPU utilization = 70%, 2 instances are launched.
+If CPU utilization = 80%, 4 instances are launched.
+Scaling actions are defined for specific breach ranges.
+
+
+Scheduled Scaling
+
+How it Works: Launches or terminates a predefined number of instances at a specific time.
+
+Example:
+At 8:45 AM, launch enough instances so that they are ready by 9:00 AM to handle increased traffic.
+
+Use Case: Ideal for predictable traffic patterns, such as planned high traffic during specific times of the day (e.g., office hours, marketing campaigns).
+
+
+
+
+Key Points
+Target Tracking is AWS's recommended scaling policy due to its flexibility and automation.
+Step Scaling allows fine-grained scaling responses based on the size of the breach.
+Simple Scaling provides basic scaling but may not handle rapid changes in traffic effectively.
+Scheduled Scaling is suitable for predictable workloads but lacks real-time responsiveness.
