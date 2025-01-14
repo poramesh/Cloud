@@ -1,0 +1,52 @@
+Session State Data and Load Balanced Applications
+
+1. Session State Data in Load Balanced Applications
+Session state data refers to dynamic information that changes and might be required for subsequent user sessions 
+(e.g., authentication tokens, user preferences).
+In load-balanced deployments, storing session state data becomes crucial to ensure seamless user experience across 
+different backend instances.
+
+2. Methods to Handle Session State Data
+
+a. Externalizing Session State
+Store session data outside the application instance to ensure availability even if the instance fails.
+
+Common external storage solutions:
+DynamoDB:
+Used for low-latency, key-value data storage like authentication tokens.
+Enables seamless retrieval of session state data for other instances.
+
+Amazon S3 or EFS (Elastic File System):
+Suitable for files such as images or videos.
+Ensures auto-scaling compatibility by decoupling file storage from application instances.
+
+External Databases:
+E.g., MySQL hosted outside the instance for scalable database usage (e.g., WordPress setups).
+
+Advantages:
+Prevents session state loss during instance failure or scaling.
+Enhances user experience by avoiding redundant authentication or data loss.
+
+
+b. Sticky Sessions (Session Affinity)
+A feature of Elastic Load Balancers (ELB is specific to aws and it doesnt have to do anything with elastic ip its just about elasticiity) where a user is "bound" to a  
+specific instance for the duration of a session.
+
+How it works:
+A cookie is generated and stored on the client side.
+The cookie ensures that requests from the client are routed to the same instance for the lifetime of the cookie.
+
+Drawbacks:
+If the instance fails, the user is redirected to another instance and may lose their session state.
+Not suitable for highly dynamic environments where instances scale frequently.
+
+3. Best Practices
+Combine sticky sessions with externalized session state for resilience and consistent user experience:
+Sticky sessions ensure continuity during a session.
+Externalized state ensures data persistence if the user switches instances (e.g., due to instance failure or scaling).
+Use low-latency storage solutions like DynamoDB or ElastiCache for session state data to maintain performance.
+
+4. Summary
+Externalizing session state is critical for scaling and resilience in load-balanced applications.
+Sticky sessions are useful but should not replace externalization due to their limitations.
+Combining both approaches ensures a balance of performance, reliability, and user experience.
