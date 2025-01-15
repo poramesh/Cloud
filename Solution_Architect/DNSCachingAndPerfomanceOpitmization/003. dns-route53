@@ -1,0 +1,704 @@
+Domain Name System (DNS) Overview
+
+Purpose of DNS:
+Converts human-readable domain names (e.g., amazon.com) into machine-readable IP addresses (e.g., 192.168.1.1).
+Allows users to connect to web services without memorizing complex IP addresses.
+
+How DNS Works:
+>A client enters a domain name (e.g., DCTLabs.com) in the browser.
+>The client sends a DNS query to a DNS server, asking for the IP address associated with the domain name.
+>The DNS server checks its DNS zone file:
+If the information is available, it returns the IP address to the client.
+If not, it recursively queries other DNS servers.
+>Once the IP address is received, the client connects to the target server using the IP address.
+
+
+
+Fully Qualified Domain Name (FQDN)
+A FQDN is a complete domain name that specifies its exact location in the DNS hierarchy.
+Example: www.example.com.
+
+Structure:
+Root (.): Top of the DNS hierarchy (typically implied and not typed in browsers).
+Top-Level Domain (TLD): .com, .org, .net, etc.
+Second-Level Domain (SLD): example in example.com.
+Host/Subdomain: www in www.example.com.
+
+
+
+DNS Zone
+A DNS Zone is a portion of the DNS namespace managed by a specific organization.
+It contains DNS records for a specific domain.
+
+when user types in a domain it goes to the domain servre and that server contain dns zone like this below
+
+name     type    value
+dc.com    A       23.3.2.3
+das.com   A       123.43.3.3
+
+If the DNS server does not have an answer for the question,
+what it does is it recursively forwards to other DNS servers.
+
+Common DNS Record Types
+
+A Record:
+Maps a domain name to an IPv4 address.
+Example: amazon.com → 192.0.2.1.
+
+CNAME Record:
+Maps one domain name to another domain name (aliasing).
+Example: mail.DCTLabs.com → mailserver1.net.
+
+MX Record:
+Specifies mail servers for a domain.
+Used for email delivery.
+
+TXT Record:
+Stores text data.
+Commonly used for domain verification or authorization.
+
+SRV Record:
+Identifies servers hosting specific services (e.g., Kerberos authentication).
+
+NS Record:
+Specifies the authoritative name servers for a domain.
+Ensures DNS queries are routed to the correct servers.
+
+SOA Record:
+Marks the start of a DNS zone.
+Contains metadata about the zone (e.g., administrator email, zone version).
+
+
+
+Amazon Route 53 Features
+
+Domain Registration:
+Allows registration of public domains directly through AWS.
+Automatically creates a hosted zone for the domain.
+
+Two types of hosted zones:
+Public Hosted Zone: Accessible on the internet.
+Private Hosted Zone: Accessible only within a Virtual Private Cloud (VPC).
+
+Health Checks:
+Monitors resources like EC2 instances or load balancers.
+Helps detect unhealthy endpoints.
+Supports active-passive failover between regions.
+
+Traffic Flow:
+Enables advanced traffic routing logic, such as microservices routing.
+
+
+
+
+Routing Policies in Route 53
+
+Simple Routing:
+Maps a single DNS name to a single IP address.
+Default and straightforward option.
+
+Failover Routing:
+Uses health checks to determine if the primary resource is healthy.
+Routes traffic to a secondary resource during failures (active-passive failover).
+
+Geolocation Routing:
+Directs traffic based on the geographic location of the client.
+Useful for regional content or compliance requirements.
+
+Geoproximity Routing:
+Routes traffic to resources based on proximity within a geographic area.
+Requires Route 53 Traffic Flow.
+
+Latency-Based Routing:
+Routes traffic to the region with the lowest network latency for the client.
+Ensures optimal performance for users.
+
+Weighted Routing:
+Distributes traffic between resources based on assigned weights.
+Example: 80% to resource A, 20% to resource B.
+Ideal for A/B testing or gradual deployments.
+
+Multi-Value Answer Routing:
+Returns multiple IP addresses for redundancy and basic load balancing.
+
+IP-Based Routing:
+Directs traffic based on the originating IP address of the request.
+
+
+
+DNS Resolution with Route 53
+User queries a domain name (e.g., example.com).
+Route 53 responds with the IP address from the hosted zone.
+User connects to the web server using the returned IP address.
+
+
+Advantages of Amazon Route 53
+Integrated with AWS: Seamlessly works with other AWS services like EC2, ELB, and S3.
+Highly Scalable: Handles a large volume of DNS queries with low latency.
+Flexible Routing: Offers diverse routing policies for various use cases.
+Global Coverage: Distributed infrastructure ensures reliability and performance.
+Cost-Effective: Pay-as-you-go pricing model.
+
+This comprehensive overview of DNS and Route 53 covers its functionality, structure, and advanced features, making it an essential component for managing domain names
+and routing traffic efficiently in AWS.
+
+
+
+
+Route 53 Routing Policies:
+Route 53 provides several routing policies that allow for dynamic and flexible DNS query resolution. These include:
+
+Simple Routing
+Weighted Routing
+Latency-Based Routing
+Failover Routing
+Geolocation Routing
+Multi-Value Routing
+Geoproximity Routing
+IP-Based Routing
+
+********
+Scenario
+
+Imagine you own a website example.com, and you have deployed your web servers in three different AWS regions:
+US-East-1 (Virginia): IP address 192.0.2.1
+EU-West-1 (Ireland): IP address 192.0.2.2
+AP-Southeast-1 (Singapore): IP address 192.0.2.3
+You want to configure Route 53 to manage traffic to these regions based on different routing policies.
+
+************
+
+
+1. Simple Routing Policy
+Purpose: Default routing policy, used for straightforward DNS queries.
+
+Configuration:
+One or multiple IP addresses (A records) can be associated with a domain.
+TTL (Time-to-Live) specifies how long DNS responses are cached by clients.
+
+Workflow:
+Client sends a DNS query for a domain.
+Route 53 resolves the domain to the corresponding IP address(es).
+Client uses the IP address to connect to the service.
+
+Requirement: Direct all traffic to a single IP address.
+Setup:
+Create an A record for example.com pointing to 192.0.2.1 (Virginia).
+TTL: 300 seconds.
+Example:
+A user in India enters example.com in their browser.
+Route 53 resolves example.com to 192.0.2.1.
+The user's browser connects to the Virginia server at 192.0.2.1.
+
+
+2. Weighted Routing Policy
+Purpose: Distributes traffic across multiple resources based on predefined weights.
+
+Configuration:
+Multiple records with the same name but different IP addresses or endpoints.
+Assign weights (e.g., 60, 20, 20) to control traffic distribution.
+Use integer values between 0 and 255 to define weights.
+Optional Health Checks: Exclude unhealthy endpoints.
+
+Workflow:
+Client sends a query.
+Route 53 distributes traffic based on the weights.
+Healthy endpoints receive traffic as per the assigned weight.
+
+Requirement: Send 70% of traffic to Virginia and 30% to Ireland.
+Setup:
+Create two A records for example.com:
+192.0.2.1 (Virginia) with a weight of 70.
+192.0.2.2 (Ireland) with a weight of 30.
+Example:
+A user queries example.com:
+70% chance they are routed to 192.0.2.1 (Virginia).
+30% chance they are routed to 192.0.2.2 (Ireland).
+
+
+
+3. Latency-Based Routing Policy
+Purpose: Routes traffic to the region with the lowest latency for the client.
+
+Configuration:
+Multiple records with the same name but different endpoints.
+Associate records with AWS regions (e.g., us-east-1, ap-southeast-2).
+Optional Health Checks: Ensure only healthy endpoints are included.
+
+Workflow:
+Route 53 determines the region with the lowest latency.
+Sends the IP address of the endpoint in that region to the client.
+Client connects to the low-latency region.
+
+Requirement: Route users to the region with the lowest latency.
+Setup:
+Create A records for example.com:
+192.0.2.1 for Virginia.
+192.0.2.2 for Ireland.
+192.0.2.3 for Singapore.
+Associate each record with its respective region.
+Example:
+A user in Australia queries example.com:
+Route 53 determines the lowest latency region is Singapore.
+Resolves example.com to 192.0.2.3 (Singapore).
+
+
+4. Failover Routing Policy
+Purpose: Provides high availability using primary and secondary endpoints.
+
+Configuration:
+Two records for the same name:
+Primary endpoint (e.g., us-east-1).
+Secondary endpoint (e.g., ap-southeast-2).
+Health Checks: Required for the primary endpoint.
+
+Workflow:
+Route 53 monitors the health of the primary endpoint.
+If the primary is healthy, traffic is routed there.
+If the primary is unhealthy, traffic is routed to the secondary endpoint.
+
+Requirement: Use Virginia as the primary region and Singapore as the secondary (disaster recovery).
+Setup:
+Create two A records for example.com:
+Primary: 192.0.2.1 (Virginia) with a health check.
+Secondary: 192.0.2.3 (Singapore).
+Example:
+Normal Operation:
+Route 53 routes all traffic to 192.0.2.1 (Virginia).
+Failure Scenario:
+If the health check fails for 192.0.2.1, Route 53 routes traffic to 192.0.2.3 (Singapore).
+
+
+5. Geolocation Routing Policy
+Purpose: Routes traffic based on the geographic location of the client.
+
+Configuration:
+Create records with specific geographic locations (e.g., Singapore, Oceania).
+Default location can be specified for unmatched queries.
+Optional Health Checks: Include only healthy endpoints.
+
+Workflow:
+Client query is matched to the record corresponding to its location.
+Response includes the IP address for the designated region.
+
+Requirement: Route traffic based on the user’s location.
+Setup:
+Create three A records for example.com:
+Users in the US route to 192.0.2.1 (Virginia).
+Users in Europe route to 192.0.2.2 (Ireland).
+Users in Asia route to 192.0.2.3 (Singapore).
+Example:
+A user in Germany queries example.com:
+Route 53 resolves to 192.0.2.2 (Ireland).
+
+
+6. Multi-Value Routing Policy
+Purpose: Provides DNS-based load balancing with multiple records for redundancy.
+
+Configuration:
+Multiple records with the same name and different IP addresses.
+Health Checks: Include only healthy endpoints in responses.
+Workflow:
+Route 53 provides multiple IP addresses in the DNS response.
+Clients use any of the returned IP addresses.
+
+Requirement: Provide multiple IPs for redundancy with health checks.
+Setup:
+Create three A records for example.com:
+192.0.2.1 (Virginia) with health check.
+192.0.2.2 (Ireland) with health check.
+192.0.2.3 (Singapore) with health check.
+Example:
+Route 53 responds with all healthy IP addresses:
+If all endpoints are healthy: Returns 192.0.2.1, 192.0.2.2, 192.0.2.3.
+If Virginia fails: Returns 192.0.2.2, 192.0.2.3.
+
+
+7. Geoproximity Routing Policy
+Purpose: Routes traffic based on proximity to a specific location.
+
+Requirements: Must use Traffic Flow to define geoproximity rules.
+Configuration:
+Specify coordinates for regions and endpoints.
+Associate endpoints with AWS services (e.g., CloudFront, ELB, S3).
+Optionally adjust bias to prioritize or deprioritize specific locations.
+
+Workflow:
+Client query is matched to the nearest geographic endpoint.
+Route 53 sends the corresponding IP address.
+
+Requirement: Route users to the nearest region, with the ability to adjust biases.
+Setup:
+Define geoproximity rules:
+Users near Virginia → 192.0.2.1.
+Users near Ireland → 192.0.2.2.
+Users near Singapore → 192.0.2.3.
+Add a bias of +10% for Ireland (e.g., prioritize it slightly more).
+Example:
+A user in Italy queries example.com:
+Due to the +10% bias, the query is routed to 192.0.2.2 (Ireland) instead of Virginia.
+
+
+8. IP-Based Routing Policy
+Purpose: Routes traffic based on the client’s originating IP address.
+Configuration:
+Define CIDR blocks for IP ranges (e.g., Europe, USA).
+Create routing rules for each CIDR collection.
+Workflow:
+Route 53 evaluates the client’s IP address against CIDR rules.
+Sends the response based on the defined routing policy.
+
+Requirement: Route users based on their source IP address.
+Setup:
+Define CIDR collections:
+US users (CIDR: 203.0.113.0/24) → 192.0.2.1 (Virginia).
+European users (CIDR: 198.51.100.0/24) → 192.0.2.2 (Ireland).
+Example:
+A user with an IP in 203.0.113.45 queries example.com:
+Route 53 routes the user to 192.0.2.1 (Virginia).
+
+
+Key Features of Health Checks in Route 53
+
+Purpose: Ensure only healthy endpoints are included in DNS responses.
+
+Functionality:
+Monitors resources like EC2 instances, load balancers, and IP addresses.
+Responds dynamically based on endpoint health.
+Required for failover routing, optional for other policies.
+
+Scenarios:
+Exclude failed instances in weighted or multi-value routing.
+Automatically redirect traffic during failover.
+
+Routing Policy Use Cases
+Simple Routing: For straightforward DNS resolution without logic.
+Weighted Routing: For traffic distribution or gradual deployments.
+Latency-Based Routing: For optimizing performance by reducing latency.
+Failover Routing: For high availability and disaster recovery.
+Geolocation Routing: For regional content delivery or compliance.
+Multi-Value Routing: For basic load balancing and redundancy.
+Geoproximity Routing: For geographic prioritization.
+IP-Based Routing: For handling traffic from specific IP ranges.
+
+
+
+
+
+
+
+HOL:
+
+
+
+Here’s a summarized set of notes for the failover routing setup described:
+
+Failover Routing in Route 53
+Objective:
+Set up a primary and secondary endpoint for an application using Route 53 failover routing.
+Use CloudFormation to deploy resources and simulate a failover scenario.
+
+Steps:
+1. Deploy Primary Stack
+Region: North Virginia (us-east-1).
+CloudFormation Template: elastic-load-balancing-ALB-CF-template.yaml.
+Instance Details:
+AMI: Amazon Linux 2023.
+Instance type: t2.micro.
+VPC: Default.
+Subnets:
+172.31.0.0/16
+172.31.16.0/16.
+Load Balancer: Automatically created by the stack.
+Stack Name: failover-primary.
+
+
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Deploy an ASG with instances across two AZs and an ALB in front.
+Parameters:
+  VPCId:
+    Description: Select the VPC
+    Type: AWS::EC2::VPC::Id
+  SubnetIdOne:
+    Description: Select the first subnet for the ALB and Instance
+    Type: AWS::EC2::Subnet::Id
+  SubnetIdTwo:
+    Description: Select the second subnet for the ALB and Instance
+    Type: AWS::EC2::Subnet::Id
+  ImageId:
+    Description: AMI ID for the EC2 instances
+    Type: AWS::EC2::Image::Id
+  InstanceType:
+    Description: EC2 instance type
+    Type: String
+    Default: t2.micro
+Resources:
+  ALBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow HTTP to the load balancer
+      VpcId: !Ref VPCId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow HTTP from the ALB
+      VpcId: !Ref VPCId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          SourceSecurityGroupId: !Ref ALBSecurityGroup
+  LaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateName: MyLaunchTemplate
+      LaunchTemplateData:
+        ImageId: !Ref ImageId
+        InstanceType: !Ref InstanceType
+        SecurityGroupIds:
+          - !Ref InstanceSecurityGroup
+        UserData: !Base64 |
+          #!/bin/bash
+          yum update -y
+          yum install -y httpd
+          systemctl start httpd
+          systemctl enable httpd
+          # Fetch the token for IMDSv2
+          TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600" || echo ""`
+          # Use the token to fetch the availability zone
+          if [ -n "$TOKEN" ]; then
+            AZ=`curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/placement/availability-zone`
+          else
+            AZ="Unknown"
+          fi
+          echo "<h1>This instance is in Availability Zone: $AZ</h1>" > /var/www/html/index.html
+  AutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AutoScalingGroupName: MyAutoScalingGroup
+      MinSize: '1'
+      MaxSize: '2'
+      DesiredCapacity: '2'
+      LaunchTemplate:
+        LaunchTemplateId: !Ref LaunchTemplate
+        Version: !GetAtt LaunchTemplate.LatestVersionNumber
+      VPCZoneIdentifier:
+        - !Ref SubnetIdOne
+        - !Ref SubnetIdTwo
+      TargetGroupARNs:
+        - !Ref TargetGroup
+  LoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Subnets:
+        - !Ref SubnetIdOne
+        - !Ref SubnetIdTwo
+      SecurityGroups:
+        - !Ref ALBSecurityGroup
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Port: 80
+      Protocol: HTTP
+      VpcId: !Ref VPCId
+      HealthCheckEnabled: true
+      HealthCheckPath: /
+      Matcher:
+        HttpCode: '200'
+  Listener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TargetGroup
+      LoadBalancerArn: !Ref LoadBalancer
+      Port: 80
+      Protocol: HTTP
+
+
+
+2. Deploy Secondary Stack
+Region: North California (us-west-1).
+CloudFormation Template: Same as primary.
+Instance Details:
+AMI: Region-specific Amazon Linux 2023.
+Instance type: t2.micro.
+VPC: Default.
+Stack Name: failover-secondary.
+
+3. Configure Route 53 Hosted Zone
+Create a public hosted zone to manage DNS records.
+Add A records for primary and secondary endpoints.
+
+Primary Record Setup:
+Alias: Point to primary load balancer (North Virginia).
+Routing Policy: Failover → Primary.
+Health Check:
+Type: HTTP.
+Endpoint: Primary load balancer DNS name.
+Name: primary-health-check.
+
+Secondary Record Setup:
+Alias: Point to secondary load balancer (North California).
+Routing Policy: Failover → Secondary.
+Health Check:
+Type: HTTP.
+Endpoint: Secondary load balancer DNS name.
+Name: secondary-health-check.
+
+
+4. Verify Failover Behavior
+Use the domain to test routing:
+Initially resolves to primary endpoint.
+Refresh the browser to see the web app showing region info.
+Simulate Failure:
+Modify the security group for the primary load balancer.
+Remove the rule allowing HTTP (port 80) traffic.
+Wait for the health check to detect failure (1-2 minutes).
+Route 53 switches traffic to the secondary endpoint.
+Browser refresh confirms routing to the secondary region.
+
+
+5. Cleanup Resources
+In each region:
+Delete CloudFormation stacks.
+Delete health checks in Route 53.
+Remove the A records in the hosted zone.
+
+
+
+
+
+
+
+
+Route 53 Resolver and Forwarders
+
+1. What is a Forwarder in DNS?
+
+A forwarder allows a DNS server to forward a DNS query it cannot resolve to another DNS server.
+This query can be recursive, meaning:
+It may pass through multiple DNS servers until a response is found.
+Use Cases:
+Internal DNS Resolution: For internal company resources.
+External DNS Resolution: Forward requests for internet domains (e.g., example.com) to an external DNS server.
+
+
+2. Route 53 Resolver
+Route 53 Resolver serves as a DNS forwarder in AWS, enabling integration between:
+On-Premises DNS Servers and
+Route 53 Hosted Zones.
+
+It ensures:
+Seamless DNS resolution across hybrid environments.
+Resolution of:
+Records in Route 53 Hosted Zones.
+Records in on-premises DNS servers.
+
+
+3. Types of Route 53 Resolver Endpoints
+
+A. Outbound Endpoints
+Purpose: Forward DNS queries from AWS VPC to on-premises DNS servers.
+Use Case: An EC2 instance in a VPC needs to resolve internal domain names stored in the on-premises DNS database.
+How It Works:
+Query: An EC2 instance sends a DNS query to Route 53.
+Route 53 Resolver: If the query is for a domain managed by the on-premises DNS server, the resolver forwards the query to an outbound endpoint.
+Forwarding: The outbound endpoint forwards the query to the on-premises DNS server via a VPN or Direct Connect.
+Response: The on-premises DNS server responds back through the outbound endpoint.
+
+Diagram Representation:
+Components:
+VPC with EC2 instances.
+Outbound Resolver Endpoint in the VPC.
+VPN or Direct Connect to on-premises. *VPN gateway on aws and Customer gateway on premises connected through vpn*
+On-premises DNS server.
+
+Flow:
+EC2 → Outbound Endpoint → On-Prem DNS Server → Outbound Endpoint → EC2.
+
+B. Inbound Endpoints
+Purpose: Forward DNS queries from on-premises clients to Route 53 Hosted Zones.
+Use Case: A client in the corporate data center needs to resolve a domain name hosted in Route 53.
+How It Works:
+Query: The client in the corporate data center sends a DNS query to the on-premises DNS server.
+Forwarding: The on-premises DNS server forwards the query to an inbound endpoint in the AWS VPC.
+Resolution: The inbound endpoint resolves the query using Route 53 and responds back.
+
+Diagram Representation:
+Components:
+On-premises client and DNS server.
+VPN or Direct Connect to AWS.
+Inbound Resolver Endpoint in the VPC.
+Route 53 Hosted Zone.
+Flow:
+On-Prem Client → On-Prem DNS Server → Inbound Endpoint → Route 53 → Inbound Endpoint → On-Prem Client.
+
+
+4. Key Features of Route 53 Resolver
+
+Bidirectional Query Resolution:
+Resolve Route 53 hosted zones from on-premises.
+Resolve on-premises DNS records from AWS VPCs.
+
+Hybrid DNS Resolution:
+Ensures seamless operation in hybrid cloud environments.
+
+Secure Communication:
+Communication between VPC and on-premises DNS servers is encrypted using VPN or AWS Direct Connect.
+
+Scalability:
+Supports multiple VPCs and regions.
+
+5. Use Cases
+Hybrid Environments:
+Access private AWS resources and on-premises resources simultaneously.
+Internal Namespace Management:
+Resolve internal company domains (e.g., corp.example.com) hosted on-premises from AWS.
+Centralized DNS Management:
+Use Route 53 Resolver to centralize DNS resolution for multi-region setups.
+
+
+6. Practical Scenario
+Example:
+Internal Domain: internal.company.com hosted on an on-premises DNS server.
+Public Domain: app.example.com hosted in a Route 53 hosted zone.
+Requirement:
+EC2 instances in AWS should resolve internal.company.com.
+On-premises clients should resolve app.example.com.
+Solution:
+Outbound Endpoint:
+Configure to forward queries for internal.company.com to on-premises DNS servers.
+Inbound Endpoint:
+Configure to allow on-premises DNS servers to resolve app.example.com in Route 53.
+
+
+7. Steps to Configure Route 53 Resolver
+
+Outbound Endpoint:
+Navigate to the Route 53 Resolver console.
+Create an Outbound Resolver Endpoint:
+VPC: Select the VPC.
+Subnets: Choose subnets in multiple availability zones.
+IP Addresses: Assign private IPs to the endpoint.
+Target DNS Servers: Specify the IPs of on-premises DNS servers.
+
+Inbound Endpoint:
+Navigate to the Route 53 Resolver console.
+Create an Inbound Resolver Endpoint:
+VPC: Select the VPC.
+Subnets: Choose subnets in multiple availability zones.
+IP Addresses: Assign private IPs to the endpoint.
+
+Rules:
+Define Resolver Rules to specify:
+Domain Names: For which queries should be forwarded.
+Target DNS Servers: Destination of forwarded queries.
+
+This setup ensures seamless DNS resolution in hybrid environments, enhancing flexibility and integration between AWS and on-premises infrastructure.
+
