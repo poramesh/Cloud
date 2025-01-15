@@ -1,0 +1,149 @@
+Goal of the Lab
+
+The goal of this lab is to set up a Network Load Balancer (NLB) in AWS with a custom TCP application running on port 8181. You will also be
+using Elastic IP addresses (EIPs) for the load balancer, setting up Security Groups, Network ACLs, 
+and testing access between different VPCs.
+
+***this is waht it means when using eip for the load balancer would mean ==> We're gonna have a network load balancer and then we're gonna assign
+elastic IP addresses to the subnets in these two different availability zones.**
+
+Lab Topology Overview
+
+VPC A: This VPC contains EC2 instances running your application. These instances will be behind a Network Load Balancer (NLB) and will use a custom TCP port (8181).
+VPC B: This VPC simulates the client that will access your application through the NLB.
+Elastic IP addresses: Static IP addresses for the load balancer in each availability zone.
+Network ACL (NACL): Used for controlling inbound and outbound traffic between the client and the instances. The lab demonstrates 
+how to use NACLs for IP whitelisting and controlling access to the custom port (8181).
+
+Step-by-Step Breakdown
+
+1. Setting Up EC2 Instances and Launch Templates
+
+You start by creating a Launch Template for your EC2 instances. This template includes:
+A specific AMI (Amazon Machine Image), in this case, the Amazon Linux 2023 image.
+A custom Security Group (called web access) that allows access to the application on port 8181.
+User Data script that sets up a Flask application (a web app) to run on port 8181.
+User Data Script: This is a shell script that automatically runs when the EC2 instances are launched. It installs a simple 
+Flask app and configures it to run on TCP port 8181.
+
+You then use this Launch Template to create an Auto Scaling Group (ASG), which ensures you always have the desired
+number of EC2 instances (in this case, 2 instances).
+
+#!/bin/bash
+# Update the system
+yum update -y
+# Install Python 3
+yum install -y python3
+# Create a simple Python web server script
+cat > /home/ec2-user/webserver.py << EOF
+import http.server
+import socketserver
+
+PORT = 8181
+Handler = http.server.SimpleHTTPRequestHandler
+
+class CustomHandler(Handler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+        self.wfile.write(bytes("Welcome to My Custom SaaS App", "utf8"))
+
+httpd = socketserver.TCPServer(("", PORT), CustomHandler)
+print("serving at port", PORT)
+httpd.serve_forever()
+EOF
+# Run the web server in the background
+nohup python3 /home/ec2-user/webserver.py > /dev/null 2>&1 &
+
+
+2. Creating Elastic IP Addresses (EIPs)
+
+Elastic IP addresses are static IPs that AWS assigns for use with your resources like NLBs or EC2 instances. In this case, you allocate two EIPs for the NLB,
+one for each availability zone.
+
+AWS charges for EIPs whether they are used or not, but for the duration of this lab, the cost is minimal.
+
+3. Setting Up the Target Group
+
+You create a Target Group to register your EC2 instances with the NLB. The target type is set to Instances, meaning your NLB will route traffic to EC2 instances.
+You configure the health check to use TCP on port 8181 (not HTTP because this is a custom application, not a standard web service).
+
+
+4. Creating the Network Load Balancer
+
+A Network Load Balancer (NLB) is created to route TCP traffic to the EC2 instances on port 8181.
+You make the NLB Internet-facing (so it can be accessed publicly), and configure it to use the previously created EIPs (Elastic IP addresses) for static public IPs.
+here we select VPC and after that when we seelct two availability zone, we can customize it to elastic ip.
+us-east-1a
+subnet: subent-1
+ipv4 adress: use an elastic ip(select this from dropdown)
+ip adress: eip-1
+
+us-east-1b
+subnet: subent-2
+ipv4 adress: use an elastic ip
+ip adress: eip-2
+
+The NLB is configured with a listener on TCP port 8181, which is the custom port your application is running on.
+The NLB is then associated with the Target Group you created earlier.
+
+
+5. Testing Access From a Client (VPC B)
+
+You launch another EC2 instance in VPC B, which represents the client accessing the application.
+The client needs to connect to the NLB's DNS name (which resolves to the EIPs).
+
+
+6. Configuring Network ACL (NACL) for IP Whitelisting
+
+Network ACLs are used to control traffic in and out of subnets. For this lab, you'll use NACLs to whitelist specific Elastic IP addresses.
+The goal is to only allow access to the NLB from specific IP addresses (the client in VPC B) on TCP port 8181, while denying access from other IPs.
+
+In the Outbound Rules of the NACL:
+You configure a rule allowing traffic to the Elastic IPs of the NLB on port 8181.
+A Deny rule ensures that no other IP addresses can access port 8181.
+This NACL configuration ensures that only the specified IPs (the ones associated with the client's EC2 instance) can access the application on port 8181.
+
+
+Example Outbound Rules for NACL in VPC B: (you can get the eip by going to load balanver, network mapping)
+
+Rule #	Type	      Protocol	 Port Range   	Destination IP    	Allow/Deny
+100	   Custom TCP  	TCP	       8181	          Elastic IP 1/32	    Allow
+110	   Custom TCP	  TCP	       8181	          Elastic IP 2/32	    Allow
+200	   All          Traffic	   All	          All	0.0.0.0/0	      Deny
+
+7. Verifying Connectivity
+
+After setting up everything, you use the curl command to verify that the client in VPC B can access the application through the NLB.
+First, the curl command connects to the DNS name of the NLB on port 8181 (using the public IPs). If the NACL and security group configurations are correct,
+the connection should succeed, and you’ll see a "Welcome" message from the Flask app.
+
+You also test the whitelisting by removing the IP allow rules from the NACL. This should break the connection, confirming that only whitelisted IPs can access the application.
+
+
+8. Cleaning Up Resources
+
+After the lab, you need to clean up:
+Terminate the EC2 instances to avoid ongoing charges.
+Delete the Auto Scaling Group and Target Group.
+Release the Elastic IPs by deleting the Network Load Balancer (since they can’t be released while associated with the NLB).
+
+Why Are These Steps Important?
+
+Elastic IPs: Used for static IP addresses in the public internet to ensure that the load balancer has fixed addresses that clients can access.
+Network Load Balancer (NLB): Efficiently routes TCP traffic to the EC2 instances.
+NACLs & Security Groups: Help control traffic flow and ensure that only authorized IPs can access the application on the custom port.
+Whitelisting: Demonstrates how to restrict access to the application to only specific clients.
+
+
+Conclusion
+This lab walks you through the process of setting up a custom TCP application in AWS with strict access control via Network ACLs and Security Groups. By using
+Elastic IPs, NLB, and configuring access with specific IPs, you learn how to build a secure, publicly accessible service with 
+custom port settings, demonstrating the practical use of AWS networking features.
+
+
+
+
+
+
