@@ -1,0 +1,325 @@
+Secure Listeners for Elastic Load Balancers
+
+Secure listeners enable SSL/TLS encryption to ensure secure communication between clients and the application through an Elastic Load Balancer (ELB).
+Certificates (e.g., AWS Certificate Manager or third-party certificates) are used to establish encryption.
+
+
+Encryption Options by Load Balancer Type
+
+Application Load Balancer (ALB)
+
+1. Encrypted Communication Between Client and Load Balancer:
+Add an SSL/TLS certificate to the ALB.
+Certificate options:
+AWS Certificate Manager (ACM).
+Imported certificate in ACM or IAM.
+Ensures encrypted traffic over the internet to the ALB.
+
+2. Unencrypted Communication Within the VPC:
+Communication from ALB to application instances within the VPC remains unencrypted.
+Suitable if:
+Compliance or security requirements allow unencrypted traffic within the VPC.
+Simplicity of managing only one certificate is preferred.
+
+3. Encryption End-to-End:
+Add certificates at both the ALB and the application server levels.
+Certificates for application instances:
+Use self-signed certificates or private certificate authorities (CA).
+ACM public certificates cannot be used as their private keys are not exportable(cant export private key).
+Ensures full encryption from client to application server.
+
+
+Network Load Balancer (NLB)
+
+1. Single Encrypted Connection:
+The client-to-application communication is encrypted through the NLB.
+Add a public SSL/TLS certificate on the application instance.
+Certificates must be from third-party certificate authorities; ACM cannot be used due to private key export restrictions.
+
+2. Two Encrypted Connections:
+SSL/TLS termination at the NLB:
+Add an ACM certificate at the NLB level.
+A second encrypted channel from NLB to the application instance:
+Requires a separate certificate installed on the instance.
+Provides SSL offloading at the NLB while maintaining encryption within the VPC.
+
+
+Key Considerations
+
+ALB vs. NLB:
+ALB operates at Layer 7 (application layer) and requires two separate connections: client-to-ALB and ALB-to-application server.
+NLB operates at Layer 4 (network layer) and supports a single encrypted channel.
+
+Certificate Management:
+ACM certificates are suitable for load balancers but not directly for application instances (private keys are non-exportable).
+Use third-party certificates for instances needing encryption.
+
+Compliance Requirements:
+Some scenarios (e.g., sensitive data, strict compliance standards) may require end-to-end encryption.
+
+
+Summary
+
+Application Load Balancer:
+Supports either partial (client to ALB) or full encryption (client to application instance).
+Offers flexibility with Layer 7 capabilities.
+
+Network Load Balancer:
+Allows single-channel encryption for simpler setups or two-channel encryption for added flexibility.
+Operates at Layer 4 for high performance and low latency.
+Choose the approach based on security requirements, compliance mandates, and application architecture.
+
+
+
+
+HOL
+
+
+Setting Up a Secure Listener for an Application Load Balancer (ALB)
+
+This process involves creating a secure listener (HTTPS) for an Application Load Balancer (ALB) using CloudFormation. You'll use a Route 53 domain,
+an SSL/TLS certificate from AWS Certificate Manager (ACM), and automate the setup via a CloudFormation template.
+
+Steps
+
+1. Prerequisites
+
+Route 53 Domain:
+Ensure you have a domain registered in Route 53.
+If not registered, this step might take some time due to delays in domain propagation.
+
+SSL/TLS Certificate:
+Use AWS Certificate Manager (ACM) to request and validate a public SSL/TLS certificate for your domain.
+
+Validation Method:
+Use DNS validation for reliability over email.
+Validation involves adding a CNAME record to your hosted zone in Route 53.
+
+
+2. Launching ALB with CloudFormation
+
+CloudFormation Template:
+Download the provided file.
+
+
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Deploy an ASG with instances across two AZs and an ALB in front.
+Parameters:
+  VPCId:
+    Description: Select the VPC
+    Type: AWS::EC2::VPC::Id
+  SubnetIdOne:
+    Description: Select the first subnet for the ALB and Instance
+    Type: AWS::EC2::Subnet::Id
+  SubnetIdTwo:
+    Description: Select the second subnet for the ALB and Instance
+    Type: AWS::EC2::Subnet::Id
+  ImageId:
+    Description: AMI ID for the EC2 instances
+    Type: AWS::EC2::Image::Id
+  InstanceType:
+    Description: EC2 instance type
+    Type: String
+    Default: t2.micro
+Resources:
+  ALBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow HTTP to the load balancer
+      VpcId: !Ref VPCId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow HTTP from the ALB
+      VpcId: !Ref VPCId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          SourceSecurityGroupId: !Ref ALBSecurityGroup
+  LaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateName: MyLaunchTemplate
+      LaunchTemplateData:
+        ImageId: !Ref ImageId
+        InstanceType: !Ref InstanceType
+        SecurityGroupIds:
+          - !Ref InstanceSecurityGroup
+        UserData: !Base64 |
+          #!/bin/bash
+          yum update -y
+          yum install -y httpd
+          systemctl start httpd
+          systemctl enable httpd
+          # Fetch the token for IMDSv2
+          TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600" || echo ""`
+          # Use the token to fetch the availability zone
+          if [ -n "$TOKEN" ]; then
+            AZ=`curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/placement/availability-zone`
+          else
+            AZ="Unknown"
+          fi
+          echo "<h1>This instance is in Availability Zone: $AZ</h1>" > /var/www/html/index.html
+  AutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AutoScalingGroupName: MyAutoScalingGroup
+      MinSize: '1'
+      MaxSize: '2'
+      DesiredCapacity: '2'
+      LaunchTemplate:
+        LaunchTemplateId: !Ref LaunchTemplate
+        Version: !GetAtt LaunchTemplate.LatestVersionNumber
+      VPCZoneIdentifier:
+        - !Ref SubnetIdOne
+        - !Ref SubnetIdTwo
+      TargetGroupARNs:
+        - !Ref TargetGroup
+  LoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Subnets:
+        - !Ref SubnetIdOne
+        - !Ref SubnetIdTwo
+      SecurityGroups:
+        - !Ref ALBSecurityGroup
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Port: 80
+      Protocol: HTTP
+      VpcId: !Ref VPCId
+      HealthCheckEnabled: true
+      HealthCheckPath: /
+      Matcher:
+        HttpCode: '200'
+  Listener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TargetGroup
+      LoadBalancerArn: !Ref LoadBalancer
+      Port: 80
+      Protocol: HTTP
+
+
+
+This template creates an ALB, instances in two availability zones, and necessary configurations.
+
+Create a CloudFormation Stack:
+Go to the CloudFormation console and upload the template.
+and then we gotta fill the parameters that acts as input.
+
+Fill in the parameters:
+AMI ID: Obtain the latest Amazon Linux AMI ID from the EC2 console.
+Instance Type: Default is t2.micro.
+VPC and Subnets: Choose your VPC and two subnets from the same VPC.
+Deployment:
+Submit the stack and let CloudFormation provision the infrastructure.
+Monitor progress in the Events tab.
+
+
+3. Configuring the SSL/TLS Certificate
+
+AWS Certificate Manager (ACM):
+Request a public SSL/TLS certificate for your domain in ACM. (enter the domain name)
+Use DNS validation and click on create the required CNAME record in Route 53.(this we do it to verify if we have permission to do it)
+Wait for the certificate to change status to Issued.
+
+Route 53 Hosted Zone:
+Verify the CNAME record was created successfully in your hosted zone, once it is created here, we can deelte as it has been verifiied.
+Ensure no other essential records like NS or SOA are deleted.
+
+
+((((((((((((((((
+1. Access AWS Certificate Manager
+Navigate to the AWS Certificate Manager (ACM) service in the AWS Management Console.
+
+2. Request a Certificate
+Click Request a Certificate.
+Choose Public Certificate (for a domain accessible on the internet).
+Enter your domain name(s):
+Example: example.com or *.example.com (for a wildcard certificate).
+
+3. Validate Domain Ownership
+You need to prove ownership of the domain you’re requesting a certificate for. There are two methods:
+
+DNS Validation (Recommended):
+ACM provides a DNS CNAME record.
+This record must be added to your domain's DNS settings.
+AWS automatically validates the ownership after the record is detected.
+Email Validation:
+ACM sends an email to the domain's registered contacts.
+You must respond to the email to validate.
+Why DNS Validation is Preferred:
+It's automated and faster.
+Requires no manual intervention once the record is set up.
+
+4. Create the DNS CNAME Record
+ACM provides the CNAME record details (Name, Type, and Value).
+If your domain is hosted in Route 53, ACM can create this record automatically. Click Create Records in Route 53.
+If your domain is hosted elsewhere, you need to manually create the record in your DNS management console.
+
+5. Wait for Validation
+Once the CNAME record is set up, ACM periodically checks for the record.
+The status changes from Pending Validation to Issued after validation is successful.
+
+6. Use the Certificate
+The issued certificate is now available for use in AWS services like:
+Elastic Load Balancers (ALBs or NLBs).
+CloudFront distributions.
+API Gateway.
+))))))))))
+
+4. Adding a Secure Listener
+
+Access ALB Configuration:
+Navigate to the Listeners and Rules section of the ALB.
+
+Add a Listener:
+Protocol: Choose HTTPS (port 443).
+Forwarding Target: Use the same target group as the HTTP listener.
+Security Policy: Keep the default.
+SSL/TLS Certificate:
+Select the certificate issued via ACM.
+
+5. Updating Security Groups
+
+Modify the ALB and instance security groups to allow inbound HTTPS (port 443) traffic.
+
+6. DNS Configuration for Secure Access
+
+Route 53 A Record: (cause the dns record that we usually hit for load balancer is for http :80)
+Create an Alias A Record pointing to your ALB’s DNS name.
+Select the region and the ALB from the list.
+
+Test HTTPS Access:
+Access your application using the domain name (e.g., https://yourdomain.com).
+Verify the secure connection by checking the padlock icon in the browser.
+
+7. Cleanup
+Delete Resources:
+Delete the A record in Route 53 if you no longer need it.
+Use the CloudFormation console to delete the stack, which removes all associated resources.
+
+Keep/Remove Certificate:
+Keep the certificate in ACM for future testing or delete it to avoid charges.
+
+
+Key Points to Remember
+CloudFormation Templates: Automate resource creation and ensure consistent setups.
+DNS Validation: Reliable and easy to manage for domain ownership verification.
+Security Groups: Update rules to allow both HTTP and HTTPS as required.
+Infrastructure Management: Clean up resources through CloudFormation to avoid orphaned components or extra costs.
+
+
+
+
+
