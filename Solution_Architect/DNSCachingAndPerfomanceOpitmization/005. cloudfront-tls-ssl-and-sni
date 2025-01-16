@@ -1,0 +1,88 @@
+SSL/TLS and Server Name Indication (SNI) in CloudFront
+
+1. SSL/TLS Certificates in CloudFront
+
+Certificate Issuance:
+CloudFront supports SSL/TLS to secure communication between viewers and the CloudFront edge.
+
+Certificates can be:
+Issued through ACM (AWS Certificate Manager).
+Must be issued in the us-east-1 region, as CloudFront is a global service and requires certificates issued in this region.
+Provided by a third-party certificate authority.
+
+
+*****
+If you're using ACM certificates with CloudFront, you must issue the certificate specifically in the us-east-1 region (N. Virginia), regardless of where
+your CloudFront distribution serves content.
+This is because:
+CloudFront centrally manages certificates from us-east-1 for all its edge locations worldwide.
+ACM certificates in other regions will not be recognized by CloudFront.
+*****
+
+Custom Domain Names:
+You can use CNAMES to associate a custom domain name with your CloudFront distribution.
+
+2. Origin SSL/TLS
+S3 as Origin:
+S3 already has its own built-in SSL/TLS certificate.
+HTTPS is supported by default and cannot be modified.
+
+Custom Origins (e.g., ALB, EC2):
+Use ACM certificates for ALBs (Application Load Balancers).
+For EC2, you can use certificates from ACM or a third-party certificate authority.
+Certificates for origins must be public certificates.
+
+
+3. Protocol Policies
+Viewer Protocol Policy:
+Governs the communication between viewers and CloudFront.
+
+Options:
+Allow HTTP and HTTPS: Supports both protocols.
+Redirect to HTTPS: Automatically redirects HTTP requests to HTTPS.
+HTTPS-only: Forces HTTPS and drops HTTP connections.
+
+Origin Protocol Policy:
+Manages communication between CloudFront and the origin.
+Can also use HTTPS to secure backend communication.
+
+
+
+4. Server Name Indication (SNI)
+Purpose:
+Allows multiple SSL/TLS certificates for different domain names on a single IP address or listener.
+Useful for reducing the cost of additional IP addresses in CloudFront.
+
+How It Works:
+A user requests mypublicdomain.com or myotherdomain.com.
+The domain name is included in the request header.
+CloudFront identifies the corresponding certificate based on the domain name in the header.
+
+Advantages:
+Eliminates the need for separate IP addresses or listeners for each domain.
+Reduces costs associated with dedicated IPs.
+
+Limitations:
+SNI works only with browsers/clients released after 2010.
+For older browsers, a dedicated IP is required to ensure compatibility.
+
+Key Points
+Use ACM in us-east-1 for CloudFront certificates.
+CloudFront allows both viewer and origin communication to be secured via SSL/TLS.
+SNI enables cost-effective, multi-domain SSL/TLS support on CloudFront.
+Use dedicated IPs only when supporting very old browsers is necessary.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ChatGPT can make 
