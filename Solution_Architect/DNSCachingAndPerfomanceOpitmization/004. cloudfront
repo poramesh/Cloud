@@ -167,163 +167,416 @@ Deploy and test using the CloudFront endpoint or a custom domain.
 
 
 
-Detailed Notes on Amazon CloudFront (In-Depth)
 
-1. CloudFront Architecture
+1. Overview of CloudFront Architecture
 
-1.1 Origins
-EC2 Origin: Serves dynamic or custom application content.
-S3 Origin: Stores and serves static content like images, CSS, or videos.
-Custom Origin: Any HTTP server, such as on-premises servers or third-party cloud providers.
+Origins
 
-1.2 Regional Edge Cache
-Acts as an intermediate layer between Edge Locations and Origins.
+EC2 Origin:
+Serves dynamic or application-specific content.
+Amazon S3 Origin:
+Often used to serve static files such as images, videos, and documents.
+
+Regional Edge Cache
+
 Purpose:
-Provides a larger cache to store more objects.
-Reduces the frequency of origin fetches, improving performance and reducing costs.
-Number:
-Only 12 Regional Edge Caches, compared to 210+ Edge Locations globally.
+Acts as an intermediary between edge locations and the origin.
+Fewer in number (12 worldwide) compared to 210 edge locations.
+Larger cache size, enabling storage of more content.
+
 Workflow:
-If content is not found in an edge location (cache miss), CloudFront checks the Regional Edge Cache.
-If the Regional Edge Cache also misses, CloudFront fetches the content from the origin.
+If content is not available at the edge location (cache miss), the regional edge cache is queried.
+If the content is not available at the regional cache, a request is sent to the origin (origin fetch).
 
-1.3 Edge Locations
-The point of presence (PoP) where content is cached and served.
-Globally distributed for low latency and high performance.
+Edge Locations
+Points of presence (PoPs) where users connect to access cached content.
+Positioned globally to minimize latency and optimize performance.
 
 
+2. Content Delivery Workflow
 
-2. Cache Management
-
-2.1 Cache Hits and Misses
-Cache Hit:
-Content is available in the edge location or Regional Edge Cache.
-Delivered to the user immediately, ensuring high performance.
 Cache Miss:
-Content is not in the edge location or Regional Edge Cache.
-CloudFront fetches it from the origin and stores it in the cache for future use.
+The requested object is unavailable in the edge location or regional edge cache.
+Content is fetched from the origin.
+Fetched content is cached at the edge location and/or regional edge cache for future use.
 
-2.2 Time-to-Live (TTL)
-TTL (Time-to-Live): The duration for which objects remain in the cache before being revalidated or refreshed.
+Cache Hit:
+Requested object is available in the cache (either edge location or regional edge cache).
+Content is delivered to the user with high performance.
+
+
+3. Cache Settings
+
+Time-to-Live (TTL):
+Determines how long objects remain in the cache.
 Default TTL: 24 hours.
-Configurable TTL:
-Can be set at the behavior level in the CloudFront distribution.
-Helps balance performance and content freshness.
+Configurable at the behavior level in the CloudFront distribution.
 
-
-2.3 Cache-Control Headers
-
-Cache-Control:
-max-age=<seconds>: Specifies the maximum caching duration.
-expires: Defines an exact expiration date and time.
+Use Cases:
 Dynamic Content:
-Use a shorter TTL to avoid serving stale content.
+Set a lower TTL to ensure users receive the most up-to-date version.
 Static Content:
-Use a longer TTL for better performance and reduced origin fetches.
+Increase TTL for better performance and reduced origin fetches.
 
-2.4 Cache Invalidation
-Allows you to remove specific objects from the cache before the TTL expires.
-Cost: Invalidations incur charges, so TTL configuration should be optimized.
-
-
-3. Behaviors and Path Patterns
-
-3.1 Behaviors
-Define how CloudFront processes requests.
-Configured within the distribution.
-Examples:
-Path patterns.
-Cache and origin request policies.
-Protocol redirection (e.g., force HTTPS).
-
-3.2 Path Patterns
-Routes specific requests to different origins.
-Examples:
-Requests for *.jpg go to Origin 1 (S3 for images).
-Requests for *.mp4 go to Origin 2 (EC2 for videos).
-Default Origin:
-Used for requests that don’t match any path pattern.
+Headers for Cache Control:
+Use Cache-Control headers to define cache behavior.
+max-age=<seconds>: Specifies cache duration in seconds.
+Expires: Sets a specific expiration date and time.
+These headers can override default TTL settings.
 
 
+4. Path Patterns
+Path patterns allow routing of specific file types to designated origins.
 
-4. Advanced Features
+Example Configuration:
+Origin 1: Handles image files (*.jpg).
+Origin 2: Handles video files (*.mp4).
+Default Origin: Used for all requests not matching any path pattern.
 
-4.1 Request Headers
-Headers from viewer requests can be forwarded to origins.
+Use Case:
+Request for beach.jpg is routed to Origin 1.
+Request for ocean.mp4 is routed to Origin 2.
 
-Caching Behavior Based on Headers:
-Forward All Headers:
-No caching is performed, as all requests are forwarded to the origin.
+
+5. Request Headers
+
+Forwarding Headers:
+CloudFront can cache objects based on values of request headers.
+
+Header Forwarding Modes:
+All Headers:
+No caching at the edge.
+Ideal for dynamic content that changes based on headers.
+
 Whitelist Headers:
-Forward only specific headers to the origin.
-Enables caching of multiple versions based on header values.
+Specify headers to forward.
+Enables caching for specific headers while maintaining dynamic behavior.
+
 Default Headers:
-No caching is performed based on request headers.
-
-4.2 Regional Edge Cache Optimization
-Decreasing TTL:
-Beneficial for dynamic content that changes frequently.
-Increasing TTL:
-Reduces origin fetches for static content, improving performance.
+Caches objects without considering headers.
 
 
-5. Traffic Flow in CloudFront
+6. Cache Invalidation
 
-User Request:
-User sends an HTTP/HTTPS request to the nearest Edge Location.
-Cache Check:
-Edge location checks its cache for the object.
-Cache Miss: Fetches from the Regional Edge Cache.
-Miss in Regional Cache: Fetches from the origin.
-Object Delivery:
-Object is cached at the edge location and served to the user.
-Subsequent Requests:
-Served from the cache until the TTL expires.
+Manual Cache Invalidation:
+Explicitly remove objects from the cache when required.
+Useful for immediate updates but incurs additional costs.
+TTL and Dynamic Content:
+Adjust TTL to manage freshness without manual invalidation.
 
 
-6. Signed URLs and Origin Access
+7. Exam Tips
+Understand the difference between edge locations and regional edge caches.
+Know the importance of path patterns in routing requests to the correct origin.
+Familiarize yourself with TTL settings and when to use lower vs. higher values.
+Remember how request headers influence caching.
 
-6.1 Signed URLs
-Securely restrict access to content in CloudFront distributions.
+CloudFront’s nuanced caching strategies make it a powerful tool, especially when combined with your experience in automation and system optimization. W
+ith a solid understanding of these concepts, you're well-prepared to dive into configurations or tackle related AWS challenges.
+
+
+
+
+
+Amazon CloudFront – Signed URLs, Signed Cookies, OAI, and OAC
+
+1. Signed URLs
 Purpose:
-Provide temporary, limited access to specific objects.
-Prevent unauthorized access.
-Configuration:
-Create a policy for access (e.g., expiration time, IP restrictions).
-Generate signed URLs using private keys.
+Provide controlled access to restricted content.
+Useful for granting temporary or specific access to content.
 
-6.2 Origin Access Identity (OAI)
-Ensures that content stored in S3 is only accessible via CloudFront.
+Key Features:
+Expiration:
+Define a start and end time for URL validity.
+
+IP Restrictions:
+Restrict access to specific IP addresses.
+
 Workflow:
-Create an OAI in CloudFront.
-Attach the OAI to your CloudFront distribution.
-Update the S3 bucket policy to allow access only from the OAI.
+Authentication:
+A mobile application requests authentication from a serverless application (e.g., AWS Lambda).
+The application authenticates the client and generates a signed URL.
+Access Content:
+The client uses the signed URL to access the CloudFront distribution.
+Content Delivery:
+Content is securely delivered to the client.
+
+Use Cases:
+Granting access to individual files.
+Ideal for clients that do not support cookies.
 
 
-7. Common Exam Topics
-Path Patterns:
-Understand how requests are routed to multiple origins.
-Cache-Control Headers:
-Know the impact of max-age and expires on caching.
-Regional Edge Cache:
-Role in reducing origin fetches and improving performance.
-Signed URLs and OAIs:
-Restrict access to S3 content securely.
-TTL Configuration:
-Best practices for dynamic and static content.
+2. Signed Cookies
+Purpose:
+Similar to signed URLs but used for accessing multiple restricted files without changing the URLs.
+
+Key Features:
+No URL Change:
+The URL remains unchanged; access is controlled via cookies.
+Batch Access:
+Useful for granting access to multiple files within the same distribution.
 
 
-8. Best Practices
-Optimize TTL Settings:
-Balance freshness and performance.
-Invalidate Cache Sparingly:
-Use invalidations only when necessary to minimize costs.
-Configure Path Patterns:
-Route requests efficiently to appropriate origins.
-Use OAI:
-Secure S3 content by restricting direct access.
-Enable HTTPS:
-Encrypt all communication for better security.
+3. Origin Access Identity (OAI)
 
-This concludes the in-depth overview of CloudFront, covering its architecture, caching, behaviors, and advanced features. Let me know if you need further clarification or examples!
+Purpose:
+Restrict direct access to an S3 bucket while allowing access through a CloudFront distribution.
+
+Components:
+OAI:
+A virtual user identity created by CloudFront.
+Used to authenticate CloudFront’s access to the S3 bucket.
+Bucket Policy:
+Configured to allow access only to the specific OAI.
+
+Workflow:
+Users access the content through the CloudFront distribution.
+The bucket policy ensures that only the OAI can retrieve content from the S3 bucket.
+Direct access to the bucket is blocked.
+
+Limitation:
+Applicable only for S3 origins.
+Not usable with EC2 instances, load balancers, or other origins.
+
+Deprecation:
+OAI has been deprecated in favor of OAC (Origin Access Control).
+
+4. Origin Access Control (OAC)
+
+Purpose:
+Successor to OAI, providing enhanced functionality and flexibility.
+
+Key Features:
+Service Principal:
+Uses the CloudFront service principal (cloudfront.amazonaws.com) for access control.
+
+Condition for Source ARN:
+Adds a condition in the bucket policy to validate the CloudFront distribution’s ARN.
+
+Backward Compatibility:
+Performs the same function as OAI but supports additional use cases.
+
+Bucket Policy Example:
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "cloudfront.amazonaws.com"
+      },
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::<bucket-name>/*",
+      "Condition": {
+        "StringEquals": {
+          "AWS:SourceArn": "arn:aws:cloudfront::<account-id>:distribution/<distribution-id>"
+        }
+      }
+    }
+  ]
+}
+
+Advantages Over OAI:
+
+Simplified bucket policies.
+Supports additional features and use cases.
+Recommended for new deployments instead of OAI.
+
+
+5. Comparison: Signed URLs vs. Signed Cookies
+
+Feature	              Signed URLs	                              Signed Cookies
+Primary Use Case	    Individual file access.	                  Access to multiple files.
+URL Modification    	URL contains access parameters.	          No changes to the URL.
+Client Compatibility	For clients that do not support cookies.	Requires cookie support.
+
+
+6. Exam Tips
+
+Signed URLs:
+Best for individual file access and clients without cookie support.
+
+Signed Cookies:
+Use for batch access to multiple files with unchanged URLs.
+OAI:
+Deprecated; applicable only for S3 origins.
+OAC:
+Recommended replacement for OAI with enhanced features and wider use cases.
+
+These notes cover all essential aspects of CloudFront signed URLs, signed cookies, OAI, and OAC. Let me know if you'd like further explanations or examples!
+
+
+
+
+
+HOL
+
+
+Amazon CloudFront Cache and Behavior Settings
+
+1. Set up Amazon S3 buckets:
+- Create two S3 buckets for the files (e.g., 'pdf-bucket' and 'jpg-bucket')
+- Upload sample PDF files to the 'pdf-bucket' and JPG images to the 'jpg-bucket'
+- Create a bucket for the static website
+
+2. For the static website:
+- Enable public access
+- Configure as a static website
+- Add the index.html (when ready)
+
+3. Configure Amazon CloudFront:
+- Create a new CloudFront distribution
+- Add the static website as an origin (use website endpoint)
+- Disable caching
+- Add 2 more origins for the buckets containing the files and create/configure OAC
+- Configure cache behavior settings for each origin based on file type (PDF or JPG) and default going to the static website
+
+
+: CloudFront Cache and Behavior Settings
+
+Overview
+This lesson involves configuring CloudFront with three S3 buckets and setting up cache behaviors to route traffic based on file types.
+The setup includes:
+
+A static website bucket as the default origin.
+Separate buckets for PDFs and JPGs.
+Custom behavior rules to forward traffic to the appropriate bucket based on the file type.
+Steps to Configure CloudFront Cache and Behavior
+
+1. Create S3 Buckets
+
+Buckets:
+my-static-website – Hosts the static website (index.html).
+pdf-bucket – Stores PDF files.
+jpg-bucket – Stores JPG files.
+
+Commands (AWS CLI):
+
+aws s3 mb s3://my-static-website-<unique-id>
+aws s3 mb s3://pdf-bucket-<unique-id>
+aws s3 mb s3://jpg-bucket-<unique-id>
+
+2. Configure the Static Website Bucket
+
+Disable Block Public Access:
+Go to Permissions > Block Public Access > Disable > Save Changes.
+
+Add Bucket Policy:
+
+Use the S3 bucket ARN to allow public access.
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::my-static-website-<unique-id>/*"
+    }
+  ]
+}
+
+Upload Files:
+Upload index.html from the course folder to the bucket.
+
+Enable Static Website Hosting:
+Navigate to Properties > Static Website Hosting > Enable.
+Specify index.html as the default document.
+
+Test Static Website:
+Use the Static Website URL provided in the bucket properties to verify the website.
+
+
+3. Upload Files to PDF and JPG Buckets
+
+Upload relevant files to their respective buckets:
+JPG files (e.g., coffee.jpg, donut.jpg) → jpg-bucket.
+PDF files (e.g., data-analysis.pdf) → pdf-bucket.
+
+
+4. Create a CloudFront Distribution
+
+Add Static Website as the Default Origin:
+Go to the CloudFront Console > Create Distribution.
+Choose the static website bucket as the origin and select Use Website Endpoint.
+Disable caching (for testing purposes).
+Skip other optional settings and create the distribution.
+
+Verify Static Website:
+Use the CloudFront distribution domain name to ensure the static website is accessible.
+
+
+5. Add Additional Origins
+
+JPG Bucket:
+Go to Origins > Create Origin.
+Select the jpg-bucket and enable Origin Access Control (OAC).
+Copy the policy provided by CloudFront and add it to the jpg-bucket policy:
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "cloudfront.amazonaws.com"
+      },
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::jpg-bucket-<unique-id>/*",
+      "Condition": {
+        "StringEquals": {
+          "AWS:SourceArn": "arn:aws:cloudfront::<account-id>:distribution/<distribution-id>"
+        }
+      }
+    }
+  ]
+}
+
+PDF Bucket:
+Repeat the steps for jpg-bucket to add the pdf-bucket as an origin.
+Reuse the OAC settings and adjust the bucket ARN in the policy.
+
+
+6. Configure Behaviors
+
+Default Behavior:
+Routes all requests to the static website.
+
+Custom Behaviors:
+JPG Behavior:
+Path pattern: *.jpg
+Origin: jpg-bucket
+Disable caching (for testing).
+
+PDF Behavior:
+Path pattern: *.pdf
+Origin: pdf-bucket
+Disable caching (for testing).
+
+
+7. Test the Setup
+
+Use the CloudFront distribution domain name to:
+Access the static website (default behavior).
+Access specific JPG files using their URLs (e.g., /donut.jpg).
+Access specific PDF files using their URLs (e.g., /data-analysis.pdf).
+Confirm that traffic is routed to the appropriate origins based on the file type.
+
+8. Cleanup
+Disable the Distribution:
+In the CloudFront Console, disable the distribution.
+Wait for the status to update to Disabled.
+Delete the Distribution:
+Once disabled, select the distribution and delete it.
+
+Key Takeaways
+Origins:
+Use S3 buckets as origins with OAC to secure access.
+Behaviors:
+Define path-based behaviors to route traffic to specific origins.
+Caching:
+Disable caching during testing for immediate updates but enable it in production for better performance.
+Static Website Hosting:
+Leverage S3 static website hosting for default behavior in CloudFront.
 
