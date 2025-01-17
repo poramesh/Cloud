@@ -1,0 +1,167 @@
+Lambda@Edge:
+
+Lambda@Edge: Allows you to run Node.js and Python Lambda functions to customize content delivered by CloudFront.
+Executes functions closer to the viewer, improving performance and reducing latency.
+
+Key Points for the Exam:
+Execution Points: Lambda functions can run at four distinct stages in the CloudFront request/response lifecycle:
+Viewer Request: After CloudFront receives a request from the viewer.
+Origin Request: Before CloudFront forwards the request to the origin.
+Origin Response: After CloudFront receives the response from the origin.
+Viewer Response: Before CloudFront forwards the response to the viewer.
+
+Graphical Workflow:
+
+Viewer Request:
+User submits a request.
+Lambda@Edge can process the request before CloudFront forwards it.
+Origin Request:
+Before forwarding the request to the origin (e.g., S3), Lambda@Edge can process it.
+Origin Response:
+After the origin (e.g., S3) sends a response to CloudFront, Lambda@Edge can modify it.
+Viewer Response:
+Before forwarding the response to the viewer, Lambda@Edge can process it.
+
+Key Exam Tips:
+Purpose: Lambda@Edge customizes content at the edge to optimize performance and personalize content delivery.
+Languages: Supports Node.js and Python.
+Execution Points: Remember the four stages where Lambda@Edge functions can execute.
+Performance Advantage: Running functions closer to viewers reduces latency and improves response time.
+
+
+
+
+AWS Global Accelerator:
+
+Overview:
+AWS Global Accelerator (GA): A networking service that uses the AWS Global Network to optimize the delivery of traffic to your applications.
+
+Benefits:
+Bypasses the public internet for a significant portion of data transfer.
+Provides better bandwidth, lower latency, and more consistent performance.
+
+Key Concepts:
+
+Static Anycast IP Addresses:
+GA provides two static anycast IP addresses for your application.
+These IPs are used to route traffic to the nearest and healthiest application endpoint across regions.
+You can whitelist these IPs in firewalls for security.
+
+Region Closest to Users:
+Users are directed to the region that is closest to them or to a weighted region (if custom weightings are configured).
+Ensures low latency and high availability.
+
+AWS Edge Locations:
+Users connect to the nearest CloudFront edge location.
+Minimizes latency by keeping the connection to the internet as short as possible.
+After reaching the edge location, traffic uses the AWS Global Network to reach the application endpoint.
+
+Multi-Region Failover:
+If the primary region fails, GA automatically reroutes traffic to a healthy application in another region (e.g., from us-east-1 to ap-southeast-2).
+
+Alias Record with Route 53:
+You map your domain name (e.g., example.com) to the Global Accelerator DNS name using an alias record in Route 53.
+This allows DNS resolution of the Global Accelerator domain to the static anycast IPs.
+
+
+Architecture Flow:
+
+DNS Resolution:
+A user queries the domain name (e.g., example.com).
+Route 53 resolves the domain to the two static anycast IPs provided by Global Accelerator.
+
+Edge Location:
+The user connects to the nearest edge location using one of the static IPs.
+Reduces internet travel and latency.
+
+AWS Global Network:
+Traffic traverses the AWS Global Network from the edge location to the application endpoint.
+Provides consistent latency and optimized bandwidth.
+
+Regional Routing:
+Traffic is directed to the nearest and healthiest application endpoint.
+If the nearest region fails, traffic is automatically rerouted to another region.
+
+
+Use Cases:
+Global Applications:
+Applications deployed across multiple AWS regions for global users.
+High Performance:
+Applications requiring consistent low latency and high bandwidth.
+Failover:
+Applications needing automatic failover between regions for high availability.
+
+
+Exam Tips:
+Static IPs: GA provides two static IPs for routing to multiple regions.
+Edge Locations: Minimize internet usage by connecting users to the nearest edge location.
+Failover: Automatic rerouting to healthy regions if one region fails.
+Weighted Traffic Routing: Customize traffic distribution across regions using weightings.
+Alias Records: Use Route 53 alias records to map your domain name to GA's DNS name.
+
+
+
+
+
+How Anycast IP Works
+
+Single IP Across Multiple Locations
+Instead of assigning unique IPs to each server or data center, a single IP address is used across multiple locations.
+The routing protocol (like BGP, Border Gateway Protocol) determines which location is "nearest" or "best" for the user.
+
+Dynamic Routing
+When a user sends a request to the anycast IP, their request is routed to the server or location that is geographically or logically closest.
+This ensures better performance, reduced latency, and faster data transfer.
+
+
+Examples of Anycast IP in Action
+
+CloudFront Edge Locations
+CloudFront uses anycast IPs for its edge locations.
+Users are directed to the nearest CloudFront Edge Location based on their geographic location, ensuring low-latency delivery of content.
+
+DNS Servers
+Services like Google Public DNS (8.8.8.8) and AWS Route 53 use anycast IPs.
+When you query 8.8.8.8, your request is routed to the nearest Google DNS server.
+
+Content Delivery Networks (CDNs)
+CDNs like CloudFront or Akamai use anycast to distribute content from the edge servers closest to the user.
+
+
+Key Benefits of Anycast IP
+
+Low Latency
+Requests are served by the closest location, reducing the round-trip time.
+
+Improved Performance
+Because traffic is dynamically routed to the nearest or most optimal server, it provides consistent performance.
+
+Load Balancing
+Anycast automatically distributes traffic across multiple locations, balancing the load.
+
+High Availability
+If one server or location goes down, traffic is seamlessly routed to the next closest location.
+
+Simplified Configuration
+You can advertise a single IP across multiple servers instead of configuring multiple IPs.
+
+
+Feature	        Anycast	                       Unicast
+IP Address	    Shared by multiple locations	 Unique to a single location
+Routing	        Nearest/best location	         Fixed to a single destination
+Latency	        Lower (closer server)	         May be higher
+Load Balancing	Automatic	                     Requires additional setup
+
+Example
+
+Let’s say AWS assigns an anycast IP (198.51.100.1) to CloudFront. 
+When:
+A user in New York accesses the IP, they’re routed to the nearest AWS Edge Location in Virginia.
+A user in London accessing the same IP is routed to an Edge Location in Dublin.
+Both users are using the same anycast IP (198.51.100.1), but the requests are served from different locations.
+
+This ensures both low latency and optimized performance.
+
+
+
+
