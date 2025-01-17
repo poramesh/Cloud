@@ -1,0 +1,134 @@
+Notes on Route 53, CloudFront, and Performance Optimization
+
+
+Route 53
+
+Features:
+Domain Name Registry: Register domains with Route 53.
+DNS Resolution: Translates domain names into IP addresses.
+Health Checking: Monitors the health of resources.
+Located alongside AWS edge locations.
+
+Hosted Zones:
+Public Hosted Zone: Routes traffic on the internet.
+Private Hosted Zone: Routes traffic within your VPC (requires enabling DNS hostname and DNS support).
+
+Domain Transfers:
+Transfer existing domains to Route 53 if supported.
+Transfer domains between AWS accounts (zone not migrated automatically).
+
+Health Checks:
+Can monitor:
+Endpoints (IP or domain).
+Status of other health checks.
+CloudWatch alarms.
+
+Record Types:
+CNAME:
+Route 53 charges for queries.
+Cannot be created at the top node (zone apex).
+Can point to DNS records anywhere.
+
+Alias:
+Free queries to AWS resources.
+Can be created at the zone apex.
+Points to AWS services (CloudFront, ELB, S3, etc.) or records in the same zone.
+
+
+
+
+Routing Policies:
+Simple: Maps name to IP.
+Failover: Routes to backup resource if primary fails.
+Geolocation: Routes based on user’s geographic region.
+Proximity: Routes to closest region within a specified area.
+Latency: Routes to resource with lowest latency.
+Multivalue Answer: Returns multiple IPs (similar to load balancing).
+Weighted: Distributes traffic based on weights (e.g., 80% to one record, 20% to another).
+
+
+CloudFront
+
+Caching Content:
+Acts as a Content Delivery Network (CDN) for global content caching.
+TTL (Time to Live):
+Defined at the behavior level in CloudFront.
+Allows different TTLs for different file types (e.g., PNGs, JPEGs).
+
+Headers and Cache Control:
+Cache-Control max-age: Specifies the duration (in seconds) for caching.
+Expires: Specifies expiration date and time for objects.
+
+Caching Based on Headers:
+Forward all headers: No caching.
+Forward a whitelist of headers: Cache based on specified headers.
+Forward default headers only: Minimal caching behavior.
+
+Signed URLs and Cookies:
+Signed URLs:
+Provide access control for a single object.
+Specify start and expiration times, and allowed IP ranges.
+Signed Cookies:
+Allow access to multiple restricted files.
+Useful when URL changes are not desired.
+
+
+Lambda@Edge
+
+Purpose: Runs Node.js or Python Lambda functions closer to users via CloudFront for better performance.
+Execution Points:
+Viewer Request: After CloudFront receives a request from the user.
+Origin Request: Before CloudFront forwards the request to the origin.
+Origin Response: After CloudFront receives the response from the origin.
+Viewer Response: Before CloudFront forwards the response to the viewer.
+
+Key Takeaways
+Route 53 combines DNS resolution, domain registry, and health checking.
+CNAME records cannot be used at the zone apex; alias records can.
+CloudFront optimizes caching and delivery with configurable TTLs and headers.
+Lambda@Edge enhances content customization and delivery performance.
+Signed URLs are for single objects; signed cookies are for multiple objects.
+
+
+
+
+Architecture Patterns
+
+1. Elastic Load Balancer (ELB) with Public Domain Name
+Requirement: An ELB must be resolvable using the company's public domain name.
+Solution:
+Create an Alias Record in Route 53 that maps the domain name to the ELB.
+Use Alias Record instead of CNAME because CNAME cannot be used for the root domain.
+
+
+2. Website Running Across Two AWS Regions (Failover)
+Requirement: All traffic goes to one region, but should be redirected if the website is unavailable.
+Solution:
+Set up Failover Routing Policy in Route 53.
+Configure Health Checks on the primary region to detect unavailability.
+
+
+3. Restrict Access Based on Geographic Location (Geo-location Routing)
+Requirement: Restrict access to content based on the geographic source of the connection.
+Solution:
+Use Route 53 Geo-location Routing to restrict distribution based on geographic regions.
+
+
+4. CloudFront with Multiple S3 Origins (Serve Requests Based on File Type)
+Requirement: Serve requests from different S3 origins based on file type being requested.
+Solution:
+Configure Behavior with Path Pattern in CloudFront distribution to handle file-type-based routing.
+
+
+5. Controlling Access to Multiple Files on CloudFront
+Requirement: Control access to multiple files on a CloudFront distribution.
+Solution:
+Use Signed Cookies to control access to multiple files.
+Update the application to process these signed cookies for access control.
+
+6. Application Behind ALB in Multiple Regions (Latency and Availability Routing)
+Requirement: Route traffic intelligently based on latency and availability across multiple regions.
+Solution:
+Set up AWS Global Accelerator and add Application Load Balancers (ALBs) from multiple regions to route traffic efficiently based on latency and availability.
+
+These solutions ensure better DNS resolution, routing, and content access control for applications across multiple regions with optimization for performance and availability.
