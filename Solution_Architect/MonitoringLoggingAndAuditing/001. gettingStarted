@@ -1,0 +1,50 @@
+Monitoring, Logging, and Auditing Tools
+
+1. Amazon CloudWatch
+Purpose: A performance monitoring tool with logging capabilities.
+
+Key Features:
+Monitors resources like EC2 instances, RDS databases, and Lambda functions.
+Collects and tracks metrics, sets alarms, and triggers actions (e.g., auto-scaling).
+Can install a CloudWatch Agent on instances or on-premises servers to:
+Capture application logs.
+Capture system logs.
+
+Use Cases:
+Performance monitoring.
+Troubleshooting and debugging through logs.
+Setting alarms for resource metrics.
+
+
+2. AWS CloudTrail
+Purpose: Auditing and compliance tool that logs API activities in an AWS account.
+
+Key Features:
+Tracks every API call made in the account, including:
+Who made the call.
+When it was made.
+What action was performed.
+Logs events for services like EC2, S3, IAM, etc.
+
+Benefits:
+Ensures compliance with regulations.
+Enhances security by identifying suspicious activities.
+Helps with troubleshooting by maintaining a detailed history of actions.
+
+
+3. Amazon EventBridge
+Purpose: A serverless event bus that connects applications with data from AWS services and third-party applications.
+
+Key Features:
+Routes events in real-time to other AWS services or custom applications.
+Works seamlessly with CloudTrail to process API activity logs.
+Enables event-driven architectures.
+
+Use Case Example:
+Triggering notifications or automated responses to specific API actions captured by CloudTrail.
+
+Summary
+CloudWatch is for monitoring and logging application and system performance.
+CloudTrail is for auditing and tracking API activity for compliance and security.
+EventBridge enhances automation by routing event data between AWS services and applications.
+Together, these tools provide a comprehensive suite for monitoring, logging, and auditing in AWS environments.
