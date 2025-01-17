@@ -1,0 +1,240 @@
+Amazon CloudWatch
+
+Amazon CloudWatch is a performance monitoring tool that also supports logging.
+It collects metrics from AWS resources (e.g., EC2, Lambda) and on-premises servers.
+It can trigger alarms and automated actions based on performance data.
+Logs can be collected from applications and resources for centralized monitoring.
+
+Use Cases and Benefits
+
+Performance Monitoring:
+Collects metrics from AWS services and on-premises resources.
+Provides visibility into operational performance.
+
+Automated Responses:
+Automates actions based on state or performance changes.
+
+Resource Optimization:
+Identifies over-utilized or under-utilized resources.
+
+Actionable Insights:
+Derives insights from collected logs for troubleshooting.
+
+Operational Visibility:
+Enhances understanding of system health and behavior.
+
+
+Core Features
+
+1. CloudWatch Metrics:
+Time-ordered data sent by AWS services like EC2.
+Metrics for EC2 are sent every 5 minutes (default) or 1 minute (detailed monitoring, paid).
+
+Unified CloudWatch Agent:
+Collects system-level metrics like memory and disk usage.
+Must be installed for monitoring these metrics, as default EC2 metrics do not include them.
+
+Supports custom metrics with:
+Standard resolution: 1-minute granularity.
+High resolution: 1-second granularity.
+
+
+2. CloudWatch Alarms:
+Monitors metrics and performs actions when thresholds are breached.
+
+Types:
+Metric alarms: Based on a single metric.
+Composite alarms: Based on multiple alarms using rules.
+
+Alarm states:
+OK: Metric within threshold.
+ALARM: Metric outside threshold.
+Insufficient data: Not enough data to determine state.
+
+
+3. CloudWatch Logs:
+Centralized collection of application and system logs.
+Logs can be used for analysis and troubleshooting.
+ 
+
+4. CloudWatch Events:
+Responds to resource state changes.
+Basis for Amazon EventBridge, which adds more functionality.
+
+
+How It Works
+
+>Metrics from AWS services are sent to CloudWatch (e.g., EC2 sends data every 5 or 1 minute).
+>Unified CloudWatch Agent can be installed to collect additional metrics like:
+Memory usage.
+Disk usage.
+> Custom metrics can be published via CLI or API.
+
+
+Key Exam Tips
+Unified CloudWatch Agent is necessary for memory and disk usage metrics.
+AWS default metrics are sent at standard resolution (1-minute granularity).
+Custom metrics can be configured for high resolution (1-second granularity).
+Alarms can automate actions, such as triggering auto-scaling when thresholds are breached.
+
+
+Example Use Case
+EC2 instance sends CPU utilization metrics to CloudWatch.
+Threshold breach triggers a CloudWatch alarm.
+Alarm notifies Auto Scaling, which launches additional EC2 instances.
+
+
+
+
+
+<<<HOL>>>
+
+
+
+
+These commands can be executed using AWS CloudShell
+
+Create an IAM role and instance profile
+
+1. Create an IAM policy
+aws iam create-policy --policy-name "CloudWatch-Put-Metric-Data" --policy-document '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":["cloudwatch:PutMetricData"],"Resource":"*"}]}'
+
+2. Create an IAM role that uses the policy document
+aws iam create-role --role-name "CloudWatch-Role" --assume-role-policy-document '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"ec2.amazonaws.com"},"Action":"sts:AssumeRole"}]}'
+
+3. Attach the policy to the role (update policy ARN)
+aws iam attach-role-policy --role-name "CloudWatch-Role" --policy-arn ""
+
+4. Create an instance profile
+aws iam create-instance-profile --instance-profile-name "CloudWatch-Instance-Profile"
+
+5. Add the role to the instance profile
+aws iam add-role-to-instance-profile --instance-profile-name "CloudWatch-Instance-Profile" --role-name "CloudWatch-Role"
+
+
+
+Now we can launch an EC2 instance that uses the
+instance profile that will allow it to assume the role,
+which has the policy applied to it to allow the
+EC2 instance to put metric data to Cloudwatch.
+
+Launch an EC2 instance
+
+1. Create a security group
+aws ec2 create-security-group --group-name CustomMetricLab --description "Temporary SG for the Custom Metric Lab"
+
+2. Add a rule for SSH inbound to the security group
+aws ec2 authorize-security-group-ingress --group-name CustomMetricLab --protocol tcp --port 22 --cidr 0.0.0.0/0
+
+3. Launch instance in US-EAST-1A
+aws ec2 run-instances --image-id --instance-type t2.micro --placement AvailabilityZone=us-east-1a --security-group-ids --iam-instance-profile Name="CloudWatch-Instance-Profile"
+
+
+
+Run the remaining commands from the EC2 instance
+Install stress
+sudo dnf install stress-ng -y
+
+This will allow us to actually add some load to the instance once we have set up the configuration.
+
+
+Configure a shell script that uses the put-metric-data API
+1. Create a shell script named mem-usage.sh
+sudo nano mem-usage.sh //a file where we are trting to create with nano utility and we will add the below code.
+
+2. Add the following code and save:
+#!/bin/bash
+
+# Create a token for IMDSv2 that expires after 60 seconds
+TOKEN=`curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 60" -s`
+
+# Use the token to fetch the EC2 instance ID
+INSTANCE_ID=`curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/instance-id`
+
+# Get memory usage and put metric data to CloudWatch
+MEMORY_USAGE=$(free | awk '/Mem/{printf("%d", ($2-$7)/$2*100)}')
+aws cloudwatch put-metric-data --region us-east-1 --namespace "Custom/Memory" --metric-name "MemUsage" --value "$MEMORY_USAGE" --unit "Percent" --dimensions "Name=InstanceId,Value=$INSTANCE_ID"
+
+//we'll end up with a name space of custom slash memory and a metric called mem usage in the cloiudwatch.
+
+3. Make the script executable
+sudo chmod +x mem-usage.sh
+
+4. Run the following commands to install and run crontab
+sudo dnf install cronie
+sudo systemctl enable crond
+sudo systemctl start crond
+crontab -e //this opens a notepad like nano and then we paste in the below script
+
+//crontab is a way that we can schedule our tasks to run
+using a service that's running in the background on the instance.
+Now, the way that we do that is we have to add the script here
+and what this actually means these stars here.
+The way it's, this is set up is it's going to run the script every minute.
+So copy that exactly as it is. Let's come back, I'm gonna paste it in.
+Then I press escape colon
+WQ and you can see the WQ in the bottom left hand
+corner here and that's gonna help you to quit the file.
+So Cron
+Tab is now set up, that means our script is going to run and retrieve the memory usage
+and send it to cloud watch every single minute.
+
+
+
+5. Then, add the following line to execute the script every minute
+*****/home/ec2-user/mem-usage.sh
+
+6. Save by typing the following and pressing enter
+:wq
+
+
+Run the stres utility to generate load
+stress-ng --vm 15 --vm-bytes 80% --vm-method all --verify -t 60m -v
+
+
+
+Verify Metrics in CloudWatch
+In the AWS Management Console:
+Navigate to CloudWatch > Metrics.
+Look for the custom namespace Custom/Memory.
+Ensure the mem_usage metric is being logged.
+
+
+Setting Up Alarms
+
+Create an Alarm:
+Navigate to the custom metric in CloudWatch.
+Set a threshold (e.g., memory usage > 40%).
+Create an SNS topic for notifications and confirm the email subscription.
+Save the alarm configuration.
+
+Monitor Alarm:
+Alarm states:
+OK: Metric within threshold.
+ALARM: Metric exceeds threshold.
+INSUFFICIENT DATA: Not enough data yet.
+Example: Alarm triggers if memory usage > 40% for 1 data point in 5 minutes.
+
+
+Generate Load and Test Alarm
+Use the stress utility to create memory load on the instance.
+Monitor the custom metric and verify the alarm is triggered in CloudWatch.
+Check the email notification from the SNS topic for details about the event.
+__
+
+Key Takeaways
+
+Custom Metrics:
+Useful for monitoring application-specific or system-specific metrics not provided by default.
+
+IAM Roles:
+Essential for allowing EC2 to interact with CloudWatch securely.
+
+Automation:
+Cron jobs can automate metric reporting at regular intervals.
+
+Alarms:
+Provide real-time notifications for operational events.
+
+Stress Testing:
+Helpful for validating monitoring and alarm configurations.
