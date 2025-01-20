@@ -1,0 +1,98 @@
+
+AWS EventBridge Refresher
+
+EventBridge was formerly known as CloudWatch Events.
+You can still access CloudWatch Events through the CloudWatch console, but EventBridge is a more central console for handling events.
+
+
+EventBridge Components:
+
+Event Sources:
+These can be:
+AWS services (e.g., EC2, S3)
+Custom applications
+SaaS applications (e.g., third-party services like Zendesk, Datadog)
+
+Event Bus:
+The event bus is where events are sent and stored temporarily.
+It collects events from various sources (AWS services, custom applications, etc.).
+
+Rules:
+Rules define the logic of what happens with the events that pass through the event bus.
+The rule filters and routes the events to one or more targets.
+
+Targets:
+The targets are the services or actions that are triggered by the event. Examples include:
+Triggering a Lambda function
+Sending an SNS notification
+Adding data to a Kinesis stream
+Other supported services like Step Functions, SQS, etc.
+
+
+
+Flow of EventBridge:
+
+State Changes: When a resource experiences a state change (e.g., an EC2 instance stops or starts), it generates an event.
+The event is sent to the event bus.
+The rules evaluate the event and determine what action to take (e.g., triggering a Lambda function).
+The target is then triggered based on the rule’s configuration.
+
+
+
+
+
+
+
+
+HOL:::
+
+
+
+
+Creating an Amazon EventBridge Rule for CloudTrail API Calls
+
+CloudTrail Setup:
+Ensure that you have a CloudTrail trail set up, specifically logging management events (such as EC2 state changes).
+This setup captures API actions like launching or stopping EC2 instances.
+
+Create Lambda Function:
+Open AWS Lambda and create a function named eventbridge test.
+Choose Python 3.9 as the runtime.
+Paste the code from the logE_two_stop_instance.py file in the Lambda function's editor and deploy it.
+This code prints event details into CloudWatch Logs when triggered by EventBridge.
+
+
+import json
+
+def lambda_handler(event, context):
+    print('LogEC2StopInstance')
+    print('Received event:', json.dumps(event, indent=2))
+    return {
+        'statusCode': 200,
+        'body': 'Finished'
+    }
+
+
+Set Up EventBridge Rule:
+Go to Amazon EventBridge and create a new rule.
+Name the rule (e.g., logE_two_stop_instance).
+Choose the default event bus and select AWS services as the event source.
+
+In the event pattern configuration:
+Choose EC2 service and EC2 instance state change notification.
+Select the stopped state for EC2 instances.
+Leave the instance ID as any for triggering on any instance.
+Set the target as Lambda and choose the eventbridge test function.
+
+Test the Setup:
+Launch an EC2 instance with default settings, skipping key pair creation, and manually select a security group.
+Once the instance is running, stop it to trigger the EventBridge rule.
+EventBridge captures the event from CloudTrail and invokes the Lambda function.
+CloudWatch Logs will display the log of the event, including details such as the instance ID of the stopped instance.
+
+Verify Logs:
+In AWS Lambda, check if the function was triggered.
+Go to CloudWatch Logs and verify the log group and stream for the details of the triggered event.
+
+Cleanup:
+Terminate the EC2 instance and delete the CloudTrail trail, the EventBridge rule, and the Lambda function if no longer needed.
