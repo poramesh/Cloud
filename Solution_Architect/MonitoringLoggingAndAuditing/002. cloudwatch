@@ -238,3 +238,129 @@ Provide real-time notifications for operational events.
 
 Stress Testing:
 Helpful for validating monitoring and alarm configurations.
+
+
+
+
+_______________________________________________________
+
+CLoudWatch Logs
+
+Purpose: Enables collection, monitoring, and analysis of application and system logs.
+
+Key Features:
+1. Log Gathering: Collect logs from various sources such as applications, systems, and AWS services.
+2. Expiration Policies: Define retention periods for log data to manage storage and costs.
+3. Encryption: Use AWS Key Management Service (KMS) for encrypting logs.
+4. Destinations: Logs can be exported to:
+Amazon S3 (for archiving or analytics).
+Kinesis Data Streams (real-time streaming).
+Kinesis Data Firehose (data transformation and delivery).
+ElasticSearch (for real-time log processing and search).
+
+
+Log Sources
+
+1. Amazon EC2 and On-Premises Servers:
+Use the Unified CloudWatch Agent to send logs and metrics to CloudWatch.
+Logs include:
+Application Logs
+System Logs
+Custom Metrics
+
+2. AWS Lambda:
+
+Lambda functions can send log data directly to CloudWatch Logs.
+Permission Required: IAM roles must allow the Lambda function to write logs to CloudWatch.
+
+3. Other AWS Services:
+
+Examples: API Gateway, RDS, ECS, etc.
+
+
+Permissions
+
+To send logs or metrics to CloudWatch, the resource must have the appropriate IAM permissions.
+Example:
+Lambda needs logs:CreateLogGroup, logs:CreateLogStream, and logs:PutLogEvents permissions.
+
+
+Processing and Exporting Logs
+
+Real-Time Processing:
+Use Subscription Filters for real-time log processing.
+Logs can be sent to:
+ElasticSearch
+AWS Lambda
+
+Exporting Logs:
+Export logs to destinations like Amazon S3 for storage or analytics.
+
+
+
+Unified CloudWatch
+
+Purpose:
+The Unified CloudWatch Agent allows you to collect internal system-level metrics and logs from Amazon EC2 instances as well as on-premises servers.
+It works across different operating systems (Linux, Windows, and macOS).
+Supports real-time log collection and custom metrics retrieval from applications/services (via StatsD and collectd protocols).
+
+
+Key Features
+
+1.System-Level Metrics Collection:
+Amazon EC2 instances and on-premises servers can send system metrics like CPU, memory, disk space, and network activity to CloudWatch.
+It works on Linux, Windows, and macOS.
+
+2. Log Collection:
+The agent can collect logs (system logs, application logs, custom logs) in near real-time.
+Logs are sent to CloudWatch as they're generated, so even if an EC2 instance is terminated (e.g., by an auto scaling group), you won’t lose 
+log data as it’s already sent to CloudWatch.
+
+3. Custom Metrics:
+You can collect custom metrics from your applications using StatsD and collectd protocols.
+These metrics can be specific to your application needs, such as custom performance metrics, business logic metrics, etc.
+
+
+Log and Metric Collection on EC2 and On-Premises Servers
+
+EC2: The Unified CloudWatch Agent collects logs and system metrics from your EC2 instances (Linux/Windows).
+On-Premises Servers: You can also install the agent on on-premises servers (Linux/Windows/macOS) to send logs and metrics to CloudWatch.
+
+
+Important Points for Exam
+
+1.Installation on EC2 and On-Premises Servers:
+The Unified CloudWatch Agent can be installed on both EC2 instances and on-premises servers.
+Supported OS: Linux, Windows, and macOS.
+
+2. Real-Time Log Collection:
+Logs are collected in near real-time, so even when EC2 instances are terminated (e.g., from auto scaling), the log files are still available in CloudWatch.
+
+3. Standard Metrics vs. Unified CloudWatch Agent Metrics:
+>Standard EC2 Metrics (available by default in CloudWatch): These include basic metrics like CPU utilization, network traffic, etc.
+>Unified CloudWatch Agent Metrics (additional metrics that come from the agent):
+Disk Metrics: Free space, used space, and disk usage percentages.
+Memory Metrics: Percentage of available memory, active memory, memory available for processes.
+>These advanced disk and memory metrics are not available in the standard EC2 metrics and require the Unified CloudWatch Agent.
+
+
+Advanced Metrics from Windows Performance Monitor
+
+For Windows servers, the Unified CloudWatch Agent collects metrics from the Windows Performance Monitor and sends it to CloudWatch.
+This includes metrics such as disk usage, memory usage, etc., that are not available in standard EC2 metrics.
+
+Metrics Collected for Linux and macOS
+
+The Unified CloudWatch Agent for Linux and macOS collects a wide range of metrics. Some common metrics include:
+Disk Metrics: Free space, used space, disk utilization.
+Memory Metrics: Available memory, active memory, memory used by processes.
+
+
+Summary of Key Metrics Not Included in Standard EC2 Metrics
+Disk Metrics:
+Free space, used space, and disk utilization.
+Memory Metrics:
+Percentage of memory available, active memory, memory used by processes.
+These metrics are only available with the Unified CloudWatch Agent.
+
