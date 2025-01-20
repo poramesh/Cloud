@@ -1,0 +1,188 @@
+
+
+CloudWatch Overview
+
+CloudWatch is used for performance monitoring, alarms, log collection, and automated actions in AWS. It provides visibility and insights into
+resource utilization, application performance, and operational health.
+
+Use Cases and Benefits:
+Performance Monitoring: Collects performance metrics from both AWS and on-premises systems.
+Automated Responses: Can automate actions based on operational changes (e.g., scaling, shutting down instances).
+Operational Performance Improvement: Helps identify performance bottlenecks and optimize resource allocation.
+Actionable Insights from Logs: Derives useful insights from log data to aid in troubleshooting and operational improvements.
+Operational Visibility: Provides operational visibility and insights into your systems.
+
+CloudWatch Core Features:
+1. CloudWatch Metrics:
+AWS services send time-ordered data points to CloudWatch.
+EC2 metrics are sent every five minutes by default (free).
+Detailed Monitoring sends metrics every one minute (chargeable).
+You can publish custom metrics using CLI or API. Custom metrics can be:
+Standard Resolution (1-minute granularity)
+High Resolution (1-second granularity)
+
+2. CloudWatch Alarms:
+Metric Alarm: Triggers actions based on a single metric.
+Composite Alarm: Uses a rule expression to evaluate multiple alarms.
+Alarm states:
+OK: Metric is within threshold.
+ALARM: Metric is outside the threshold.
+INSUFFICIENT DATA: Not enough data to determine state.
+
+3. CloudWatch Logs:
+Centralized collection of system and application logs.
+Expiration Policies: You can define retention periods for logs.
+KMS Encryption: Logs can be encrypted using AWS Key Management Service (KMS).
+Logs can be exported to S3, Kinesis Data Streams, or Kinesis Data Firehose for further processing.
+
+4. CloudWatch Events:
+Describes changes to AWS resources and can trigger actions based on events.
+EventBridge is the same as CloudWatch Events, so they share the same capabilities for event handling.
+
+
+
+CloudWatch Unified Agent:
+Metrics Collection:
+Collect system-level metrics from EC2 instances and on-premises systems.
+Supports metrics like memory usage, disk usage, and other OS-level metrics.
+Collects custom metrics via StatsD and collectd protocols.
+
+Logs Collection:
+Collect logs from EC2 instances and on-premises servers (supports both Linux and Windows).
+
+Installation:
+The agent must be installed on the server (EC2, on-premises, or supported operating systems like Linux, Windows, and Mac OS).
+
+
+
+CloudTrail Overview:
+
+CloudTrail logs API activity for auditing and tracking changes in your AWS environment.
+
+Key Features of CloudTrail:
+Management Events: Logs management operations on resources (e.g., creating, deleting resources).
+Data Events: Provides detailed information on resource operations (e.g., read/write operations on S3 or DynamoDB).
+Insights Events: Identifies and responds to unusual activity related to write API calls (e.g., large-scale deletion or modification).
+
+Event Logging:
+Default Logging: By default, management events are logged and retained for 90 days.
+Custom Trails: You can create custom trails to log events to S3 with indefinite retention.
+Region or Global Trails: Trails can log events in a specific region or across all regions.
+
+
+
+Integration Between CloudTrail and CloudWatch:
+CloudWatch Events can trigger actions based on CloudTrail events.
+CloudTrail events can also be streamed to CloudWatch Logs for analysis and further processing.
+
+
+Summary of CloudWatch Core Features:
+Metrics: AWS and on-premises system metrics, with standard and high-resolution options.
+Alarms: Trigger actions based on metric states with standard or composite alarms.
+Logs: Centralized log collection with expiration policies and encryption.
+Events: Stream system events to trigger actions and integrate with CloudTrail for API auditing.
+
+Imagine monitoring a web application:
+
+Metrics:
+CPU Utilization: 70%
+Request Latency: 200ms
+Active User Sessions: 500
+
+Logs:
+2025-01-20T10:00:00Z: ERROR: Failed to retrieve user profile
+2025-01-20T10:01:00Z: INFO: User login successful, UserID=12345
+
+
+This knowledge is crucial for monitoring, auditing, and automating responses to operational changes, which can help in optimizing resources and troubleshooting issues effectively.
+
+
+
+
+Architectureeeee
+
+1. Stream Logs from Amazon EC2 Instances in an Auto Scaling Group
+Requirement: Collect and stream log files from EC2 instances.
+Solution:
+Install the Unified CloudWatch Agent on the EC2 instances.
+The agent collects logs and sends them to Amazon CloudWatch Logs for centralized monitoring.
+
+Sample Disk Logs
+2025-01-20 12:45:00 [INFO] Disk usage check: Partition /dev/xvda1, Mount Point /, Used 300GB, Free 200GB, Total 500GB.
+2025-01-20 12:50:00 [WARNING] Disk usage exceeds threshold: Partition /dev/xvda1 at 85% utilization.
+2025-01-20 12:55:00 [ERROR] I/O error on disk /dev/xvdb. Retrying operation...
+
+System Logs (Syslog)
+Jan 20 12:30:05 ip-172-31-32-45 systemd[1]: Starting Session 2 of user ec2-user.
+Jan 20 12:30:10 ip-172-31-32-45 kernel: [1526736.201748] eth0: link becomes ready
+Jan 20 12:30:15 ip-172-31-32-45 sshd[2563]: Accepted publickey for ec2-user from 192.168.1.100 port 53324 ssh2
+Jan 20 12:30:16 ip-172-31-32-45 sshd[2563]: pam_unix(sshd:session): session opened for user ec2-user by (uid=0)
+Jan 20 12:30:25 ip-172-31-32-45 cloud-init[1805]: Cloud-init v. 20.4 running 'modules:config' at Mon, 20 Jan 2025 12:30:25 +0000. Up 12.23 seconds.
+
+NGINX Access Logs
+192.168.1.100 - - [20/Jan/2025:12:35:05 +0000] "GET /index.html HTTP/1.1" 200 342 "-" "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:89.0) Gecko/20100101 Firefox/89.0"
+192.168.1.101 - - [20/Jan/2025:12:35:07 +0000] "POST /login HTTP/1.1" 401 153 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+
+app custom logs
+2025-01-20 12:30:05,123 [INFO] - Starting application on port 8080
+2025-01-20 12:30:07,567 [DEBUG] - Successfully connected to the database
+2025-01-20 12:30:15,890 [ERROR] - Failed to process request for user_id=12345: Database timeout
+
+
+2. Collect Metrics from EC2 Instances with One-Second Granularity
+Requirement: Monitor EC2 metrics at high resolution.
+Solution:
+Create custom metrics with high resolution (1-second granularity).
+Use the CloudWatch API or CLI to publish these custom metrics.
+
+3. Process Application Logs from On-Premises Servers Using Lambda in Real-Time
+Requirement: Process logs in real-time with AWS Lambda.
+Solution:
+Install the Unified CloudWatch Agent on the on-premises servers to send logs to CloudWatch.
+Use a CloudWatch Logs subscription filter to route log data to an AWS Lambda function for processing.
+
+4. Transform CloudWatch Log Entries with Lambda and Load into S3
+Requirement: Process log entries and store them in S3.
+Solution:
+Configure a Kinesis Data Firehose destination for CloudWatch Logs.
+Use AWS Lambda for real-time log transformation.
+Load the transformed logs into an Amazon S3 bucket.
+
+5. Enable Access Auditing with Minimum Retention of Five Years
+Requirement: Retain and secure access audit logs for five years.
+Solution:
+Enable a CloudTrail trail to capture access logs.
+Store the logs in Amazon S3 with a lifecycle policy for a minimum five-year retention.
+Enable log file integrity validation in CloudTrail to detect unauthorized modifications.
+
+6. Capture API Activity Across All Accounts in an AWS Organization
+Requirement: Ensure organization-wide API activity logging.
+Solution:
+Create an organization trail in AWS CloudTrail.
+This trail applies to the management account and all member accounts.
+Member accounts cannot modify or delete the organization trail, ensuring centralized control.
+
+7. Generate Notifications for Root User API Events
+Requirement: Monitor and alert on root user API activity.
+Solution:
+Create a CloudTrail trail to log API events involving the root user.
+Use an EventBridge rule to detect root API activity.
+Configure an SNS notification to alert the relevant stakeholders.
+
+8. Enforce S3 Bucket Encryption and Auto-Remediate Non-Compliance
+Requirement: Ensure all S3 buckets have encryption enabled.
+Solution:
+Use AWS Config to evaluate the encryption status of S3 buckets.
+Set up a compliance rule to check for encryption.
+Enable auto-remediation in AWS Config to apply encryption to non-compliant buckets automatically.
+
+Summary:
+These solutions demonstrate how to address various requirements for monitoring, logging, and auditing in AWS. They leverage tools like CloudWatch,
+CloudTrail, EventBridge, Lambda, Kinesis Firehose, and AWS Config, ensuring operational visibility, compliance, and security.
+
+
+
+
+
+
+
