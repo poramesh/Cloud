@@ -1,3 +1,263 @@
+Lambda Overview and Event-Driven Architectures
+
+AWS Lambda: A serverless compute service that runs code in response to events or triggers.
+
+How It Works:
+A Lambda function is created using the console, CLI, or API.
+Developers upload their code (e.g., as a ZIP file) to the Lambda function.
+The function remains inactive and incurs no charges until triggered.
+Triggered by event sources like APIs, other AWS services, or scheduled events.
+
+
+Key Characteristics of Lambda
+
+Execution Duration:
+Functions must complete execution within 15 minutes.
+Use EC2 for workloads requiring longer runtimes.
+
+Scalability:
+Automatically scales to handle concurrent requests up to account-defined limits.
+
+Cost:
+Pay-per-use:
+Charged for execution time (in milliseconds) and memory allocation.
+Higher memory allocation proportionally increases CPU capacity.
+
+Operational Benefits:
+No infrastructure or server management.
+Automatic scaling and high availability.
+Elastic response to demand spikes.
+
+
+
+Primary Use Cases for Lambda
+
+Data Processing:
+Real-time file and stream processing.
+Example: Processing Kinesis streams or modifying objects uploaded to S3.
+
+Serverless Backends:
+Build APIs for web, mobile, IoT, and third-party integrations.
+
+Event-Driven Workflows:
+Process S3 uploads, SNS notifications, DynamoDB streams, or SQS messages.
+
+
+
+Invocation Types
+
+Synchronous Invocation:
+Examples: CLI, SDK, API Gateway.
+Flow: Caller waits for the function to process and return a response.
+Error Handling: Performed by the client (e.g., retries, exponential backoff).
+
+Asynchronous Invocation:
+Examples: S3, SNS, CloudWatch Events.
+Flow:
+Event is queued for processing.
+Immediate response to the caller; retries up to three times on failure.
+Idempotency: Required to ensure retries don't cause inconsistent results.
+
+Event Source Mapping:
+Examples: SQS, Kinesis Data Streams, DynamoDB Streams.
+Flow:
+Lambda polls the event source for data.
+Processes records in order (except for SQS standard queues, which do not guarantee ordering).
+Two Modes:
+Polling: Lambda checks the source for messages.
+Triggering: Configured source sends messages directly to Lambda.
+
+
+Concurrency and Scaling
+
+Concurrency:
+Lambda functions scale automatically and execute multiple instances in parallel.
+Limited by:
+Account Concurrency Limits: Configurable per region.
+Burst Limits: Region-specific (e.g., 500–3,000 initial burst in different regions).
+Throttling: Occurs if concurrency limits are exceeded.
+Symptoms: "Too many requests" errors (HTTP 429).
+
+Scaling Behavior:
+Scales up to handle multiple events simultaneously.
+Can process messages and streams concurrently without impacting performance.
+
+
+
+Common Trigger Sources for Lambda
+
+S3:
+Trigger when objects are created, updated, or deleted.
+
+SNS:
+Process messages from SNS topics.
+
+SQS:
+Poll for messages in queues or be triggered directly by queue events.
+
+API Gateway:
+Trigger Lambda functions synchronously for HTTP/HTTPS API requests.
+
+DynamoDB Streams:
+Process database change events in real-time.
+
+Kinesis Data Streams:
+Process real-time streaming data for analytics or transformations.
+
+Scheduled Events:
+Execute Lambda functions on a predefined schedule (e.g., cron jobs).
+
+
+Best Practices for AWS Lambda
+
+Code Optimization:
+Keep functions lightweight to minimize execution time.
+Use minimal dependencies in ZIP packages.
+
+Idempotency:
+Ensure retries don't produce duplicate or inconsistent outcomes.
+
+Monitoring:
+Use CloudWatch Logs and Metrics for debugging and performance analysis.
+
+Concurrency Management:
+Monitor and adjust concurrency limits based on workload needs.
+
+Error Handling:
+Implement retries and dead-letter queues for failed invocations.
+
+
+Conclusion
+AWS Lambda is a powerful, scalable, and cost-efficient serverless compute service ideal for event-driven and short-duration workloads. 
+Its seamless integration with AWS services and ability to handle various invocation types make it a cornerstone of serverless architectures on AWS.
+
+
+
+
+
+::::::::::HOL:::::::
+
+
+AWS Lambda Function to Resize EC2 Instance
+
+Key Steps:
+
+1. Create an EC2 Instance:
+Launch an instance in the default VPC with a t2.micro instance type.
+Use "proceed without a key pair" for simplicity.
+
+2. Create an AWS Lambda Function:
+Go to the AWS Management Console, select Lambda, and create a new function.
+
+3. Author from scratch:
+Function Name: resize_instance
+Runtime: Python 3.8
+Set permissions: Create a new role with basic Lambda permissions.
+
+3. Initial Lambda Function Testing:
+Default code provided in Lambda returns "Hello from Lambda."
+Run a test with the "hello-world" template.
+View test execution results, including logs and metrics in CloudWatch.
+
+4. Modify the Lambda Code:
+Replace default code with provided code to resize an EC2 instance.
+Deploy the updated function.
+
+
+import boto3
+from botocore.exceptions import WaiterError
+
+def wait_until_instance_stopped(ec2_client, instance_id):
+    waiter = ec2_client.get_waiter('instance_stopped')
+    try:
+        waiter.wait(InstanceIds=[instance_id])
+    except WaiterError as e:
+        # Handle the exception if the instance fails to stop within the specified timeout
+        print(f"Error waiting for instance to stop: {e}")
+
+def lambda_handler(event, context):
+    # Retrieve the instance ID from the event parameter
+    instance_id = event['instanceId']
+    
+    # Create an EC2 client
+    ec2_client = boto3.client('ec2')
+    
+    try:
+        # Stop the instance
+        ec2_client.stop_instances(InstanceIds=[instance_id])
+        
+        # Wait until the instance is stopped
+        wait_until_instance_stopped(ec2_client, instance_id)
+        
+        # Modify the instance type
+        ec2_client.modify_instance_attribute(InstanceId=instance_id, InstanceType={'Value': 't2.medium'})
+        
+        # Start the instance
+        ec2_client.start_instances(InstanceIds=[instance_id])
+        
+        return 'Instance resizing complete.'
+    
+    except Exception as e:
+        # Handle any exceptions that occur during the resizing process
+        return f'Error resizing instance: {e}'
+    
+
+# Test event JSON: {"instanceId": "<instance-ID>"}
+
+
+5. Create a Test Event:
+Use the provided JSON structure as the test event.
+Include the EC2 instance ID in the test event JSON.
+Save the test event for future use.
+
+Go to IAM and attach the "AmazonEC2FullAccess" policy to the Lambda function role.
+
+7. Run the Lambda Function:
+Execute the test event.
+Initially, the function may fail due to a 3-second timeout.
+Increase the timeout to 2 minutes under "General Configuration" in Lambda.(sine w got 15 mins to run lamba func its okay to increase to 2min)
+
+8. Monitor Logs in CloudWatch:
+View logs to troubleshoot and confirm the function's behavior.
+
+9. Final Output:
+The Lambda function successfully stops the EC2 instance, resizes it to t2.medium, and restarts it.
+
+10. Terminate the EC2 Instance:
+To avoid unnecessary costs, terminate the EC2 instance after completing the exercise.
+
+
+Key Takeaways:
+
+Permissions:
+Ensure the Lambda function role has the required permissions for the intended AWS service actions.
+
+Timeouts:
+Adjust the Lambda function timeout based on the expected duration of operations (up to 15 minutes).
+
+CloudWatch Logs:
+Use CloudWatch logs for detailed insights into function execution, errors, and troubleshooting.
+
+Testing and Debugging:
+Always validate the Lambda function using test events before deploying it in production.
+
+Cost Efficiency:
+Lambda functions are billed based on execution time and memory usage, making them cost-effective for short tasks. Terminate unnecessary EC2 instances to avoid extra charges.
+
+
+
+
+
+
+
+
+
+
+
+aws-lambda and api-gateway
+
+
+
 An API built with AWS Lambda and API Gateway means you're creating an application programming interface (API) that allows clients (like web browsers,
 mobile apps, or other services) to interact with your backend functionality. The backend logic (business operations, computations, data handling)
 is implemented as Lambda functions, 
