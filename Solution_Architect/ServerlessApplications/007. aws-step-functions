@@ -1,0 +1,111 @@
+AWS Step Functions
+
+Purpose: AWS Step Functions is a service used to build distributed applications by orchestrating multiple steps in a visual workflow.
+Use Case: Commonly used to manage workflows involving multiple AWS services, such as Lambda functions, by defining a series of tasks to be executed in a 
+specific order or based on specific conditions.
+Key Concept: Orchestration of various functions with added logic to control how those functions are executed.
+
+
+Core Concepts
+
+1. Visual Workflow:
+AWS Step Functions allows you to build workflows visually, where each step represents an action in your process (e.g., calling a Lambda function).
+These workflows can be visualized in the AWS Management Console to ensure the correct sequence and logic.
+
+2. State Machine:
+A state machine in Step Functions is a collection of steps (tasks) that are defined in a workflow.
+Each step can perform tasks such as calling Lambda functions, making choices, and waiting for specific conditions.
+
+3. Amazon States Language (ASL):
+Step Functions workflows are defined using Amazon States Language (ASL), a JSON-based language.
+This language allows you to describe each step, transitions, and conditions.
+
+4. Execution:
+Once the state machine is defined, you can start an execution. This execution represents the process that runs the steps of the state machine.
+The execution can be visualized to see how the workflow progresses.
+
+
+
+How Step Functions Work
+
+Start with an Event:
+A workflow begins with an event, such as an API request, a scheduled time, or any other trigger that invokes the first step.
+
+Lambda Functions:
+Typically, the steps involve invoking Lambda functions to perform tasks like data processing or triggering other AWS services.
+
+Conditional Logic:
+After invoking functions, you can add decision points using conditions, such as whether a particular parcel failed or whether a particular value is returned.
+The logic determines what actions to take next.
+
+Branching:
+Based on the conditions, the workflow might branch into different paths, executing different Lambda functions or other services 
+(e.g., sending a notification or creating a new resource).
+
+Wait States:
+You can introduce wait states to pause the workflow for a specific duration (e.g., wait for 90 seconds before the next action).
+This is useful for delaying certain tasks, such as waiting for external processes to complete.
+
+Complex Flows:
+Step Functions can handle more complex workflows where multiple functions need to be invoked sequentially or in parallel, depending on prior results or conditions.
+
+
+Benefits of Step Functions
+
+Orchestration: Helps you orchestrate complex workflows, such as those that involve multiple AWS services and resources.
+Visual Monitoring: Provides a visual interface that allows you to track the progress and status of your workflow, which is
+especially useful for debugging and monitoring.
+Error Handling and Retries: You can define retry mechanisms and error handling within the state machine, making your applications more resilient.
+
+
+Example Workflow
+
+1. Start Lambda Function: A Lambda function is invoked to process some data.
+2. Condition Check: A decision is made based on the Lambda output (e.g., "yes" or "no").
+3. Subsequent Actions: Depending on the decision, the workflow might:
+Create a new resource via Lambda.
+Send a notification via Lambda (email/SMS).
+4, Wait for Duration: A pause is introduced (e.g., 90 seconds) before proceeding.
+5, Further Actions: Depending on previous outcomes, more Lambda functions or services might be invoked.
+
+
+Example of a simple Pass State in Amazon States Language (ASL):
+{
+  "StartAt": "PassState",
+  "States": {
+    "PassState": {
+      "Type": "Pass",
+      "Result": "Hello, World",
+      "Next": "ChoiceState"
+    },
+    "ChoiceState": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.status",
+          "StringEquals": "Success",
+          "Next": "SuccessState"
+        }
+      ],
+      "Default": "FailState"
+    },
+    "SuccessState": {
+      "Type": "Pass",
+      "Result": "Success",
+      "End": true
+    },
+    "FailState": {
+      "Type": "Fail",
+      "Error": "Failure",
+      "Cause": "The workflow failed"
+    }
+  }
+}
+
+
+Summary
+AWS Step Functions is a powerful service for building and managing workflows that involve multiple AWS services, particularly Lambda.
+It allows you to define complex application logic using JSON-based Amazon States Language (ASL) and visualize the process in the AWS console.
+The service provides robust error handling, conditional branching, and the ability to introduce delays in the workflow (wait states).
+Step Functions is particularly useful for orchestrating distributed applications, ensuring the right functions are executed in the 
+correct order based on dynamic conditions.
