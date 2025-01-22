@@ -1,0 +1,183 @@
+Decoupling and SQS
+
+
+Decoupling vs Direct Integration
+
+Direct Integration:
+In a direct integration, different parts of the system communicate directly with each other. For example, a web server (Web Tier) sends data directly 
+to an application (App Tier) for processing.
+Problem: If the app tier cannot keep up with the traffic (e.g., during a sudden traffic burst), it leads to failures, data loss, or delayed processing.
+
+Decoupling:
+In decoupling, an intermediary component (like a queue) is used between the web tier and app tier.
+Instead of sending messages directly, the web tier puts messages into the queue, and the app tier polls the queue for messages to process.
+Benefit: If the app tier can't process messages quickly, the web tier can still add messages to the queue, ensuring that data is not lost.
+The app tier processes them when it is ready.
+
+
+
+Types of SQS Queues
+
+Standard Queue:
+Ordering: Best-effort ordering. While messages are placed in the queue in order, they may not be processed in the same order.
+Throughput: Nearly unlimited transactions per second for each API action (send, receive, delete).
+Delivery: At least once delivery, meaning messages might be delivered more than once (duplicate messages).
+Use Case: Suitable for applications that do not require strict ordering and where occasional duplicates are acceptable.
+
+FIFO Queue (First-In, First-Out):
+Ordering: Guarantees that the first message placed in the queue will be processed first (strict ordering).
+Throughput: Limited throughput—up to 300 transactions per second for single messages, or up to 3,000 messages per second when batching.
+Delivery: Exactly once processing—messages are delivered exactly once without duplication.
+Use Case: Suitable for applications where the order of processing is critical, and duplicate messages cannot be tolerated.
+
+
+*****
+A single message is one API call (e.g., SendMessage, ReceiveMessage, or DeleteMessage).
+
+Batching for Higher Throughput:
+If you send or receive messages in batches (up to 10 messages per batch), throughput increases to up to 3,000 messages per second.
+This is because batching reduces the number of API calls needed to process the same number of messages.
+For example, if each batch contains 10 messages, you only need 1/10th the number of API calls compared to sending each message individually.
+
+
+
+
+What Counts as a Transaction?
+
+Single Message Transactions:
+If you send, receive, or delete one message at a time, each operation is counted as one transaction.
+Example: Sending a message via SendMessage API = 1 transaction.
+
+Batch Transactions:
+If you use batching, each batch operation counts as one transaction, even though it involves multiple messages.
+Example:
+Sending a batch of 10 messages via SendMessageBatch API = 1 transaction.
+Receiving a batch of 5 messages via ReceiveMessage with a batch size of 5 = 1 transaction.
+
+Throughput Example:
+
+Single Message Operations:
+If your application sends 300 individual messages per second using SendMessage, it has reached the limit of 300 transactions per second.
+
+Batch Operations:
+If your application sends 3,000 messages per second using SendMessageBatch with a batch size of 10, it only needs 300 transactions (1 batch = 1 transaction), 
+staying within the 300 transactions per second limit while processing more messages.
+
+Why Transactions Matter:
+SQS enforces throughput limits based on transactions per second (TPS).
+Optimizing the number of transactions (e.g., using batching) helps achieve higher overall throughput while staying within limits.
+By understanding transactions, you can design your application to maximize efficiency and avoid hitting throughput bottlenecks.
+
+
+
+If each dot (●) represents a message:
+
+Without Batching:
+
+● ● ● ● ● ● ... (3000 dots processed individually)
+
+With Batching (10 messages per batch):
+
+[● ● ● ● ● ● ● ● ● ●] [● ● ● ● ● ● ● ● ● ●] ... (300 batches of 10 messages)
+
+
+
+single msg:
+
+{
+  "orderId": "12345",
+  "customerId": "98765",
+  "items": [
+    {"productId": "A1B2", "quantity": 2},
+    {"productId": "C3D4", "quantity": 1}
+  ],
+  "totalAmount": 150.75,
+  "currency": "USD",
+  "orderDate": "2025-01-22T14:30:00Z"
+}
+
+
+If you batch multiple orders in a single API call using SendMessageBatch, it might look like this:
+
+[
+  {
+    "Id": "msg1",
+    "MessageBody": "{\"orderId\":\"12345\",\"customerId\":\"98765\",\"items\":[{\"productId\":\"A1B2\",\"quantity\":2},{\"productId\":\"C3D4\",\"quantity\":1}],\"totalAmount\":150.75,\"currency\":\"USD\",\"orderDate\":\"2025-01-22T14:30:00Z\"}"
+  },
+  {
+    "Id": "msg2",
+    "MessageBody": "{\"orderId\":\"12346\",\"customerId\":\"54321\",\"items\":[{\"productId\":\"X1Y2\",\"quantity\":1}],\"totalAmount\":75.00,\"currency\":\"USD\",\"orderDate\":\"2025-01-22T14:31:00Z\"}"
+  },
+  {
+    "Id": "msg3",
+    "MessageBody": "{\"orderId\":\"12347\",\"customerId\":\"67890\",\"items\":[{\"productId\":\"P9Q8\",\"quantity\":3}],\"totalAmount\":225.50,\"currency\":\"USD\",\"orderDate\":\"2025-01-22T14:32:00Z\"}"
+  }
+]
+
+
+
+
+*****
+
+
+
+Special Queue Types and Features
+
+Dead Letter Queue (DLQ):
+Purpose: Captures messages that failed processing in the main queue.
+How It Works: If a message exceeds a predefined number of failed attempts (configured via the "maximum receive count"), it is moved to a Dead Letter Queue for analysis.
+Use Case: Helps troubleshoot and analyze why messages failed processing by isolating and retaining the failed messages.
+
+Delay Queue:
+Purpose: Delays the visibility of a message for a specified time period.
+How It Works: A message is hidden from consumers for a configured "delay time" before it becomes visible for processing.
+Use Case: Useful when you want to delay processing of certain messages or give time for other tasks to be completed before the message is processed.
+
+
+
+Polling Methods
+
+Short Polling:
+The consumer quickly checks the queue and either gets a message or receives an empty response.
+Drawback: If the queue is empty, it results in wasted API calls.
+Cost Implications: Higher API request costs due to frequent calls, even when no messages are available.
+
+Long Polling:
+The consumer waits for a specified amount of time for messages to arrive in the queue.
+How It Works: If no messages are available, the system waits until new messages are available (up to the defined timeout).
+Benefit: Reduces unnecessary API requests and lowers costs by waiting for messages instead of immediately returning an empty response.
+Cost Implications: More efficient and cost-effective as it reduces the number of API requests made.
+Configuration: Can be set at the queue level or API level by defining the ReceiveMessageWaitTimeSeconds parameter (up to 20 seconds).
+
+
+Summary of Queue Types and Key Features
+
+Standard Queue:
+Use Case: High throughput, no strict ordering.
+Guarantees: Best-effort ordering, at least once delivery.
+
+FIFO Queue:
+Use Case: High-throughput with strict ordering requirements.
+Guarantees: Strict ordering, exactly once delivery.
+
+Dead Letter Queue:
+Use Case: Isolating and analyzing failed messages.
+Configuration: Not a separate queue type but a configuration that works with either standard or FIFO queues.
+
+Delay Queue:
+Use Case: Delaying the processing of messages.
+Configuration: Set a delay time for message visibility.
+
+Polling (Short vs Long):
+Short Polling: Quick check, higher API cost.
+Long Polling: Waits for messages, more efficient and cost-effective.
+
+Recap
+Decoupling: By introducing queues between different layers (e.g., web and app tiers), applications can handle varying loads more
+effectively and avoid data loss during traffic bursts.
+SQS Queues: Use the right type of queue (standard vs FIFO) based on your application's ordering and throughput requirements.
+Message Management: Features like Dead Letter Queues and Delay Queues allow for efficient handling of failures and control over message visibility.
+Polling Strategies: Long polling is a more efficient way to consume messages and reduce costs, compared to short polling,
+which can lead to higher API request costs.
+This approach to decoupling with SQS is critical for building scalable and fault-tolerant applications, especially 
+when dealing with high-traffic or bursty workloads.
