@@ -1,0 +1,144 @@
+AWS Lambda
+
+Core Features:
+Executes code as functions.
+Scales automatically; pay for compute time only.
+Memory Allocation determines CPU power (proportional scaling).
+Maximum execution timeout: 15 minutes (default: 3 seconds).
+
+Event-Driven:
+Triggers from event sources like DynamoDB, Kinesis, S3, SNS, etc.
+Lambda performs polling for stream-based services (e.g., Kinesis, DynamoDB streams).
+
+Use Cases:
+Data processing.
+Real-time file/stream processing.
+Serverless backend applications.
+
+Invocation Types:
+Synchronous: CLI, SDK, API Gateway (errors handled on client-side).
+Asynchronous: S3, SNS, CloudWatch Events (up to 3 retries; idempotency needed).
+Event Source Mappings: SQS, Kinesis, DynamoDB Streams (Lambda polls and processes records in order, except for SQS Standard).
+
+Application Integration Services
+
+SQS (Simple Queue Service):
+>Message Queue for distributed/decoupled applications.
+>Queue Types:
+Standard Queue:
+Unlimited throughput.
+Best-effort ordering; messages might be delivered more than once.
+FIFO Queue:
+Strict ordering, exactly-once processing.
+Requires Message Group ID and Message Deduplication ID.
+>Dead-Letter Queue (DLQ):
+Stores failed messages for later inspection.
+
+SNS (Simple Notification Service):
+Publisher/subscriber model.
+Push notifications to endpoints (e.g., Lambda, SQS, email, SMS).
+Flexible delivery protocols.
+
+Step Functions:
+Visual workflows for distributed applications.
+Supports sequential steps, parallel tasks, branching paths, and timers.
+
+EventBridge:
+Event-driven architecture.
+Routes events from AWS services, SaaS applications, or custom apps to targets like Lambda, SQS, SNS, or API Gateway.
+
+Amazon MQ:
+Managed message broker for Apache ActiveMQ and RabbitMQ.
+
+
+Comparison of Messaging Services
+
+Service	       Model                Data Delivery	                  Scaling	                  Ordering                   Key Use Cases
+SQS            Pull-based queue	    Deleted after consumption	      Dynamically scales	      FIFO or Best-effort	       Distributed, decoupled applications
+SNS	           Push-based pub/sub	  Sent to all subscribers	        No provisioning needed	  No ordering guarantees	   High-throughput messaging to many endpoints
+Kinesis	       Pull-based stream	  Stored for a configurable time	Manual (add shards)	      Per shard	Real-time        data collection and processing
+
+
+API Gateway
+
+API Types:
+Edge-optimized: For global users.
+Regional: For users in one region.
+Private: Access within a VPC or Direct Connect.
+
+Features:
+Supports HTTPS endpoints only.
+Caching reduces API calls and improves latency.
+Throttling prevents excessive requests:
+Default: 10,000 requests/second, 5,000 concurrent requests.
+Exceeding limits returns a 429 (Too Many Requests) error.
+
+Key Notes for the Exam
+Lambda: Focus on memory allocation, timeouts, invocation types, and integration with services.
+SQS vs SNS vs Kinesis: Understand the differences in data delivery, scaling, and use cases.
+Step Functions: Know its orchestration capabilities for workflows.
+API Gateway: Study endpoint types, caching, and throttling limits.
+
+
+
+
+
+Serverless Architecture Patterns
+
+1. Decoupling EC2 and RDS
+Problem: Traffic spikes cause RDS to drop writes.
+Solution:
+Use SQS to decouple EC2 from RDS.
+Process records from the queue using Lambda.
+
+2. Decoupling a Web App (Web Tier and Processing Tier)
+Problem: Web and processing tiers must be decoupled, and processing tier needs dynamic scaling.
+Solution:
+Use SQS to decouple the web and processing tiers.
+Implement auto-scaling based on queue length to handle processing tier jobs.
+
+3. Optimizing Lambda Execution Time
+Problem: Increased payload size leads to increased execution time.
+Solution:
+Increase the memory allocation for the Lambda function to proportionately increase CPU capacity.
+
+4. REST API with Unpredictable Traffic
+Problem: Statistical data in RDS is accessed via a REST API, with traffic ranging from no activity to sudden bursts.
+Solution:
+Use API Gateway to create the REST API.
+Integrate with a Lambda function for RDS access.
+
+5. FIFO Queue for Processing Customer Orders
+Problem: Orders need to be processed in the order they are received.
+Solution:
+Use SQS FIFO Queue to ensure order preservation.
+
+6. Handling Lambda Throttle Limits
+Problem: During busy periods, requests fail multiple times before succeeding, with no Lambda errors reported.
+Solution:
+Increase the throttle limit for Lambda.
+
+7. Replacing EC2 with Lambda for Cost Efficiency
+Problem: EC2 processes images with highly variable load, and a cost-effective solution is needed.
+Solution:
+Replace EC2 with Lambda, ensuring execution fits within the 15-minute timeout.
+
+8. Optimizing API Gateway for Global Reach
+Problem: A Regional REST API performs poorly after the app goes global.
+Solution:
+Convert the API to edge-optimized.
+Use CloudFront edge network to improve latency and performance.
+
+9. Replacing Legacy Batch Scripts
+Problem: Legacy application uses complex batch scripts, making it hard to maintain.
+Solution:
+Replace scripts with Lambda functions.
+Use Step Functions to coordinate and orchestrate workflows.
+
+10. Processing S3 Bucket Uploads with Lambda
+Problem: Objects uploaded to an S3 bucket need processing.
+Solution:
+Configure event source notifications in S3 to trigger a Lambda function.
+
+These patterns cover common serverless use cases, focusing on decoupling, scalability, and cost-effectiveness while leveraging AWS services like
+Lambda, SQS, API Gateway, and Step Functions.
