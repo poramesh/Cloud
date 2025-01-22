@@ -1,0 +1,112 @@
+Creating an Event-Driven Application Using AWS Services
+
+
+
+
+# Simple Event-Driven App
+
+1. Create the DynamoDB Table:
+- Name: ProductVisits
+- Partition key: ProductVisitKey
+	
+2. Create the SQS Queue:
+- Name: ProductVisitsDataQueue
+- Type: Standard
+	
+***Note the Queue URL***
+
+3. Create the Lambda function
+- Name: Simple-App-Function
+- Runtime: Python 3.9
+- Role: create new role from templates
+- Role name: simple-app-role
+- Add policy templates: `Simple microservice permissions` and `Amazon SQS poller permissions`
+- Code: Copy / paste the code from the `simple-app-function.py` file
+	
+4. Go to the SQS queue to configure the trigger
+5. Select "Lambda triggers" and configure a trigger for the Lambda function
+6. Open AWS CloudShell for testing the app
+7. Upload the `message-body.zip` file to CloudShell and unzip it
+8. Use `ls` and make sure you can see the `message-body-x.json` files
+9. Run the following AWS CLI Command for each command, making sure yo modify the queue URL and message body file names 
+
+```bash
+aws sqs send-message --queue-url *QUEUE URL* --message-body file://message-body-1.json
+
+wehn you cat 
+{
+  "ProductId": "cs6b49bb-c378-4a15-b2e3-842a9850b23d",
+  "ProductName": "Gloves",
+  "Category": "Accessories",
+  "PricePerUnit": "10",
+  "CustomerId": "be44af0a-74f9-438e-a3ac-e3e21d84259f",
+  "CustomerName": "John Doe",
+  "TimeOfVisit": "2021-01-31T16:23:42.389Z" 
+}
+```
+
+10. In DynamoDB use the "Explore items" menu item and select the table. You should be able to see the product orders in the table
+
+
+Code for lambda Function:
+
+import os
+import json
+import boto3
+from uuid import uuid4
+
+# Configure AWS SDK for Python (Boto3)
+region_name = os.environ.get('AWS_REGION', 'us-east-1')  # Default to us-east-1 if not set
+boto3.setup_default_session(region_name=region_name)
+dynamodb = boto3.resource('dynamodb', region_name=region_name, api_version='2012-08-10')
+doc_client = dynamodb.Table('ProductVisits')
+
+def lambda_handler(event, context):  # Changed handler name to lambda_handler
+    print('Received event:', json.dumps(event, indent=2))
+    
+    # Process each record in the event
+    for record in event['Records']:
+        body = record['body']
+        print(body)
+        
+        body = json.loads(body)
+        
+        try:
+            required_fields = ['ProductId', 'ProductName', 'Category', 'PricePerUnit', 'CustomerId', 'CustomerName', 'TimeOfVisit']
+            if not all(field in body for field in required_fields):
+                print('Please provide values for product, category, customer, and time of visit.')
+                continue
+            
+            body['ProductVisitKey'] = str(uuid4())
+            
+            print(f"{body['ProductVisitKey']} {body['ProductId']} {body['ProductName']} {body['Category']} {body['PricePerUnit']} {body['CustomerId']} {body['CustomerName']} {body['TimeOfVisit']}")
+            
+            params = {
+                'Item': body
+            }
+            
+            doc_client.put_item(**params)
+            
+            print('Product Visit record is successfully created.')
+        
+        except Exception as e:
+            print(e)
+            
+    return {}
+
+
+
+Clean Up Resources:
+
+After completing the test, clean up the AWS resources to avoid unnecessary charges:
+Delete DynamoDB Table: Delete the DynamoDB table created during the exercise.
+Delete SQS Queue: Delete the SQS queue.
+Delete Lambda Function: Delete the Lambda function.
+Delete Files in CloudShell: Remove any uploaded files from AWS CloudShell.
+
+
+Conclusion:
+You have successfully created an event-driven application that uses SQS, Lambda, and DynamoDB.
+The Lambda function processes messages from the SQS queue and stores the results in a DynamoDB table.
+This workflow is a basic example of integrating AWS services to build scalable, event-driven architectures.
+This hands-on experience is valuable for real-world applications where systems need to process data asynchronously and in response to events.
