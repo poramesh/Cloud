@@ -1,0 +1,292 @@
+Amazon API Gateway
+
+Amazon API Gateway is a service that allows you to create and manage APIs (Application Programming Interfaces) for your applications 
+running on AWS. These APIs act as a front door to your business logic and applications on AWS. 
+It supports:
+RESTful APIs (including REST APIs, HTTP APIs)
+WebSocket APIs
+
+How API Gateway Works:
+
+API Deployment and Clients:
+API Gateway acts as a middle layer between clients (e.g., mobile apps, web apps, or other services) and AWS backend services.
+Backend Services: API Gateway connects to services like AWS Lambda, EC2 instances, load balancers, or external services.
+
+Data Flow:
+Clients make requests to the API, and API Gateway processes these requests.
+API Gateway forwards the requests to the appropriate backend service (e.g., Lambda functions or EC2 instances).
+The backend services return responses which API Gateway sends back to the clients.
+
+
+
+Deployment Types for APIs:
+
+Edge-Optimized Endpoint:
+Reduces latency for global requests by leveraging Amazon CloudFront (a CDN) to cache and serve content from edge locations globally.
+
+Regional Endpoint:
+Best suited for services that are primarily in the same region. You can use CDN and web application firewall (WAF) for additional security.
+
+Private Endpoint:
+This endpoint is used within a VPC (Virtual Private Cloud). It’s only accessible by services within the VPC or connected via Direct Connect links.
+
+
+Structure of a REST API:
+
+1. API Gateway connects to a Web App on the internet.
+2. Method Request:
+Defines allowed HTTP methods (e.g., GET, POST, PUT, DELETE) and maps them to integrations like Lambda, EC2, or other AWS services.
+Request Integration: API Gateway can modify the request data (payload) before forwarding it to the backend service.
+3. Response:
+After receiving a response from the backend, API Gateway can modify the HTTP status codes or transform the response body (e.g., converting it 
+to a format suitable for the frontend).
+
+
+
+Integration Types:
+
+Lambda Integration:
+Proxy Integration: API Gateway passes the request directly to Lambda, and Lambda needs to know how to handle the request data.
+Custom Integration: Provides more flexibility, allowing customization of how the request data is processed before sending it to Lambda.
+
+HTTP Endpoint Integration:
+HTTP Proxy: Directly forwards the request to an HTTP endpoint without modification.
+Custom HTTP Integration: Allows for custom handling of the request before sending it to the HTTP endpoint.
+
+AWS Service Integration:
+Typically, these are non-proxy integrations that allow invoking other AWS services.
+
+
+
+Caching in API Gateway:
+
+Caching can improve performance by storing responses in a cache, reducing backend calls and lowering latency for repeated requests.
+When a request is made, API Gateway first checks the cache. If no cached response exists, it calls the backend and stores the response in the cache.
+Cached responses are stored with a Time To Live (TTL).
+Caching reduces backend load and improves latency for subsequent requests.
+
+
+
+Throttling API Requests:
+
+>>Throttling is used to control the rate of requests to prevent overloading.
+Steady State Requests: This is the normal rate of requests, limited to 10,000 requests per second.
+Burst Requests: A sudden spike, limited to 5,000 concurrent requests.
+If the request count exceeds these limits, API Gateway returns a 429 Too Many Requests error.
+>>Per-Method Throttling: You can set specific throttling limits for each method (e.g., GET, POST) or specific API stages.
+
+
+Usage Plans and API Keys:
+
+Usage Plans allow you to manage access for different users, e.g., Basic and Premium users.
+Premium users may have higher throttling limits and better performance.
+API Keys are used to identify users and control access based on usage plans:
+Requests from different users (e.g., premium or basic) are identified by their API key.
+Usage plans can be associated with different API stages, allowing different users to interact with different endpoints.
+
+
+API Methods:
+
+API methods are similar to HTTP methods (e.g., GET, POST, DELETE, PUT).
+GET: Retrieves data.
+POST: Creates new resources.
+PUT: Updates resources.
+DELETE: Deletes resources.
+
+These methods can be mapped to different integrations, allowing you to define how data flows between clients and backend services.
+Stages in API Gateway:
+A stage represents a version or environment of the API (e.g., dev, prod).
+Each stage can have its own cache settings, throttling limits, and API deployment.
+A stage can be deployed with a cache enabled, reducing latency and backend load.
+
+Summary:
+Amazon API Gateway is a powerful service that helps you build and manage APIs for your AWS applications. It supports multiple types of APIs
+(REST, HTTP, and WebSocket) and integrates seamlessly with backend services like Lambda, EC2, and other AWS services.
+
+
+
+Key features include:
+Flexible integration options (Lambda, HTTP, AWS services).
+Caching to reduce latency and backend load.
+Throttling to manage the rate of requests.
+Usage plans and API keys to manage access and pricing for different user tiers.
+
+
+
+
+
+:::::::HOL::::::::
+
+
+Creating an HTTP API for a Calculator App:
+
+Steps to Create the Calculator API:
+
+Lambda Function Creation:
+Go to the Lambda Console and create a new Lambda function named calculator.
+Choose the runtime as Python 3.9.
+Once created, delete the default code and paste in the calculator Lambda function code (which handles simple mathematical operations).
+
+import json
+
+def lambda_handler(event, context):
+    operation = event['queryStringParameters']['operation']
+    num1 = float(event['queryStringParameters']['num1'])
+    num2 = float(event['queryStringParameters']['num2'])
+    
+    if operation == 'add':
+        result = num1 + num2
+    elif operation == 'subtract':
+        result = num1 - num2
+    elif operation == 'multiply':
+        result = num1 * num2
+    elif operation == 'divide':
+        result = num1 / num2
+    else:
+        return {
+            'statusCode': 400,
+            'body': json.dumps('Invalid operation')
+        }
+
+    return {
+        'statusCode': 200,
+        'body': json.dumps(f"The result is {result}")
+    }
+
+Create an HTTP API in API Gateway:
+Navigate to API Gateway and select HTTP API as the API type.
+Name the API (e.g., CALC API).
+Click Next through the setup steps and then Create the API.
+
+Create a Route for the API:
+In API Gateway, create a route for the calculator API, using /calculate as the endpoint.
+After creating the route, click on it, choose any method, and attach an integration with the Lambda function.
+
+Lambda Integration Setup:
+Select Lambda as the integration type.
+Choose the previously created Lambda function (calculator).
+Allow API Gateway to invoke the Lambda function by granting necessary permissions.
+
+Allow All Methods:
+Set up CORS settings to allow all methods and domains by using wildcards (*).
+
+Deploy the API:
+Deploy the API to a stage (e.g., prod).
+Once deployed, note down the invoke URL of the API.
+
+Create a Static Website (S3 Bucket):
+Create a new S3 bucket (e.g., calculator-website).
+Upload the index.html (which includes the frontend for the calculator) to the bucket.
+Set the S3 bucket to be publicly accessible by modifying the block public access settings.
+Enable static website hosting in the S3 bucket's properties, specifying index.html as the index document.
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding-top: 50px;
+        }
+        #calculatorForm {
+            margin: auto;
+            width: fit-content;
+            padding: 20px;
+            border-radius: 5px;
+            background-color: #f2f2f2;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        input, select, button, #resultBox {
+            margin-top: 15px;
+            width: 250px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            font-size: 1.2em;
+        }
+        button {
+            color: white;
+            background-color: #4CAF50;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #resultBox {
+            background-color: #f9f9f9;
+            color: #333;
+            text-align: center;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>Simple Calculator</h1>
+    <form id="calculatorForm">
+        <input type="number" id="num1" placeholder="Number 1" required>
+        <select id="operation">
+            <option value="add">Add</option>
+            <option value="subtract">Subtract</option>
+            <option value="multiply">Multiply</option>
+            <option value="divide">Divide</option>
+        </select>
+        <input type="number" id="num2" placeholder="Number 2" required>
+        <button type="submit">Calculate</button>
+    </form>
+    <div id="resultBox"><span id="result"></span></div>
+
+    <script>
+        document.getElementById("calculatorForm").onsubmit = function(event) {
+            event.preventDefault();
+
+            var num1 = document.getElementById("num1").value;
+            var operation = document.getElementById("operation").value;
+            var num2 = document.getElementById("num2").value;
+            var apiUrl = '<YOUR-API-ENDPOINT>/calculate'; // Replace <YOUR-API-ENDPOINT> with your API's invoke URL
+
+            var query = `?operation=${operation}&num1=${num1}&num2=${num2}`;
+
+            fetch(apiUrl + query)
+                .then(response => response.json())
+                .then(data => document.getElementById("result").innerText = data)
+                .catch(error => console.error('Error:', error));
+        };
+    </script>
+</body>
+</html>
+
+
+Bucket Policy:
+Update the bucket policy to allow public access to the files by adding the following permissions:
+Action: S3:GetObject
+Resource: arn:aws:s3:::<bucket-name>/*
+
+Test the Calculator:
+Visit the S3 bucket website endpoint (e.g., http://<bucket-name>.s3-website-us-east-1.amazonaws.com).
+Test the calculator by performing operations like addition, subtraction, multiplication, etc.
+Make sure that the API is integrated correctly and responds as expected.
+
+Troubleshooting:
+
+If the app doesn’t work, open browser developer tools to inspect errors.
+Check the API Gateway settings, ensure you've deployed the API to the correct stage (prod), and confirm the endpoint URL is correctly specified in
+the frontend code (<invoke-url>/prod/calculate).
+
+Clean-Up:
+Once done, delete the API, Lambda function, and S3 static website to avoid unnecessary charges.
+
+
+Key Points:
+The Lambda function provides the logic for the calculator (addition, subtraction, multiplication, etc.).
+The HTTP API in API Gateway connects to this Lambda function.
+CORS settings are important for public access to the API.
+The S3 bucket serves as the host for the frontend (index.html) of the calculator app.
+Make sure to check permissions, deploy the API to a stage, and verify the invoke URL for successful communication between the frontend and backend.
