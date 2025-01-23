@@ -1,0 +1,210 @@
+Amazon DynamoDB Overview
+
+1. General Overview:
+Amazon DynamoDB is a fully managed, serverless NoSQL database service provided by AWS.
+It supports two types of data structures:
+Key-value store
+Document store
+
+2. Key Features:
+Fully Managed: No need to manage infrastructure or perform operational tasks.
+Serverless: No servers to provision or manage; scaling is seamless and on-demand.
+Horizontal Scaling: Data is distributed across nodes in the data center for scalability and performance.
+Push-Button Scaling: DynamoDB can scale up or down without downtime.
+Unlike RDS (where scaling involves downtime), DynamoDB scaling is immediate.
+
+3. Table Structure:
+Tables: DynamoDB stores data in tables.
+Items: Rows in a table represent individual data items.(values like the alchemist is items)
+Attributes: Columns or data associated with an item (Book name price is the attribute)
+
+Table Name: BookOrders
+
+Table: BookOrders
+UserID (Partition Key)	OrderID (Sort Key)	Book Name	       Price  	Order Date  	Status
+001	                   1001	              "The Alchemist"	 9.99	   2025-01-22	  Shipped
+001	                   1002	              "Atomic Habits"	 15.99	  2025-01-23	  Processing
+002	                   2001            	  "Sapiens"	       12.49	  2025-01-21	  Delivered
+(or)   
+Partition Key (UserID)	Sort Key (OrderID)	  Attributes
+001	                   1001	                {"Book Name": "The Alchemist", "Price": 9.99}
+001	                   1002	                {"Book Name": "Atomic Habits", "Status": "Shipped"}
+002	                   2001	                {"Book Name": "Sapiens", "Discount": "WINTER25"}
+Key Points:
+There’s no strict schema, and each item can store only the relevant attributes.
+The database doesn’t enforce a fixed set of attributes for every item in the table.
+New attributes can be added to specific items on the fly, without impacting other items.
+
+4. Primary Key Types:
+Partition Key: A mandatory attribute used to distribute data across partitions (e.g., client ID).
+Sort Key (Optional): Used to organize and query data within a partition.
+Composite Key: Combination of partition key and sort key.
+
+5. Features of DynamoDB:
+Time-to-Live (TTL):
+Automatically deletes expired items based on a timestamp.
+Saves costs and reduces storage without consuming read or write capacity units (RCUs/WCUs).
+RCUs and WCUs:
+RCUs = Read Capacity Units
+WCUs = Write Capacity Units
+Used to measure and allocate performance for tables.
+
+6. DynamoDB Benefits:
+Flexibility:
+Attributes can vary across items in the same table.
+New attributes can be added easily without redefining the table structure.
+Performance:
+Low-latency response in milliseconds.
+Scales to handle massive workloads seamlessly.
+
+7. Advanced Features:
+DynamoDB Streams:
+Captures a time-ordered sequence of modifications to table items.
+Useful for triggering processes (e.g., with AWS Lambda).
+*(it essentially captures a time ordered
+sequence of item level modifications. Every time you modify an item,
+it will record those changes into a stream that can then be processed in some way.
+For instance, you might have a Lambda function reading that data and processing it.)*
+
+DynamoDB Accelerator (DAX):
+In-memory caching service for DynamoDB.
+Reduces latency from milliseconds to microseconds.
+Fully integrates with DynamoDB API, so no code changes are required.
+
+ACID Transactions:
+Supports both strong consistency and eventual consistency for data transactions.
+
+Backup and Restore:
+Point-in-time recovery: Recover data to any second within the last 35 days.
+
+On-demand backups: Instantaneous backups that can be restored as needed.
+
+Global Tables:
+Fully managed, multi-region, multi-master replication.
+Allows read/write operations in different regions while maintaining data consistency.
+
+8. High Availability:
+Fault-Tolerant: Built with high fault tolerance and automatic data replication.
+SLAs:
+Four nines (99.99%) availability for standard tables.
+Five nines (99.999%) availability for global tables.
+
+
+(((((((((((Provisioned capacity in DynamoDB defines the throughput you are reserving for your table to handle read and write operations. Specifically, 
+the Read Capacity Units (RCUs) and Write Capacity Units (WCUs) determine how much data the table can read or write per second. H))))))))
+
+
+
+DynamoDB Hands-On Lesson Notes
+
+1. Creating a Table
+Navigate to DynamoDB in the AWS Management Console.
+Click Create Table.
+Provide the following information:
+Table Name: ETO
+Partition Key: client id (e.g., email address of the user)
+Sort Key: created (timestamp in a detailed format, ensuring uniqueness)
+Together, client id and created form the Composite Key.
+Data types for both keys are set to String.
+
+2. Table Settings
+Use default table settings:
+Provisioned capacity: 5 Read Capacity Units (RCUs) and 5 Write Capacity Units (WCUs).
+Capacity Mode:
+Provisioned or On-demand (default: Provisioned).
+Additional options:
+Secondary Indexes (optional for advanced querying).
+Storage Classes: Standard or Infrequent Access (to reduce cost for less-frequent data access).
+
+
+3. Adding Items to the Table
+Access Explore Items to view or manage table contents.
+Initially, the table will have no items.
+Use CloudShell to upload and insert items:
+Open CloudShell and upload the eto_items.json file (contains sample data).
+
+{
+    "estore": [
+        {
+            "PutRequest": {
+                "Item": {
+                    "clientid": {
+                        "S": "alexandra@user.com"
+                    },
+                    "created": {
+                        "S": "2022-07-24T15:58Z"
+                    },
+                    "sku": {
+                        "S": "SKU-122"
+                    },
+                    "category": {
+                        "S": "Coffee Mug"
+                    },
+                    "qty": {
+                        "N": "1"
+                    },
+                    "price": {
+                        "N": "885.28"
+                    }
+                }
+            }
+        },
+]
+}
+      
+Run the following command in CloudShell to batch insert items:
+aws dynamodb batch-write-item --request-items file://eto_items.json
+
+Check for no unprocessed items in the output, indicating a successful load.
+{
+"unprocessedItems:{}"
+}
+
+
+4. Verifying Table Contents
+Return to DynamoDB Console:
+Select the table and run a Scan to view all items.
+Key Observations:
+Attributes are flexible—items do not need to have identical attributes.
+Values can have mixed types, such as String or Number.
+No fixed schema is enforced (benefit of NoSQL).
+
+5. Querying the Table
+Open CloudShell to run scans and queries using the AWS CLI:
+Scan Command:
+Retrieves all items in the table:
+aws dynamodb scan --table-name estore
+
+Output includes a Count of items (e.g., 10).
+
+Query Command:
+Retrieve specific items based on key conditions.
+Example: Find items with a specific email (Harold@example.org):
+
+aws dynamodb query \
+  --table-name estore \
+  --key-condition-expression "client_id = :email" \
+  --expression-attribute-values '{":email":{"S":"Harold@example.org"}}'
+
+aws dynamodb query --table-name estore --key-conditions '{ "clientid":{ "ComparisonOperator":"EQ", "AttributeValueList": [ {"S": "harold@example.org"} ] } }'
+
+
+
+Output returns only the matching item, with a count of 1.
+
+6. DynamoDB Query vs. Scan
+Scan:
+Reads the entire table.
+Returns all items, regardless of filters (can be slower and costlier for large tables).
+Query:
+Efficiently retrieves items based on Partition Key and optional Sort Key conditions.
+Faster and more targeted compared to scans.
+
+7. Key Advantages of DynamoDB
+NoSQL Flexibility:
+No strict schema required.
+Attributes can vary across items.
+Scalable & Efficient:
+Handles both scans (broad) and queries (specific) effectively.
+Integration:
+CLI and SDK support for automation and programmatic interaction.
