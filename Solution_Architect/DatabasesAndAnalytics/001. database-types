@@ -1,0 +1,112 @@
+Database Types and Use Cases
+
+1. Relational vs Non-Relational Databases
+
+Relational Databases (SQL-based)
+Data Structure: Organized in tables (rows, columns) with a rigid schema.
+Scaling: Typically scales vertically (adding more resources to the database server). Can scale horizontally by fragmenting data across multiple tables/databases,
+but this adds complexity.
+Examples:
+AWS: Amazon RDS
+Others: Oracle, MySQL, PostgreSQL, IBM DB2
+
+*****
+Fragmentation/Sharding:
+The database is split into multiple smaller, independent databases (or "shards").
+Each shard contains a subset of the data, and they work together as if they were a single database.
+
+Key-Based Distribution:
+The data is distributed based on a "sharding key." For example:
+In an e-commerce database, you might shard based on customer_id so that each shard handles data for a specific group of customers.
+Orders for customers with IDs 1–1000 go to Shard A, 1001–2000 go to Shard B, and so on.
+
+Horizontal Scaling:
+Instead of upgrading the server with more CPU, memory, or storage (vertical scaling), you add more servers to distribute the load.
+
+Imagine a relational database for a global e-commerce platform:
+Without sharding: A single massive table contains all customer orders.
+With sharding:
+Orders for customers in the USA go to Shard A.
+Orders for customers in Europe go to Shard B.
+Orders for customers in Asia go to Shard C.
+While horizontal scaling helps manage large-scale systems, it adds architectural and operational complexity that must be carefully designed and managed.
+****
+
+Non-Relational Databases (NoSQL)
+
+Data Structure: Flexible schema; stores data as key-value pairs, documents, columns, or graphs.
+Scaling: Scales horizontally (adding more servers to distribute the data).
+Examples:
+AWS: Amazon DynamoDB
+Others: MongoDB, Redis, Neo4j, Cassandra
+
+
+
+2. SQL vs NoSQL Comparison
+
+Feature	        Relational Databases (SQL)	      Non-Relational Databases (NoSQL)
+Schema	        Rigid, predefined schema	        Flexible schema
+Data Storage	  Tables (rows, columns)	          Key-value pairs, documents, graphs
+Query Language	SQL	                              NoSQL (varies by type)
+Scalability	    Vertical scaling	                Horizontal scaling
+Use Cases	      Structured data, complex queries	Unstructured/semi-structured data, scalability needs
+
+
+3. Types of Databases by Use Case
+
+Operational Databases (OLTP)
+Optimized for short, simple transactions.
+Examples:
+Relational: Amazon RDS, Oracle, MySQL, IBM DB2
+Non-Relational: MongoDB, Cassandra, Neo4j, HBase
+
+Analytical Databases (OLAP)
+Optimized for long, complex queries and large-scale data analysis.
+Often used in data warehouses.
+Examples:
+Relational: Amazon Redshift, Teradata, HP Vertica
+Non-Relational: Amazon Elastic MapReduce (EMR)
+
+
+4. AWS Databases and Their Use Cases
+
+Amazon EC2 Database
+Install and manage your own database on an EC2 instance.
+Use case: Full control over the database and OS; support for unsupported engines.
+
+Amazon RDS
+Managed relational database service.
+Use case: Structured data, applications needing relational storage.
+
+Amazon DynamoDB
+NoSQL database with high performance and dynamic scaling.
+Use case: Unstructured/semi-structured data, high I/O, real-time applications.
+
+Amazon Redshift
+Data warehouse solution.
+Use case: Aggregating data from OLTP databases for analytics and trend analysis.
+
+Amazon ElastiCache
+In-memory data caching service.
+Use case: Speeding up database performance by caching frequently accessed data.
+
+Amazon Neptune
+Graph database.
+Use case: Managing and navigating complex relationships (e.g., social networks).
+
+
+5. Examples of Querying
+
+Relational Database Query:
+SELECT first_name 
+FROM employees 
+WHERE location = 'Atlanta';
+
+Non-Relational Key-Value Store:
+Flexible and supports attributes not previously defined.
+
+
+6. Summary
+Relational Databases are great for structured, consistent data with defined schemas and strong relational needs.
+Non-Relational Databases excel in scalability, flexibility, and handling unstructured or semi-structured data.
+AWS Solutions offer diverse options tailored to different use cases, such as transactional systems, analytics, or caching.
