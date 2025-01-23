@@ -1,0 +1,381 @@
+Amazon ElastiCache
+
+Amazon ElastiCache is an in-memory database and is often used for caching data that comes from other databases
+Fully managed in-memory database service supporting Redis and Memcached engines.
+Acts as a key-value store for high performance and low latency.
+Often used to improve performance of other databases (e.g., RDS, DynamoDB).
+
+Purpose:
+Caches frequently accessed data to reduce database query load and improve application response times.
+
+
+How ElastiCache Works
+
+General Workflow:
+Data is written to the primary database (e.g., RDS).
+ElastiCache synchronizes with the database to cache the data.
+Subsequent reads are served from the cache (higher performance and lower latency).
+
+
+*************
+Here’s what it means:
+
+Cache as a Middle Layer:
+ElastiCache acts as a temporary storage layer (a cache) between your application and the primary database (e.g., RDS or DynamoDB).
+Frequently accessed or important data is stored in this cache to avoid repeated database queries.
+
+Cache Hit:
+When the application needs data, it first checks the ElastiCache node.
+If the required data is found in the cache, it’s called a cache hit.
+The data is returned directly from ElastiCache, which is faster than querying the database.
+
+Higher Performance and Lower Latency:
+Because ElastiCache is an in-memory database (data stored in RAM), it’s much faster than querying a traditional disk-based database.
+A cache hit avoids the time and resources required to execute a query on the backend database, resulting in better performance
+and low response times for the application.
+
+What Happens if It's Not a Cache Hit?:
+If the required data is not in the cache (called a cache miss), the application queries the backend database (e.g., RDS).
+The retrieved data can then be stored in the cache for future requests.
+
+Example:
+Imagine you have an application that frequently retrieves a user profile from a database. Instead of querying the database every time,
+the user profile can be cached in ElastiCache.
+On the first request, the application retrieves the profile from the database (cache miss) and stores it in ElastiCache.
+On subsequent requests, the profile is retrieved directly from ElastiCache (cache hit), resulting in much faster responses.
+This mechanism reduces the load on your backend database and improves overall application performance.
+**************
+
+
+
+ElastiCache on EC2:
+Nodes run on EC2 instances.
+Instance types must be chosen when launching the database cluster.
+
+Redis vs. Memcached
+
+Feature	           Redis	                                            Memcached
+Data Persistence	 Supported (backups and snapshots available).	      Not supported.
+Partitioning	     Not partitioned (unless cluster mode enabled).	    Supports partitioning.
+Encryption	       Supported (encryption in transit and at rest).	    Not supported.
+High Availability	 Auto-failover with replication available.	        No replication or failover.
+Multi-AZ Support	 Auto-failover, read replicas per shard.	          Multi-AZ placement but no failover.
+Scaling 	         Add shards/replicas (Redis cluster mode).	        Scale out by adding nodes.
+Threading	         Single-threaded.	                                  Multi-threaded.
+Backup	           Automated backups and snapshots available.	        Not available.
+
+**************
+Cluster mode in Redis refers to a configuration of Redis that allows for horizontal scaling by distributing data across multiple
+nodes (called shards) within a cluster. It is an advanced setup of Redis to handle large datasets 
+and high throughput requirements while maintaining performance and availability.
+
+Shard: A partition of your data in Redis Cluster.
+Primary Node: Main node handling reads/writes for that shard.
+Replica Nodes: Backup nodes that ensure data is not lost in case of failure.
+Shards distribute data across nodes for scalability, while replicas ensure high availability.
+
+
+Shards, Primary, and Replica Nodes
+
+Imagine you're running an e-commerce application with a Redis Cluster setup. You have:
+3 shards in the cluster.
+Each shard has 1 primary node and 2 replica nodes.
+
+Shard 1:
+Primary Node: Stores keys (e.g., Product:101, User:001).
+Replica Nodes: Store copies of the data from the primary node in case it fails.
+
+Shard 2:
+Primary Node: Stores keys (e.g., Product:102, User:002).
+Replica Nodes: Provide redundancy for data in this shard.
+
+Shard 3:
+Primary Node: Stores keys (e.g., Product:103, User:003).
+Replica Nodes: Ensure high availability.
+
+---
+
+
+In cluster mode disabled, all the data is stored on a single primary node (shard).
+There are no multiple shards or hash slots.
+You can only scale vertically (increase node size) or add replicas for redundancy.
+
+imagine you have an e-commerce app running Redis with cluster mode disabled, and you decide to add replicas for high availability:
+
+1 primary node (Primary-Node-1) stores all the data.
+After Adding 2 Replicas:
+Replica 1 (Replica-Node-1) and Replica 2 (Replica-Node-2) are added.
+They store copies of the data from Primary-Node-1.
+
+*************
+
+
+
+Use Cases for ElastiCache
+
+Web Session Store:
+Store session state data for web applications.
+Alternatives: DynamoDB.
+
+Database Caching:
+Cache frequently accessed data to reduce query load on primary databases (e.g., RDS, DynamoDB).
+
+Leaderboards:
+Store and retrieve gaming leaderboard scores.
+
+Streaming Data Dashboards:
+Real-time data for dashboards and applications.
+
+Applications Tolerant to Stale Data:
+Useful when slight delays or inconsistencies in data synchronization are acceptable.
+
+
+
+Scalability
+
+Redis:
+Cluster mode enabled: Add shards.
+Cluster mode disabled: Add replicas.
+
+Memcached:
+Add separate nodes (each node acts as a partition).
+
+
+Key Exam Tips
+
+Memcached:
+Multi-threaded, simpler, supports partitioning, no backups or encryption.
+
+Redis:
+Single-threaded, more advanced (supports persistence, encryption, backups, failover, and replication).
+
+ElastiCache Use Case Scenarios:
+Use for high-performance applications requiring low latency and caching static, frequently accessed data.
+Pair with RDS/DynamoDB for read-heavy applications.
+
+This summary captures the core details about ElastiCache for your notes! Let me know if you'd like further clarifications.
+
+
+
+
+
+
+
+________________________________________________
+
+
+Scalability with Amazon ElastiCache
+
+Memcached
+
+Scaling Options:
+Scale Out: Add nodes to the cluster. Each node represents a separate partition of data.
+Scale Vertically: Change the node type (underlying EC2 instance).
+
+Key Points:
+Data is partitioned, not replicated.
+No backups or replicas. Losing a node means losing the data stored on that node.
+Must create a new cluster manually when changing node type.
+
+Redis
+Two Modes:
+Cluster Mode Disabled:
+Add replicas or change the node type.
+New cluster is created, and data is migrated automatically.
+
+Cluster Mode Enabled:
+Two resharding options for scaling:
+Online Resharding: Add/remove shards, perform vertical scaling.
+Offline Resharding: Add/remove shards, change the node type, or upgrade the engine.
+
+Key Points:
+Cluster mode disabled: Single shard with primary and replicas (0 to 5 replicas per shard).
+Cluster mode enabled: Multiple shards, each with a primary and 0 to 5 replicas.
+Shards and replicas can span across availability zones.
+
+
+Memcached Architecture
+Nodes:
+Represent partitions of data, not replicas.
+Spread across availability zones.
+Losing a node results in data loss (no replication or backups).
+Be prepared to recreate data, considering:
+Bandwidth costs.
+Time and impact on the application.
+
+
+
+Redis Architecture
+Cluster Mode Enabled:
+Multiple shards (e.g., 3 shards in the example).
+Each shard has:
+A primary node.
+0 to 5 replicas for high availability.
+Shards and replicas can span availability zones.
+
+Cluster Mode Disabled:
+Single shard with:
+A primary node.
+0 to 5 replicas for redundancy.
+The single shard can span multiple availability zones.
+
+
+
+Key Exam Tips
+Memcached:
+Partitioned data with no replication or backups.
+Nodes are independent, so losing one impacts the availability of its data.
+
+Redis:
+Cluster mode enabled: Flexible with online and offline resharding.
+Cluster mode disabled: Simple single-shard configuration.
+Supports high availability through replicas and multi-AZ deployments.
+
+
+
+
+
+:::HOL:::
+
+Creating an ElastiCache Cluster and Storing/Retrieving Data
+
+
+Overview
+This lesson demonstrates how to create an ElastiCache Cluster using Redis and perform a simple 
+exercise to store and retrieve a value using Python.
+
+Steps to Create an ElastiCache Cluster
+
+Navigate to the ElastiCache Service:
+Go to AWS Management Console.
+Select ElastiCache.
+
+Choose the Type of Data Store:
+Select between Memcached or Redis.
+In this exercise, Redis is used.
+
+Cluster Mode Options:
+Cluster Mode Enabled:
+Allows replication across multiple shards.
+Enhanced scalability and availability.
+Cluster Mode Disabled (Chosen for this exercise):
+A single shard or node group with 1 primary node and up to 5 replicas.
+
+Basic Configuration:
+Cluster Name: Example: "MyRedisCluster."
+Engine Version: Use the default Redis version (e.g., 7.0).
+Port Number: Default is 6379.
+Number of Replicas: Choose between 0–5 replicas (e.g., 2 replicas for this exercise).
+
+Connectivity:
+IP Version: Default to IPv4.
+Subnet Group:
+Use an existing one or create a new subnet group.
+Specify the VPC and associated subnets.
+
+Security Groups:
+Create a Security Group:
+Add inbound rules:
+Custom TCP on port 6379 (Redis default port).
+Allow traffic from trusted sources or open access temporarily.
+
+Encryption and Maintenance:
+Leave encryption options (at-rest and in-transit) disabled for simplicity.
+Accept default maintenance settings.
+
+Create the Cluster:
+Review the summary and click Create.
+Wait a few minutes for the cluster to become available.
+
+
+
+
+Accessing the Cluster
+
+Retrieve Endpoint Information:
+After the cluster is created:
+Get the Primary Endpoint (used for write operations).
+Optionally, use the Reader Endpoint (for read operations).
+
+Nodes Information:
+Primary node and replica nodes have individual endpoints.
+
+
+
+
+Set Up an EC2 Instance
+
+Launch an EC2 Instance:
+Choose instance type (e.g., t2.micro).
+Use the same VPC as the ElastiCache cluster.
+Attach the Redis security group for proper connectivity.
+
+Configure Inbound Rules for EC2 Security Group:
+Add SSH inbound rules to connect to the instance.
+
+Connect to the Instance:
+Use SSH or AWS Instance Connect.
+
+Install Python and Dependencies:
+
+Install pip and the redis library:
+
+sudo apt update
+sudo apt install -y python3-pip
+pip3 install redis
+
+
+
+Python Script: Store and Retrieve Data
+
+Create the Script:
+
+Use a text editor (e.g., nano) to create python-script.py.
+Sample Script:
+
+import redis
+
+r = redis.StrictRedis(host='PRIMARY_ENDPOINT', port=6379, decode_responses=True)
+
+# Store data in the cache
+r.set('my-cached-key', 'my-cached-value')
+
+# Retrieve data from the cache
+value = r.get('my-cached-key')
+print(value)
+Replace PRIMARY_ENDPOINT with the actual primary endpoint of the Redis cluster.
+
+Run the Script:
+python3 python-script.py
+
+Output:
+Displays the retrieved value: my-cached-value.
+
+
+
+Clean Up
+
+Terminate the EC2 Instance:
+Go to EC2 Dashboard, select the instance, and terminate it.
+Delete the ElastiCache Cluster:
+In the ElastiCache console, select the cluster and click Delete.
+Type the cluster name to confirm deletion.
+
+
+
+Key Takeaways
+
+ElastiCache Overview:
+Redis is used for caching data in memory with low latency.
+Cluster Mode Disabled: A single shard with replicas for redundancy.
+
+Replication:
+Data is replicated from the primary node to replicas for high availability.
+
+End-to-End Workflow:
+Create a Redis cluster.
+Set up an EC2 instance to connect to the cluster.
+Use Python to store and retrieve data from the cluster.
+
+Cleanup:
+Always terminate resources (instances and clusters) to avoid unnecessary charges.
