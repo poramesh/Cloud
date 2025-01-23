@@ -70,11 +70,14 @@ Non-Relational: Amazon Elastic MapReduce (EMR)
 
 4. AWS Databases and Their Use Cases
 
-Amazon EC2 Database
+data store: Amazon EC2 Database
 Install and manage your own database on an EC2 instance.
-Use case: Full control over the database and OS; support for unsupported engines.
+Use case: Full control over the database and OS(whether that's on a windows or a Linux instance); support for unsupported engines.
+(So you wanna manage every level from the operating system, right, the way through to the database.
+You could also put third party databases like some kind
+of engine that's not supported through R DS on there.)
 
-Amazon RDS
+data store: Amazon RDS
 Managed relational database service.
 Use case: Structured data, applications needing relational storage.
 
@@ -84,11 +87,14 @@ Use case: Unstructured/semi-structured data, high I/O, real-time applications.
 
 Amazon Redshift
 Data warehouse solution.
-Use case: Aggregating data from OLTP databases for analytics and trend analysis.
+Use case: Aggregating data from OLTP databases (LIKE multiple RDS app db)for analytics and trend analysis.
 
 Amazon ElastiCache
 In-memory data caching service.
 Use case: Speeding up database performance by caching frequently accessed data.
+( So it is in memory
+and it can cache information from the database.
+It can be used on its own, but it's often used in front of other databases like R DS.)
 
 Amazon Neptune
 Graph database.
