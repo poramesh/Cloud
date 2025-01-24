@@ -1,0 +1,76 @@
+AWS CloudHSM
+
+A cloud-based hardware security module (HSM) that allows you to generate and manage encryption keys securely in AWS.
+It is a dedicated hardware device that runs inside your VPC.
+Ensures compliance with high-security standards and provides customer-managed control over encryption keys.
+
+Key Features of CloudHSM
+
+Dedicated Hardware:
+Unlike KMS (multi-tenant infrastructure), CloudHSM is single-tenant and dedicated to your organization.
+
+FIPS 140-2 Level 3 Compliance:
+Uses validated hardware security modules for maximum security (higher compliance level than KMS for certain use cases).
+
+Full Control Over Encryption Keys:
+AWS has no visibility into the encryption keys.
+You retain complete control of key management and access policies.
+
+Managed Service:
+AWS manages the hardware, ensuring automatic scaling and high availability while you manage the keys.
+
+Integration with KMS:
+CloudHSM can act as a custom key store for KMS, combining the security of CloudHSM with the service integration of KMS.
+
+
+Key Use Cases of CloudHSM
+
+Offloading SSL/TLS Processing:
+Offloads compute-intensive SSL/TLS operations from web servers, improving performance.
+
+Securing Private Keys for Certificate Authorities (CAs):
+Protects private keys for internal or external certificate authorities.
+
+Transparent Data Encryption (TDE):
+Stores the master key for transparent data encryption, such as with Oracle databases.
+
+Custom Key Store for KMS:
+Provides control over HSM that protects master keys while using KMS for AWS service integrations.
+
+Comparison: AWS CloudHSM vs AWS KMS
+
+Feature	                 AWS CloudHSM                                   	AWS KMS
+Tenancy	                 Single-tenant (dedicated hardware).	            Multi-tenant (shared infrastructure).
+Control	                 Customer-managed keys and access.	              AWS manages keys and root of trust.
+Compliance	             FIPS 140-2 Level 3.	                            FIPS 140-2 Level 2 (and some Level 3).
+Third-Party Support	     Broad support for third-party applications.	    Limited third-party support.
+AWS Service Integration  Requires KMS custom key store for integration.	  Fully integrated with AWS services.
+Availability	           High availability with customer control.	        High availability managed by AWS.
+
+
+When to Use CloudHSM vs KMS
+
+Choose AWS CloudHSM If:
+You require single-tenant, dedicated hardware.
+Compliance mandates FIPS 140-2 Level 3 security.
+You need full control over encryption keys.
+You need to integrate with third-party applications or manage private keys for CAs.
+
+Choose AWS KMS If:
+You need easy integration with AWS services.
+You prefer a fully managed key management system.
+Compliance requirements are satisfied with FIPS 140-2 Level 2/3.
+
+Combine Both:
+Use CloudHSM as a custom key store for KMS to retain control over keys while leveraging KMS's integration with AWS services.
+
+
+Important Notes
+Custom Key Store for KMS:
+Allows you to use HSM-protected keys with KMS service integrations while retaining full control of the HSM.
+Performance:
+Offloading SSL/TLS processing improves server performance by leveraging the HSM for compute-intensive cryptographic operations.
+Compliance:
+CloudHSM is ideal for industries requiring stringent security controls, such as finance, healthcare, and government.
+Cost Consideration:
+CloudHSM can be more expensive than KMS due to dedicated hardware and additional customer responsibilities.
