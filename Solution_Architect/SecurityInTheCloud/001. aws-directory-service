@@ -1,16 +1,26 @@
 AWS Directory Service 
 
-AWS Directory Service provides options to implement or connect directory services (like Active Directory or Simple AD) within AWS.
+AWS Directory Service provides options to implement a directory on aws or connect directory services (like Active Directory or Simple AD) within AWS.
 These are used for authentication and authorization of users and resources.
 
 1. AWS Managed Microsoft Active Directory (Managed Microsoft AD)
 What it is: A fully managed implementation of Microsoft AD running on Windows servers in AWS data centers.
 Features:
 Highly available domain controllers: Automatically deployed in multiple subnets within a VPC.
+You just create your directory service in the console and it will deploy these domain controllers for you into multiple subnets.
 Trust relationships: Can connect to on-premises AD via VPN or Direct Connect and establish trust relationships.
-Integration: Can connect EC2 instances (Windows/Linux) to the domain.
+Integration: Can connect EC2 instances (Windows/Linux) to the domain.*
 Azure/Office 365 Integration: Supports synchronization with Azure AD and Office 365 using ADSync and ADFS.
-AWS Service Authentication: Works with services like RDS, Amazon FSx, and others for authentication and authorization.
+AWS Service Authentication: Works with aws services like RDS, Amazon FSx, and others for authentication and authorization.
+
+*((((((We can securely connect our EC2 instances running Linux and Windows to our domain controllers as
+well, so they can join the Active Directory domain.
+This statement means that you can connect Amazon EC2 instances (virtual servers in AWS) running Linux or Windows to an Active Directory (AD) domain. 
+When an EC2 instance "joins" the Active Directory domain, it becomes a part of the centralized directory system, enabling centralized authentication, 
+authorization, and management of the instance.
+Centralized Authentication:
+Users can log in to the EC2 instance using their domain credentials instead of managing separate credentials on each instance.
+For example, a company employee can use their corporate username and password to access the instance.)))))))))))))
 
 Additional Features:
 Group policies
@@ -22,6 +32,10 @@ For organizations with 5,000+ users or needing trust relationships with on-premi
 Supports schema extensions.
 Key Fact: Can operate as a standalone Active Directory in AWS.
 
+schema Extensions:
+Customizing your AD to support specific applications or AWS integration by adding new attributes or object types.
+Trust Relationships:
+Securely connecting two AD domains (on-premises and AWS) to allow resource sharing and centralized authentication.
 
 2. AD Connector
 What it is: A proxy to connect an existing on-premises Active Directory to AWS services.
@@ -63,13 +77,13 @@ For simple directory requirements and cost-conscious deployments.
 
 
 Comparison of Directory Service Options
-Feature	        AWS Managed Microsoft AD	                                        AD Connector	                    Simple AD
-Use Case	      Standalone or integrated AD with 5,000+ users, advanced features	Extend on-premises AD to AWS	    Simple, cost-effective solution for small organizations
-Directory Type	Fully managed Microsoft AD	                                      Proxy to on-premises AD	          Standalone directory service
-Scalability	    Supports large-scale environments	                                Up to 5,000 users	                Fewer than 5,000 users
-Connectivity	  VPN or Direct Connect for trust	VPN or Direct Connect             required	                        N/A
-Management	    Fully managed	                                                    Relies on on-premises AD	        Fully managed
-Integration support     advanced AD features and schema extensions	                      Maps AD credentials to AWS IAM	  Basic directory capabilities
+Feature	               AWS Managed Microsoft AD	                                          AD Connector	                    Simple AD
+Use Case	             Standalone or integrated AD with 5,000+ users, advanced features	  Extend on-premises AD to AWS	    Simple, cost-effective solution for small organizations
+Directory Type	       Fully managed Microsoft AD	                                        Proxy to on-premises AD	          Standalone directory service
+Scalability	           Supports large-scale environments	                                Up to 5,000 users	                Fewer than 5,000 users
+Connectivity	         VPN or Direct Connect for trust	VPN or Direct Connect             required	                        N/A
+Management	           Fully managed	                                                    Relies on on-premises AD	        Fully managed
+Integration support    advanced AD features and schema extensions	                        Maps AD credentials to AWS IAM	  Basic directory capabilities
 
 
 Conclusion:
