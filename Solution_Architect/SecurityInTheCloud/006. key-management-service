@@ -1,0 +1,118 @@
+AWS Key Management Service (KMS) -
+
+AWS Key Management Service (KMS) is used to create, manage, and control encryption keys for encrypting data across various AWS services.
+KMS integrates with many AWS services and offers both symmetric and asymmetric encryption.
+
+Types of KMS Keys
+
+Customer Managed Keys (CMKs)
+Created and managed by the developer.
+Key Material: By default, AWS generates key material for these keys, but you can import your own key material.
+Rotation: Optional and can be configured to rotate automatically every 365 days.
+Usage: Ideal for developers who need complete control over their encryption keys.
+
+AWS Managed Keys
+These keys are created, managed, and rotated by AWS for specific AWS services.
+No Management Control: You cannot rotate, modify policies, or manage these keys. You can only use them.
+Example Use: AWS services like SQS, ACM, EBS, and FSx use these keys.
+Rotation: Automatic and required every 365 days.
+
+AWS Owned Keys
+Used by AWS services for general encryption purposes across multiple accounts.
+You cannot view or manage these keys.
+Rotation: Automatic rotation is supported for symmetric keys, and it happens every 365 days.
+
+
+Key Concepts in KMS
+
+KMS Key
+Formerly known as Customer Master Keys (CMKs).
+The key material in the KMS key is used for encryption and decryption.
+Limitations: KMS keys can encrypt data up to 4 KB in size.
+To encrypt larger data, Data Encryption Keys (DEK) are used, which are generated and encrypted by KMS keys.
+
+Data Encryption Keys (DEK)
+Purpose: Encrypts data larger than 4 KB. KMS generates DEKs, but they are used outside of KMS.
+Management: The application code must handle DEKs (e.g., using them to encrypt/decrypt data).
+
+
+
+Types of Key Stores for KMS Keys
+External Key Store (XKS)
+Used for regulatory compliance (e.g., when key material needs to remain outside AWS).
+Keys are generated and stored in an external key manager.
+The key material never leaves the hardware security module (HSM).
+
+Custom Key Store (CloudHSM)
+Keys are stored in a dedicated Cloud HSM cluster that you own and manage.
+Cryptographic operations occur within the Cloud HSM cluster.
+Not available for asymmetric KMS keys.
+
+
+
+Key Rotation
+Automatic Rotation:
+Available for customer managed keys.
+Occurs every 365 days by default.
+When rotated, key ID remains the same, but the key material changes.
+The application doesn't need to be updated as the key ID/ARN stays constant.
+
+Manual Rotation:
+Required for keys with imported material, CloudHSM keys, asymmetric keys, etc.
+When manually rotating, create a new KMS key and update your application with the new key ID.
+Alternatively, use an alias to point to the new key to avoid updating the application code.
+
+Key Policies
+KMS Key Policies
+Define management and usage permissions for KMS keys.
+Example: Permissions for administrators, cryptographic actions (encryption, decryption), and usage delegation.
+
+Grants:
+Temporary permissions for using keys.
+Useful for delegating key usage without modifying key policies or IAM policies.
+
+AWS KMS via Service Condition
+Allows you to restrict key usage to specific services (e.g., EC2, RDS).
+Example: Key policies can enforce that the key can only be used by EC2 or RDS.
+
+
+
+Cryptographic Erasure
+Definition: The process of deleting key material to prevent decryption.
+Use Case: If you want to ensure data is completely irretrievable, delete the key material.
+The Delete Imported Key Material API removes the key material permanently.
+Key Rotation and Management for KMS Keys
+
+
+Customer Managed Keys:
+Automatic key rotation is optional.
+Can be rotated every 365 days (AWS will handle this automatically).
+
+AWS Managed Keys:
+Rotation is mandatory and happens every 365 days.
+Cannot be manually rotated or changed.
+
+AWS Owned Keys:
+Automatic rotation happens every 365 days for symmetric keys.
+No manual rotation.
+
+Manual Key Rotation:
+Involves creating a new KMS key with a different key ID.
+Can be disruptive, as applications need to be updated with the new key ID, unless using an alias.
+
+
+Important Exam Tips
+Rotation Differences: Understand the differences in automatic vs. manual rotation for AWS-managed, customer-managed, and AWS-owned keys.
+Key Policy Configuration: Understand how to define permissions and usage for KMS keys, especially in terms of grants 
+and AWS services via condition keys.
+Decryption with Imported Key Material: Know how to use Cryptographic Erasure to delete imported key material when needed.
+Invalid Key ID Exceptions: Know that certain exceptions (e.g., invalid key ID) can arise when using SSM Parameter Store or
+other services and could point to an issue with key enablement.
+
+
+Summary
+KMS is crucial for key management and encryption in AWS.
+There are three types of keys: customer-managed, AWS-managed, and AWS-owned.
+You can rotate keys automatically every 365 days (customer-managed) or manually for others.
+Data Encryption Keys (DEKs) are used for encrypting large amounts of data (>4KB).
+Understand the key policies, grants, and best practices to manage keys securely and ensure minimal disruption to your applications.
