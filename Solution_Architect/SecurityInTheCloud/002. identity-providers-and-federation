@@ -1,6 +1,15 @@
 Identity Providers and Federation 
 
 What is Federation?
+
+Federation essentially means that we take our identity source and link it with AWS.
+So we might have an identity source like an on premises Active Directory and we want to use that same
+identity source for authenticating and getting authorized to have access to AWS.
+So in other words, one username and password, one location where the user is stored along with their
+credentials like a password or maybe multifactor authentication.
+And then from that one identity source, we want to be able to access other systems without having to
+re authenticate.
+
 Federation links an external identity source (e.g., Active Directory, Google, or Facebook) with AWS.
 Users authenticate once with their identity source and gain access to AWS resources without re-authenticating.
 It enables single sign-on (SSO): One username and password to access multiple systems.
