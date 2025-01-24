@@ -1,0 +1,49 @@
+
+Amazon Athena:
+
+Purpose: A serverless service to run SQL queries against data, primarily in Amazon S3.
+Supported Data Formats:
+CSV, TSV, JSON, Apache Parquet, and ORC formats.
+Data Catalog:
+AWS Glue can be used as a managed data catalog to store metadata, helping build tables in Athena.
+Data Sources:
+Primarily queries data in Amazon S3.
+Can query other data sources (e.g., CloudWatch logs) via AWS Lambda (connects Athena to other data sources).
+
+Key Features of Athena:
+Serverless: No need to manage infrastructure.
+SQL Queries: Run SQL queries directly on S3 data and other sources through Lambda.
+
+Performance Optimization Tips:
+Partition data: Break data into partitions for faster queries.
+Bucket data within a partition: Further optimize partitioned data.
+Compression: Use formats like Apache Parquet or ORC.
+Optimize file sizes: Ensure files are appropriately sized for efficient querying.
+Columnar data format: Use for better performance (e.g., Parquet, ORC).
+Use only needed columns: Reduces unnecessary data scanning.
+Use approximate functions: For faster, less precise results in some cases.
+Optimize SQL operations: Use optimized ORDER BY, GROUP BY, etc.
+
+
+AWS Glue:
+Purpose: A fully managed ETL (Extract, Transform, Load) service.
+Primary Use: Prepares data for analytics in data lakes, warehouses, and data stores.
+Runs on Apache Spark: ETL jobs are run on a fully managed, scalable Apache Spark environment.
+
+Key Features of AWS Glue:
+Data Discovery & Metadata:
+AWS Glue discovers data and stores metadata in the Glue Data Catalog.
+Can work with data on S3, Redshift, RDS, and EC2.
+Crawler:
+A Crawler can scan data stores and automatically populate the Glue Data Catalog with tables.
+Crawler can scan multiple data stores in a single run and create or update tables.
+ETL Jobs:
+Create ETL jobs using the Glue Data Catalog tables as sources and targets.
+Integration between Athena and Glue:
+Glue Data Catalog is used to store the schema and metadata for Athena queries.
+
+
+
+
+
+
