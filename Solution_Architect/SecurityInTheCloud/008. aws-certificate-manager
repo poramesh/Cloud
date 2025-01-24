@@ -1,0 +1,147 @@
+AWS Certificate Manager (ACM)
+A service used for creating, managing, and renewing SSL/TLS X.509 certificates for securing network communication.
+Primarily used for encryption in transit to secure communication between clients and servers.
+
+Key Features of ACM
+
+Certificate Types:
+Issues certificates for single domains, multiple domains, and wildcard domains.
+
+AWS Service Integration:
+Seamlessly integrates with various AWS services, including:
+Elastic Load Balancer (ELB)
+Amazon CloudFront
+AWS Elastic Beanstalk
+AWS Nitro Enclaves
+AWS CloudFormation
+
+Public and Private Certificates:
+Public certificates:
+Signed by the AWS Public Certificate Authority and trusted by most web browsers.
+
+Private certificates:
+Issued using a private certificate authority within ACM for internal use.
+
+Third-Party Certificate Import:
+You can import certificates issued by third-party providers into ACM.
+
+Automatic Renewal:
+ACM automatically renews certificates issued through the service to maintain continuous protection.
+
+
+
+ACM vs. Other AWS Services
+Encryption in Transit:
+ACM issues SSL/TLS certificates for secure data transmission.
+Certificates are used to enable HTTPS and protect communication between clients and servers.
+
+Encryption at Rest:
+Managed by AWS KMS or AWS CloudHSM, which issue cryptographic keys for data encryption when stored.
+
+
+Important Notes
+
+SSL/TLS Certificates:
+Certificates provided by ACM enable encryption in transit, ensuring secure communication over the network.
+
+Certificate Storage and Renewal:
+ACM stores certificates securely and handles automatic renewal, reducing operational overhead.
+
+Use Cases:
+Ideal for applications requiring secure HTTPS endpoints or encryption for load-balanced traffic using ELB and CloudFront.
+
+Public and Private Certificates:
+Use public certificates for internet-facing applications.
+Use private certificates for internal systems within an organization's network.
+
+Integration with AWS Services:
+ACM certificates integrate natively with AWS services, simplifying setup and management.
+
+Third-Party Certificates:
+You can import certificates from external Certificate Authorities (CAs) if needed.
+
+Key Differentiation:
+ACM: Used for issuing SSL/TLS certificates for encryption in transit (e.g., HTTPS).
+KMS/CloudHSM: Used for creating cryptographic keys for encryption at rest (e.g., securing stored data).
+
+
+
+
+
+detailed notes on the process described for setting up an SSL/TLS certificate with AWS Certificate Manager (ACM) and integrating it with an Amazon CloudFront distribution:
+
+Step-by-Step Guide
+1. Create an S3 Bucket
+Purpose: Store the static website files (e.g., index.html, style.css, and images).
+Steps:
+Create a new S3 bucket (e.g., my-s3-cf-acm-lab). Ensure the bucket name is unique.
+Upload the static website files:
+index.html
+style.css
+images/ folder (if applicable).
+
+2. Request an SSL/TLS Certificate
+Purpose: Enable HTTPS for secure communication using AWS Certificate Manager (ACM).
+Steps:
+Navigate to AWS Certificate Manager and request a public certificate.
+Enter your domain name (e.g., example.com) and choose DNS validation (preferred over email validation).
+AWS generates a CNAME record for validation:
+Click Create records in Route 53 to add the CNAME automatically.
+Wait for validation. Once validated, the certificate status updates to Issued.
+
+3. Create a CloudFront Distribution
+Purpose: Distribute the website content globally and use the ACM certificate for HTTPS.
+Steps:
+Go to CloudFront and click Create distribution.
+Set the Origin to the S3 bucket.
+Enable Origin Access Control (OAC):
+Create a new Origin Access Control, which allows CloudFront to securely access the S3 bucket.
+Redirect HTTP to HTTPS for security.
+Specify an Alternate Domain Name (CNAME):
+Enter your custom domain name (e.g., example.com).
+Select the SSL certificate issued by ACM.
+Set index.html as the Default Root Object.
+
+4. Update the S3 Bucket Policy
+Purpose: Grant CloudFront access to the S3 bucket via OAC.
+Steps:
+Go to the S3 bucket's Permissions section and edit the Bucket Policy.
+Add the policy provided by CloudFront, which:
+Allows the cloudfront.amazonaws.com service principal to perform GetObject actions on the bucket.
+Includes a condition linking the policy to the specific CloudFront distribution.
+
+5. Configure Route 53 for Custom Domain
+Purpose: Route traffic to the CloudFront distribution using a custom domain name.
+Steps:
+Go to the hosted zone in Route 53.
+Create a new Alias record:
+Choose Route traffic to a CloudFront distribution.
+Select the CloudFront distribution created earlier.
+Save the record.
+
+6. Test the Configuration
+Purpose: Verify HTTPS and redirection functionality.
+Steps:
+Access the CloudFront distribution using both:
+The CloudFront domain name (e.g., abc123.cloudfront.net).
+The custom domain name (e.g., https://example.com).
+Test HTTP-to-HTTPS redirection by entering http://example.com in the browser.
+Ensure it redirects to https://example.com.
+
+Cleanup
+After testing, clean up resources to avoid incurring costs:
+Disable and delete the CloudFront distribution.
+You cannot delete the ACM certificate while it's bound to an active distribution.
+Delete the ACM certificate once the distribution is deleted.
+Remove the S3 bucket and associated files if no longer needed.
+
+Key Concepts to Remember
+ACM Certificates:
+Used for encryption in transit with SSL/TLS.
+Public certificates require validation (DNS or email).
+CloudFront:
+Provides global content delivery with caching and HTTPS support.
+S3 Bucket Policy:
+Needs to be updated for CloudFront access when using Origin Access Control (OAC).
+Route 53:
+Used for DNS management and routing custom domains to CloudFront distributions.
