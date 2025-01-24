@@ -1,0 +1,49 @@
+Amazon Kinesis Lesson Notes:
+
+Overview:
+Amazon Kinesis is a service for handling streaming data.
+Data sources could include IoT sensors, factory devices, cars, or other sources generating continuous streams of data.
+Kinesis is used for ingesting, processing, and storing this data in real-time.
+
+Key Services in the Kinesis Family:
+Kinesis Data Streams: Ingests continuous data for processing.
+Kinesis Data Analytics: Processes real-time data streams using SQL and Apache Flink.
+Kinesis Data Firehose: Loads data to other services like S3, Redshift, and more.
+Kinesis Video Streams: A service for video data streaming (not covered in the exam).
+
+How It Works:
+Producers send data to Kinesis Data Streams.
+The data is stored in shards for 24 hours by default, up to 365 days.
+Consumers process the data and can store it in services like S3, DynamoDB, or Redshift.
+The streaming process involves real-time latency of around 200 milliseconds.
+
+Kinesis Data Streams:
+Data is captured and stored in shards, which are units of storage and processing.
+Producers send data into Kinesis, where it's stored in the shards.
+Consumers use Kinesis Client Library (KCL) to process data from shards.
+A partition key can be specified for grouping data by shard.
+Order is maintained within a shard but not across shards.
+KCL workers process data from shards, with one worker per shard.
+
+***Suppose you have a stream of data from different sensors, each identified by a sensor ID. If you use the sensor ID as the partition key, 
+all data coming from the same sensor will be placed into the same shard. This is important because you might need 
+to process all the data from a particular sensor in sequence.
+***
+Kinesis Data Firehose:
+Unlike data streams, Firehose does not use shards and is fully automated for scalability.
+It captures, transforms, and loads data directly into destinations like S3, Redshift, or OpenSearch.
+Data is processed and transformed with AWS Lambda.
+Firehose has near-real-time delivery, with around 60 seconds of latency.
+Supported destinations include S3, Redshift, Splunk, Datadog, and more.
+
+Kinesis Data Analytics:
+Provides real-time SQL processing for streaming data.
+Can process data from Kinesis Data Streams, Kinesis Data Firehose, and AWS Lambda.
+Kinesis Data Analytics helps run SQL queries on streaming data.
+Output can be loaded into Kinesis Data Firehose for storage in various destinations.
+
+Summary of Key Features:
+Real-time Streaming: Amazon Kinesis enables real-time processing of data with minimal latency.
+Elastic Scalability: Data Firehose scales automatically, while Data Streams require manual scaling of shards.
+Data Destinations: Processed data can be forwarded to services like S3, DynamoDB, Redshift, and others for storage or further analysis.
+Kinesis Client Library (KCL): Helps consumers process data from streams.
