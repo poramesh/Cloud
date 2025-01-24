@@ -116,3 +116,112 @@ There are three types of keys: customer-managed, AWS-managed, and AWS-owned.
 You can rotate keys automatically every 365 days (customer-managed) or manually for others.
 Data Encryption Keys (DEKs) are used for encrypting large amounts of data (>4KB).
 Understand the key policies, grants, and best practices to manage keys securely and ensure minimal disruption to your applications.
+
+
+
+
+Lesson Overview
+This lesson demonstrates how to:
+Encrypt and decrypt data using AWS KMS and Python's boto3 library.
+Set up an EC2 instance with the required permissions to access a KMS key.
+Create and use an AWS KMS key for encrypting and decrypting data.
+
+Step-by-Step Process
+
+1. Preparing the Environment
+Launch an EC2 Instance:
+Go to EC2, launch an instance, and select default settings.
+Use a t2.micro instance, attach the KMS role created in the next step, and enable SSH access through the security group.
+
+Create an IAM Role for EC2:
+Go to IAM → Create Role → Select EC2 use case.
+No permissions policies are required since the role will have direct access to the KMS key.
+Name the role (e.g., KMS-key-EC2) and create it.
+
+Install Necessary Tools on EC2:
+Once the instance is running, connect via EC2 Instance Connect and run the following commands:
+# Download and install pip  
+curl -O https://bootstrap.pypa.io/get-pip.py  
+python3 get-pip.py  
+
+# Install boto3 (AWS SDK for Python)  
+pip install boto3  
+
+
+2. Creating a KMS Key
+Go to AWS KMS → Click on Create Key.
+Choose Symmetric Key (used for encrypting and decrypting data).
+Name the key (e.g., encrypt-decrypt-data).
+Select Key Administrators: Specify your account.
+Select Key Users: Add both your account and the EC2 role created earlier (e.g., KMS-key-EC2).
+
+Key Policy:
+The policy generated will have permissions for administration (e.g., create, delete, and list key actions) and usage (e.g., encrypt, decrypt, and generate data keys).
+Review and finish creating the key.
+
+3. Running the Python Script
+Prepare the Python Script:
+Locate the ARN (Amazon Resource Name) of the KMS key from the KMS console.
+Replace the placeholder in the script with the key ARN.
+Example Script:
+
+import boto3
+
+kms_client = boto3.client('kms')
+
+# Replace this with your KMS key ARN
+key_id = '<YOUR_KMS_KEY_ARN>'
+plaintext = 'This is a secret message.'
+
+# Encrypt the plaintext
+encrypt_response = kms_client.encrypt(
+    KeyId=key_id,
+    Plaintext=plaintext
+)
+encrypted_blob = encrypt_response['CiphertextBlob']
+with open('encrypted_data', 'wb') as f:
+    f.write(encrypted_blob)
+
+# Decrypt the data
+decrypt_response = kms_client.decrypt(
+    KeyId=key_id,
+    CiphertextBlob=encrypted_blob
+)
+decrypted_text = decrypt_response['Plaintext'].decode('utf-8')
+with open('decrypted_data', 'w') as f:
+    f.write(decrypted_text)
+Run the Script:
+
+Save the script on your EC2 instance (e.g., python-script.py) using a text editor like nano.
+Run the script:
+python3 python-script.py
+
+Verify the Output:
+Two files are generated:
+encrypted_data: Contains encrypted data (unreadable).
+decrypted_data: Contains the original plaintext message.
+
+Use cat to view the files:
+cat encrypted_data  
+cat decrypted_data  
+
+4. Clean-Up
+
+Delete the KMS Key:
+Go to KMS → Select the key → Choose Key Actions → Schedule Key Deletion.
+Specify a minimum 7-day waiting period (you can retrieve data during this time if needed).
+
+Terminate the EC2 Instance:
+Go to EC2 → Select the instance → Terminate.
+
+
+Important Notes
+Role Permissions: Ensure the EC2 instance has the proper role attached for accessing the KMS key.
+Key Policies:
+Administration policies (e.g., creating or deleting keys).
+Usage policies (e.g., encrypting and decrypting data).
+ARNs: Used to identify resources like the KMS key and IAM roles.
+Charges: KMS incurs charges, so disable or delete keys when no longer in use.
+Key Rotation: Manual or automatic rotation of keys affects key material but not the key ARN, ensuring minimal disruption.
+Encryption Limitations: The KMS key itself can only encrypt data up to 4 KB. For larger data, generate a data encryption key (DEK).
+Key Deletion: Deleting a key irreversibly prevents access to encrypted data unless a backup exists.
