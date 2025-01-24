@@ -1,0 +1,144 @@
+
+
+DynamoDB Streams:
+
+
+DynamoDB Streams captures a time-ordered sequence of item-level modifications in a DynamoDB table. This allows you to track and process 
+changes (insertions, updates, and deletions) in real-time.
+
+
+How it Works:
+Application Interaction: The application performs an action (insert, update, or delete) on a DynamoDB table.
+Stream Record: Each action is recorded in the DynamoDB stream, which contains information about the operation.
+Lambda Function: A Lambda function can be triggered by the stream, which processes the data,
+e.g., by writing a record to CloudWatch logs or performing other tasks.
+
+
+Stream Data Options:
+When configuring the DynamoDB stream, you can choose the type of data that gets written:
+Keys Only: Only the key attributes of the modified item.
+New Image: The entire item after modification.
+Old Image: The entire item before modification.
+New and Old Images: Both the new and old versions of the item.
+
+
+Stream Retention:
+The stream records are kept for 24 hours.
+After 24 hours, the data is no longer available unless processed by your application.
+
+
+Use Case:
+Real-Time Data Processing: With DynamoDB Streams and Lambda, you can build applications that respond to changes in your database
+(like sending notifications or logging updates).
+
+
+
+
+
+DynamoDB Accelerator (DAX)
+
+DAX is a fully managed, in-memory cache designed to improve the performance of DynamoDB. It reduces latency from milliseconds 
+to microseconds, making it a suitable solution when low-latency reads and writes are essential.
+
+Key Features of DAX:
+In-Memory Cache: DAX improves the performance of DynamoDB by caching data in memory.
+Microsecond Latency: It reduces read/write latency to microseconds, a significant improvement over the default 
+milliseconds latency of DynamoDB.
+Read-Through & Write-Through Cache: DAX improves both read and write performance by caching data for fast 
+access and reducing direct load on DynamoDB.
+No Code Change Required: DAX is fully compatible with existing DynamoDB API calls, so you do not 
+need to modify your application code to use it.
+
+DAX Architecture:
+Deployment: DAX runs in your VPC on nodes and sits in front of your DynamoDB table, acting as a cache layer.
+Request Flow:
+Requests are first directed to DAX (cache).
+If the data is available in the cache, it's returned with low latency.
+If the data is not in the cache, DAX fetches it from the DynamoDB table.
+
+Security Considerations:
+Ports:
+DynamoDB communicates on port 8000.
+DAX communicates on port 8111.
+IAM Role: DAX requires an IAM role to access the DynamoDB table and perform actions.
+
+DAX vs. ElastiCache:
+DAX:
+Optimized specifically for DynamoDB.
+Fully integrated with the DynamoDB API, requiring no code changes.
+No extra management complexity for cache invalidation or data synchronization.
+ElastiCache:
+More general-purpose and supports multiple data stores (including DynamoDB).
+Requires code modifications to point to the cache.
+Involves more management overhead, especially for cache invalidation and consistency.
+
+When to Use DAX:
+DAX is ideal when you're using DynamoDB and need a cache to reduce read/write latency without changing your application logic.
+
+
+
+
+ 
+DynamoDB Global Tables
+
+Global Tables allow you to deploy DynamoDB in multiple regions, enabling the ability to read and write to tables across these regions.
+Replication: The replication of data between regions is asynchronous and relies on DynamoDB Streams to ensure the tables are synchronized.
+
+Key Features of Global Tables:
+Multi-Region: Supports deploying tables in multiple AWS regions, providing high availability and low-latency access to data for global applications.
+Multi-Active Database (Multi-Master):
+This allows read and write operations to be performed in any of the regions where the global table exists.
+Each region acts as an active replica, so you can write to any table, and it will be replicated across other regions.
+
+Use Cases for Global Tables:
+Multi-Region Solutions: Where you need to read and write to the database from different global locations, minimizing latency for
+users spread across different regions.
+Disaster Recovery (DR): Provides a backup and failover mechanism, where if one region goes down, the system can failover to another
+region with minimal downtime.
+
+Replication and Failover:
+Asynchronous Replication: Ensures that data changes made in one region are replicated to other regions without immediate synchronization.
+Failover Logic: In case of an issue in one region, your application can failover to another region to continue operations. Logic can be built 
+into your application to handle this failover seamlessly.
+
+Exam Relevance:
+DynamoDB Global Tables are frequently asked in exams as they deal with multi-region, low-latency access and disaster recovery capabilities.
+
+
+
+HOL::
+
+Enabling Global Tables in DynamoDB:
+
+Steps to Enable Global Tables:
+Select the Table: Choose the DynamoDB table that you want to enable Global Tables for (e.g., eto table).
+
+Enable Global Tables: Go to the Global Tables section within the table settings.
+DynamoDB Streams will be enabled automatically when you set up Global Tables, as replication relies on streams.
+
+Create Replica:
+Click on Create Replica and choose the target region (e.g., US West (North California)).
+The replica table is then created in the selected region, which may take a few minutes to complete.
+
+Replication Process:
+The replica table in the chosen region will be populated with the same data from the original table.
+Both regions will have the same data.
+
+
+Testing Bidirectional Replication:
+Add Items:
+Add an item in North California region (e.g., a new record with a new email address).
+Add a similar item in North Virginia region.
+
+Verify Synchronization:
+After waiting a few moments, scan both tables (North California and North Virginia) to verify that the items are replicated bidirectionally.
+The changes made in North California should be reflected in North Virginia and vice versa.
+
+Deleting Tables:
+After completing the setup, you can delete the table in North California.
+You may have to wait for the table to become active and fully updated before being able to delete it in the North Virginia region.
+
+Key Points:
+Global Tables provide bidirectional replication across multiple regions, which is useful for multi-region applications.
+DynamoDB streams automatically enable with Global Tables, and these are used to sync data across regions.
+
