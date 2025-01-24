@@ -1,0 +1,116 @@
+:HOL: Using IAM Identity Center 
+
+IAM Identity Center (formerly AWS Single Sign-On) provides centralized access management for AWS accounts and applications.
+It integrates with AWS Organizations for centralized billing and multi-account management.
+Users and groups can be assigned permission sets, which define access levels for resources.
+
+Steps to Set Up IAM Identity Center
+
+1. Create an AWS Organization
+Go to AWS Organizations in the AWS Management Console.
+Click Create Organization.
+Benefits:
+Centralized billing.
+Ability to add/manage multiple accounts.
+Apply Service Control Policies (SCPs) for resource control.
+
+2. Enable IAM Identity Center
+Open IAM Identity Center in the AWS Console.
+Click Enable Identity Center (a one-click process).
+
+3. Configure IAM Identity Center
+>Confirm Identity Source
+Use the Identity Center directory (default) or connect an external source:
+Active Directory (via AD Connector or AWS Managed Microsoft AD).
+External Identity Providers (using SAML 2.0).
+Default session duration: 8 hours (can be adjusted).
+Optionally configure:
+Multi-Factor Authentication (MFA) settings.
+Trusted token issuers and session policies.
+
+>Access Portal URL
+The Access Portal URL is a login portal for users.
+Bookmark or share it with users.
+
+4. Manage Permissions
+Create Permission Sets
+Permission sets define access policies for accounts.
+Options:
+Predefined Permission Sets:
+Example: AdministratorAccess, ViewOnlyAccess.
+Custom Permission Sets:
+Define specific permissions using policies.
+Steps:
+Go to Manage permissions for multiple accounts.
+Click Create a permission set.
+Choose a predefined/custom permission set (e.g., AdministratorAccess).
+Click Next and then Create.
+
+Assign Permission Sets
+Assign permission sets to users or groups for specific accounts.
+Example:
+Assign AdministratorAccess and ViewOnlyAccess to a Management Group.
+
+5. Manage Users and Groups
+Create Groups
+Go to Groups in IAM Identity Center.
+Example:
+Create a group called Management.
+Create Users
+Go to Users in IAM Identity Center.
+Provide:
+Username, email, first name, last name, etc.
+Add the user to a group (e.g., Management).
+An email invitation is sent to the user with an Accept Invitation link.
+
+6. User Onboarding
+Accept Invitation:
+The user clicks the link in the email to accept the invitation.
+
+Sets up a password.
+Register MFA Device:
+Use an authenticator app (e.g., Google Authenticator).
+Scan the QR code and enter the generated code.
+
+Access Portal:
+Users log in via the Access Portal URL.
+They can:
+View assigned accounts and permission sets.
+Choose access type:
+Management Console.
+Command Line Interface (CLI).
+
+
+
+Accessing AWS Resources
+
+Select an Account:
+Users see the accounts they have access to in the organization.
+
+Choose Permission Set:
+Users can select from assigned permission sets (e.g., AdministratorAccess or ViewOnlyAccess).
+
+Login Options:
+Access the Management Console for full UI interaction.
+Use CLI credentials for programmatic access.
+
+
+Key Features of IAM Identity Center
+Centralized Management:
+Manage permissions, accounts, and users from a single console.
+
+Integration with AWS Organizations:
+Enables multi-account access with shared billing.
+
+Customizable Access:
+Use predefined or custom permission sets.
+
+Multi-Factor Authentication (MFA):
+Add an extra layer of security for user accounts.
+
+
+Example Walkthrough
+
+Create a Management Group and assign users to it.
+Assign AdministratorAccess and ViewOnlyAccess permission sets to the group.
+Users log in, select their permission set, and access AWS resources with appropriate permissions.
