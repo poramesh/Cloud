@@ -1,0 +1,48 @@
+Encryption Basics
+
+1. Encryption in Transit vs. Encryption at Rest
+Encryption in Transit
+Data is encrypted while traveling across a network to protect it from interception.
+Example: HTTPS connections using SSL/TLS certificates.
+Data is encrypted between the client (e.g., a web browser) and the destination (e.g., Application Load Balancer).
+Key Point:
+Once the data reaches its destination and is decrypted, it may or may not remain encrypted depending on the setup.
+
+Encryption at Rest
+Data is encrypted when stored on a disk or storage system.
+Example: Amazon S3 encrypts data when it is written to the bucket and decrypts it when it is read back.
+Key Point:
+Protects data from unauthorized access if storage is compromised.
+
+
+2. Asymmetric Encryption vs. Symmetric Encryption
+Asymmetric Encryption (Public Key Cryptography)
+Uses two keys:
+Public Key: Used for encryption (accessible to anyone).
+Private Key: Used for decryption (kept secret).
+Messages encrypted with the public key can only be decrypted with the private key, and vice versa.
+Examples:
+SSL/TLS (e.g., HTTPS connections).
+SSH (secure shell for remote connections).
+How it works:
+Plaintext data → Encryption process using Public Key → Encrypted data.
+Encrypted data → Decryption process using Private Key → Plaintext data.
+Key Point:
+Ensures secure data exchange without sharing the private key.
+
+Symmetric Encryption
+Uses a single key for both encryption and decryption.
+Example:
+Data Encryption Key (DEK) used in AWS KMS.
+How it works:
+Plaintext data → Encryption process using Key → Encrypted data.
+Encrypted data → Decryption process using the same Key → Plaintext data.
+Key Point:
+Faster and simpler than asymmetric encryption but requires secure key sharing.
+
+
+Summary
+Encryption in Transit: Protects data during transmission (e.g., HTTPS).
+Encryption at Rest: Protects stored data (e.g., Amazon S3).
+Asymmetric Encryption: Two keys (public for encryption, private for decryption). Best for secure data exchange.
+Symmetric Encryption: Single key used for both encryption and decryption. Best for fast encryption of large datasets.
