@@ -2,6 +2,7 @@ AWS Key Management Service (KMS) -
 
 AWS Key Management Service (KMS) is used to create, manage, and control encryption keys for encrypting data across various AWS services.
 KMS integrates with many AWS services and offers both symmetric and asymmetric encryption.
+The KMS keys are protected by hardware security modules or HSM. that means they're stored very securely.
 
 Types of KMS Keys
 
@@ -14,7 +15,7 @@ Usage: Ideal for developers who need complete control over their encryption keys
 AWS Managed Keys
 These keys are created, managed, and rotated by AWS for specific AWS services.
 No Management Control: You cannot rotate, modify policies, or manage these keys. You can only use them.
-Example Use: AWS services like SQS, ACM, EBS, and FSx use these keys.
+Example Use: AWS services like SQS(simple queue service), ACM(AWS certificate manager), EBS(elastic block store), and FSx use these keys.
 Rotation: Automatic and required every 365 days.
 
 AWS Owned Keys
@@ -62,6 +63,28 @@ Required for keys with imported material, CloudHSM keys, asymmetric keys, etc.
 When manually rotating, create a new KMS key and update your application with the new key ID.
 Alternatively, use an alias to point to the new key to avoid updating the application code.
 
+**********
+
+Key Rotation involves updating the key material of a KMS key (e.g., generating new cryptographic material) while keeping the Key ID and alias the same.
+Backward Compatibility: When data is encrypted with a KMS key, AWS keeps track of the version of the key material used for encryption. 
+This ensures that the same version of the key material is used for decryption.
+
+Example
+You have a Customer Managed Key (CMK).
+Key ID: 1234abcd
+Current Key Material (Version 1): Encrypts "Data A" and "Data B."
+
+You rotate the key material.
+Key ID remains: 1234abcd
+New Key Material (Version 2): Encrypts "Data C."
+
+Now:
+"Data A" and "Data B" will still be decrypted using Version 1.
+"Data C" will be decrypted using Version 2.
+AWS KMS handles all of this behind the scenes.
+
+*************
+
 Key Policies
 KMS Key Policies
 Define management and usage permissions for KMS keys.
@@ -74,6 +97,140 @@ Useful for delegating key usage without modifying key policies or IAM policies.
 AWS KMS via Service Condition
 Allows you to restrict key usage to specific services (e.g., EC2, RDS).
 Example: Key policies can enforce that the key can only be used by EC2 or RDS.
+
+
+***********************
+
+1. Key Policies
+A KMS Key Policy is an AWS Identity and Access Management (IAM) resource policy that specifies who can manage and use a KMS key. 
+Key policies provide fine-grained access control for KMS keys and govern key management actions like creating, 
+updating, deleting keys and using them for encryption/decryption.
+
+Key Policy Components:
+Key Administrators: Define who can manage KMS keys, such as rotating, deleting, or updating the key.
+Cryptographic Usage Permissions: Define who can use the key for cryptographic actions like encryption and decryption.
+Delegating Key Usage: Allows other AWS services or IAM users to use the key to perform actions like encryption, decryption, or re-encryption.
+
+Example of Key Policy: Here’s an example key policy granting full administrative permissions to the key administrator and 
+allowing encryption and decryption by a service.
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "KeyAdmins",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::123456789012:user/admin_user"
+      },
+      "Action": [
+        "kms:CreateKey",
+        "kms:PutKeyPolicy",
+        "kms:DeleteKey",
+        "kms:DescribeKey"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "AllowEncryptionDecryption",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": [
+        "kms:Encrypt",
+        "kms:Decrypt"
+      ],
+      "Resource": "arn:aws:kms:us-west-2:123456789012:key/abcd1234-efgh-5678-ijkl-9101mnopqrst"
+    }
+  ]
+}
+
+Key Policy Breakdown:
+The KeyAdmins statement allows the admin_user to perform administrative tasks like creating, updating, or deleting keys.
+The AllowEncryptionDecryption statement allows anyone to use the KMS key for encryption and decryption.
+In real-world scenarios, you’ll define more detailed access, allowing only specific users or services to interact with your KMS keys.
+
+2. Grants
+Grants are temporary permissions assigned to IAM entities (users, roles, or services) for specific actions on a KMS key. Grants are useful for
+delegating key usage without modifying the key policy or IAM policies, which makes them more flexible in short-term or temporary scenarios.
+
+A Grant allows you to:
+Assign a temporary set of permissions for specific actions (like encryption or decryption).
+Delegate permissions to other AWS services for using the KMS key.
+
+Example of Grant:
+For example, let's say you want to allow EC2 instances to use a KMS key for encryption, but you don't want to modify the Key Policy or IAM policies directly.
+
+Here’s how you can create a grant that gives EC2 the ability to use a specific KMS key:
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowEC2ToUseKey",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
+      "Action": [
+        "kms:Encrypt",
+        "kms:Decrypt"
+      ],
+      "Resource": "arn:aws:kms:us-west-2:123456789012:key/abcd1234-efgh-5678-ijkl-9101mnopqrst"
+    }
+  ]
+}
+Grant Breakdown:
+Principal: Specifies the service (ec2.amazonaws.com) that can use the KMS key.
+Action: Allows EC2 to perform Encrypt and Decrypt actions with the KMS key.
+Resource: Specifies which KMS key the grant applies to.
+You can issue and revoke grants dynamically, which makes them useful for temporary permissions.
+
+3. AWS KMS via Service Condition
+You can use service-specific conditions in your key policy to restrict usage of the KMS key to specific AWS services (like EC2 or RDS). This is
+useful if you want to limit the key’s usage to certain services, preventing misuse outside your intended scope.
+
+How to Use kms:ViaService Condition:
+The kms:ViaService condition key allows you to specify that the key can only be used by certain services within your AWS account. For
+example, if you want the KMS key to only work for EC2 and RDS, you can enforce that in the key policy.
+
+Example of Key Policy with kms:ViaService Condition:
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowEncryptionDecryptionForEC2andRDS",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": [
+        "kms:Encrypt",
+        "kms:Decrypt"
+      ],
+      "Resource": "arn:aws:kms:us-west-2:123456789012:key/abcd1234-efgh-5678-ijkl-9101mnopqrst",
+      "Condition": {
+        "StringEquals": {
+          "kms:ViaService": [
+            "ec2.us-west-2.amazonaws.com",
+            "rds.us-west-2.amazonaws.com"
+          ]
+        }
+      }
+    }
+  ]
+}
+Condition Breakdown:
+kms:ViaService: This condition ensures that the KMS key can only be used by requests originating from EC2 and RDS services in the us-west-2 region.
+StringEquals: The condition matches the exact service endpoints (ec2.us-west-2.amazonaws.com and rds.us-west-2.amazonaws.com).
+This setup ensures that only EC2 or RDS services in the specific region can use the KMS key for encryption or decryption. If another service attempts 
+to use this key, access will be denied.
+
+Key Takeaways:
+Key Policies: Control who can manage and use KMS keys. Permissions can be set for administrators, cryptographic actions, and delegating usage.
+Grants: Temporary permissions to use KMS keys, allowing you to delegate access without modifying the key policies or IAM policies.
+AWS KMS via Service Condition: A condition that restricts key usage to specific AWS services, ensuring the key is used only for intended purposes.
+This model allows for fine-grained access control and flexibility in managing your encryption keys across various AWS services.
+
+
+*************************
 
 
 
@@ -120,11 +277,79 @@ Understand the key policies, grants, and best practices to manage keys securely 
 
 
 
+
+:::HOL:::
+
 Lesson Overview
+
 This lesson demonstrates how to:
 Encrypt and decrypt data using AWS KMS and Python's boto3 library.
 Set up an EC2 instance with the required permissions to access a KMS key.
 Create and use an AWS KMS key for encrypting and decrypting data.
+
+
+
+
+
+## PIP
+curl -O https://bootstrap.pypa.io/get-pip.py python3 get-pip.py --user
+## boto3
+pip install boto3
+
+## Create a Python script with the following code
+
+```python
+import boto3
+
+# Initialize the KMS client
+kms = boto3.client('kms', region_name='us-east-1')
+
+# The ID or ARN of your KMS key (you can get it from the AWS console)
+key_id = 'arn:aws:kms:us-east-1:676238238199:key/e1de5166-f54a-4fc9-835d-1234da4dd743'
+
+# Data to be encrypted
+plaintext = 'This is a secret message'
+
+# Encrypt the data
+response = kms.encrypt(
+    KeyId=key_id,
+    Plaintext=plaintext,
+    EncryptionAlgorithm='SYMMETRIC_DEFAULT'
+)
+
+# Get the ciphertext blob
+ciphertext_blob = response['CiphertextBlob']
+
+# Save the encrypted data to a file
+with open('encrypted_data', 'wb') as encrypted_file:
+    encrypted_file.write(ciphertext_blob)
+
+print('Encrypted data saved to "encrypted_data" file.')
+
+# Decrypt the data
+decrypt_response = kms.decrypt(
+    CiphertextBlob=ciphertext_blob,
+    KeyId=key_id
+)
+
+# Get the plaintext back
+decrypted_plaintext = decrypt_response['Plaintext'].decode('utf-8')
+
+# Save the decrypted data to a file
+with open('decrypted_data.txt', 'w') as decrypted_file:
+    decrypted_file.write(decrypted_plaintext)
+
+print('Decrypted data saved to "decrypted_data.txt" file.')
+```
+
+
+
+
+
+
+
+
+
 
 Step-by-Step Process
 
