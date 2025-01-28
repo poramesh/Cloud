@@ -1,0 +1,48 @@
+Amazon Inspector
+
+A security assessment service for EC2 instances.
+Automatically assesses applications for security vulnerabilities and deviations from best practices.
+Provides findings with detailed recommendations for remediation.
+
+Key Features:
+
+Performs network assessments and host assessments.
+Can be scheduled to run assessments automatically.
+Requires an agent to be installed on EC2 instances for certain checks and Can be installed manually or automatically using AWS Systems Manager (SSM) Run Command.
+
+
+How Amazon Inspector Works
+Network Assessments:
+Checks the network configuration of EC2 instances.
+Identifies:
+Open ports accessible from outside the VPC.
+Processes running on those ports (requires agent).
+Pricing: Based on the number of instance assessments.
+
+Host Assessments:
+Checks the software and configuration of EC2 instances.
+Identifies:
+Vulnerable software (CVEs - Common Vulnerabilities and Exposures).
+Host hardening issues (CIS benchmarks).
+Deviations from security best practices.
+Requires an agent to be installed on the EC2 instance.
+Pricing: Based on the number of instance assessments.
+
+
+Hands-On Notes
+Agent Installation:
+Use AWS Systems Manager (SSM) to automatically install the Amazon Inspector agent on EC2 instances.
+Steps:
+Ensure SSM is configured for the EC2 instance.
+Use the SSM Run Command to install the agent.
+
+Scheduling Assessments:
+Configure Amazon Inspector to run assessments on a regular schedule.
+
+
+Key Takeaways
+Amazon Inspector is a powerful tool for assessing the security of EC2 instances.
+It performs network assessments (open ports, processes) and host assessments (CVEs, CIS benchmarks, best practices).
+Requires an agent for host assessments and some network checks.
+Use AWS Systems Manager (SSM) to automate agent installation.
+Pricing is based on the number of instance assessments.
