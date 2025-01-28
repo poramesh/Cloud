@@ -1,0 +1,162 @@
+AWS Web Application Firewall (WAF)
+
+What is AWS WAF?
+A web application firewall that helps protect web applications from common web exploits and bots.
+Allows you to monitor, control, and filter incoming web traffic based on customizable rules.
+Integrates with CloudFront, Application Load Balancers (ALB), API Gateway, and AWS AppSync.
+
+Key Purpose:
+Protects against OWASP Top 10 vulnerabilities (e.g., SQL injection, cross-site scripting).
+Provides granular control over traffic to your web applications.
+
+Core Concepts
+
+1. Web ACL (Access Control List)
+Definition:
+A set of rules that define how to inspect and handle incoming web requests.
+Acts as the primary container for rules and rule groups.
+
+Use Case:
+Protects a specific set of AWS resources (e.g., CloudFront distribution, ALB, API Gateway).
+
+Key Features:
+Rules are evaluated in order of priority.
+
+Each rule specifies:
+Conditions to match (e.g., IP address, geographic location).
+Actions to take (e.g., allow, block, count).
+
+2. Rules
+Definition:
+Conditions that define what to inspect in a web request.
+
+Each rule contains:
+A match statement (what to look for).
+An action (what to do if the condition is met).
+
+Types of Rules:
+Regular Rules: Individual rules for specific conditions.
+Rule Groups: A collection of rules grouped together for reuse.
+
+Examples of Conditions:
+IP address matches.
+Geographic location.
+String matches (e.g., SQL injection patterns).
+Size constraints (e.g., request body size).
+
+3. Rule Actions
+Actions determine what WAF does when a request matches a rule:
+
+Allow: Forward the request to the protected resource.
+Block: Reject the request and return a 403 Forbidden response.
+Count: Track the request for monitoring without blocking it.
+
+4. IP Sets
+Definition:
+A collection of IP addresses or IP ranges.
+Used in rules to allow or block traffic from specific IPs.
+
+Use Case:
+Block traffic from known malicious IPs.
+Allow traffic only from trusted IP ranges
+
+5. Regex Pattern Sets
+Definition:
+A collection of regular expressions (regex).
+Used to match patterns in web requests (e.g., URLs, headers).
+
+Use Case:
+Detect and block requests containing malicious patterns (e.g., SQL injection attempts).
+
+6. Match Statements
+Definition:
+Conditions used to compare web requests against specific criteria.
+
+Types of Match Statements:
+Geographic Match: Block or allow requests based on the client’s geographic location.
+IP Set Match: Block or allow requests based on IP addresses.
+Regex Match: Block or allow requests based on regex patterns.
+Size Constraints: Block requests that exceed specified size limits (e.g., request body size).
+SQL Injection Match: Detect and block SQL injection attempts.
+Cross-Site Scripting (XSS) Match: Detect and block XSS attempts.
+
+How AWS WAF Works
+Traffic Flow:
+Incoming web requests → AWS WAF → Protected resource (e.g., CloudFront, ALB, API Gateway).
+
+Evaluation Process:
+WAF evaluates each request against the rules in the Web ACL.
+Rules are evaluated in order of priority.
+If a request matches a rule, the corresponding action (allow, block, count) is taken.
+
+Integration Points:
+CloudFront: Protects content delivered via CloudFront distributions.
+Application Load Balancer (ALB): Protects applications running behind an ALB.
+API Gateway: Protects RESTful APIs.
+AWS AppSync: Protects GraphQL APIs.
+
+Key Features
+1. Protection Against Common Web Exploits
+SQL Injection:
+Detects and blocks malicious SQL queries in web requests.
+Cross-Site Scripting (XSS):
+Detects and blocks malicious scripts injected into web requests.
+OWASP Top 10:
+Protects against the most critical web application security risks.
+
+2. Geographic Filtering
+Allows or blocks traffic based on the geographic location of the client.
+Use Case:
+Block traffic from high-risk regions.
+Allow traffic only from specific countries.
+
+3. Rate-Based Rules
+Blocks IP addresses that exceed a specified request rate.
+Use Case:
+Mitigate DDoS attacks or brute force attempts.
+
+4. Custom Rules
+Create rules tailored to your application’s specific needs.
+Examples:
+Block requests containing specific headers.
+Allow requests only from specific user agents.
+
+
+
+Use Cases
+Protecting Web Applications:
+Use WAF with CloudFront or ALB to protect web applications running on EC2, ECS, or EKS.
+
+Securing APIs:
+Use WAF with API Gateway to protect RESTful APIs.
+
+GraphQL API Protection:
+Use WAF with AWS AppSync to protect GraphQL APIs.
+
+Bot Mitigation:
+Use WAF to block malicious bots and scrapers.
+
+
+
+Exam Tips
+Focus Areas:
+Common Web Exploits: SQL injection, cross-site scripting (XSS).
+Integration Points: CloudFront, ALB, API Gateway, AppSync.
+Key Components: Web ACLs, rules, IP sets, regex pattern sets.
+
+Scenario-Based Questions:
+If a question mentions SQL injection, XSS, or OWASP Top 10, think AWS WAF.
+If resources are behind CloudFront, ALB, or API Gateway, consider using WAF.
+
+Visual Representation
+Traffic Flow:
+Internet → AWS WAF → [CloudFront / ALB / API Gateway / AppSync] → Application
+
+Rule Evaluation:
+Request → Web ACL → Rule 1 (Allow) → Rule 2 (Block) → Rule 3 (Count) → Action
+
+Summary
+AWS WAF is a powerful tool for protecting web applications and APIs from common exploits.
+Key components include Web ACLs, rules, IP sets, and regex pattern sets.
+Use cases include protecting applications behind CloudFront, ALB, API Gateway, and AppSync.
+Exam focus: SQL injection, XSS, and integration with AWS services.
