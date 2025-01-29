@@ -1,0 +1,71 @@
+
+Defense-In-Depth 
+
+Defense-In-Depth is a multi-layered security strategy where security measures are implemented at multiple layers within an application and infrastructure.
+This ensures that even if one security layer is compromised, other layers mitigate risks and prevent major security breaches.
+
+
+Example: Secure Multi-Tier Architecture
+This architecture follows Defense-In-Depth principles by securing different layers of the application.
+
+1. Architecture Components
+EC2 Instances (Auto Scaling Group) – Private Subnet
+Application Load Balancer (ALB) – Public Subnet
+CloudFront Distribution (Content Delivery Network)
+Amazon S3 (for logging and storage)
+AWS WAF & AWS Shield (for security and DDoS protection)
+AWS Inspector & AWS Config (for compliance & security monitoring)
+AWS Key Management Service (KMS) (for encryption)
+AWS Simple Notification Service (SNS) (for security alerts)
+
+
+2. Security Measures at Different Layers
+
+A. Encryption & Secure Communication
+SSL/TLS Encryption:
+Encrypts traffic end-to-end (Client → CloudFront → ALB → EC2).
+Certificates can be managed via AWS Certificate Manager (ACM).
+
+Amazon KMS for Encryption:
+Encrypts EBS volumes attached to EC2 instances.
+Ensures data at rest is protected.
+
+B. Network Security
+AWS Web Application Firewall (WAF):
+Protects against SQL Injection (SQLi), Cross-Site Scripting (XSS), and other attacks.
+Web ACLs define allowed/blocked requests.
+
+AWS Shield (DDoS Protection):
+AWS Shield Standard (Free, included with CloudFront).
+AWS Shield Advanced (Paid, extra protection & response team access).
+
+Security Groups:
+Instance-Level Firewalls (controls allowed inbound & outbound traffic).
+Ensures that only allowed services communicate with EC2 instances.
+
+Network ACLs (NACLs):
+Subnet-Level Firewalls (adds another layer of filtering traffic in & out of subnets).
+
+C. Monitoring, Compliance & Logging
+AWS CloudTrail & ALB Logging:
+Logs access and API calls.
+Stores logs in Amazon S3 for forensic analysis.
+
+AWS Config:
+Ensures compliance (e.g., S3 bucket encryption enabled).
+Monitors for unauthorized changes in security configurations.
+
+AWS Inspector:
+Performs security assessments on EC2 instances.
+Detects vulnerabilities and misconfigurations.
+
+SNS Notifications:
+Alerts for security incidents, compliance violations, or threats.
+
+
+Key Takeaways
+Layered Security Approach prevents single points of failure.
+Encryption protects both data in transit (SSL/TLS) and at rest (KMS).
+WAF & Shield protect against web-based and DDoS attacks.
+Security Groups & NACLs provide network-layer protection.
+Logging & Compliance (AWS CloudTrail, Config, Inspector) ensure visibility & compliance.
