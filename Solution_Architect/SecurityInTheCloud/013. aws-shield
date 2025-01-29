@@ -1,0 +1,73 @@
+AWS Shield 
+
+AWS Shield is a managed Distributed Denial of Service (DDoS) protection service designed to safeguard applications hosted on AWS against DDoS attacks.
+It ensures protection with always-on detection and inline mitigations to reduce downtime and latency.
+
+Key Features of AWS Shield
+
+Protection Against DDoS Attacks:
+Detects and mitigates DDoS attacks aimed at overloading and disrupting resources.
+Protects against application-layer (Layer 7) and network-layer (Layer 3/4) attacks.
+
+Always-On Detection:
+Continuously monitors traffic to detect unusual patterns.
+Mitigates attacks in real-time to minimize service disruptions.
+
+Reduced Downtime and Latency:
+Automatically stops attacks before they impact applications.
+Ensures a better experience for end users.
+
+
+
+
+AWS Shield Tiers
+
+AWS Shield is available in two tiers:
+
+AWS Shield Standard (Free, included by default):
+Protects against common DDoS attacks.
+Includes network flow monitoring and basic protections for AWS resources.
+Automatically integrated with Amazon CloudFront, Elastic Load Balancing (ELB), and Route 53.
+Provides basic monitoring and protection without additional cost.
+
+AWS Shield Advanced ($3,000/month with a 12-month commitment):
+Includes all Standard features plus additional capabilities:
+Layer 7 application traffic monitoring (e.g., for application-layer attacks).
+Advanced attack detection and mitigation capabilities.
+Access to AWS's 24/7 DDoS Response Team (DRT).
+Financial reimbursement for costs incurred due to DDoS attacks on Elastic Load Balancers, CloudFront, Route 53, or Global Accelerator.
+Detailed attack diagnostics and security posture assessments.
+
+
+
+Integration with AWS Services
+
+AWS Shield Standard is enabled by default and integrated with services like:
+Amazon CloudFront: Protects web applications behind CloudFront from DDoS attacks.
+Elastic Load Balancer (ELB): Protects backend resources like EC2 instances.
+Route 53: Ensures availability of DNS services during DDoS attacks.
+
+
+
+Exam Focus Points
+
+AWS Shield Standard:
+Free, enabled by default.
+Provides basic monitoring and protection for AWS services against DDoS attacks.
+Protects network-layer and some application-layer traffic.
+
+AWS Shield Advanced:
+Paid service for enhanced protection against DDoS attacks.
+Includes Layer 7 traffic monitoring, 24/7 DDoS Response Team, and cost protection.
+Critical use case for organizations requiring advanced security.
+
+AWS Shield vs AWS WAF:
+AWS Shield protects against DDoS attacks (floods of data).
+AWS WAF blocks application-layer (Layer 7) attacks based on rules like SQL injection or cross-site scripting (XSS).
+
+
+Key Takeaways
+Standard Tier is free, basic, and sufficient for many use cases.
+Advanced Tier provides comprehensive security for sensitive and critical applications, but it comes with significant cost.
+AWS Shield works closely with CloudFront, WAF, Route 53, and ELB for layered protection.
+Let me know if you'd like further clarifications or details!
