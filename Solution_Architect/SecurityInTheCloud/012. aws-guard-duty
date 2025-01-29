@@ -1,0 +1,32 @@
+AWS GuardDuty Overview
+AWS GuardDuty is an intelligent threat detection service designed to monitor and protect AWS accounts, workloads, and data.
+It uses machine learning and threat intelligence to detect potential security threats.
+
+Key Features of GuardDuty
+
+Threat Detection Capabilities:
+Detects account compromises.
+Monitors EC2 instances for suspicious activity.
+Identifies attempts at malicious reconnaissance (e.g., port scanning or probing).
+Detects potential S3 bucket compromise.
+
+Continuous Monitoring: GuardDuty analyzes logs from these services:
+CloudTrail Management Events: Tracks API activities to detect unusual behavior.
+S3 Data Events: Monitors access patterns to detect unauthorized or malicious actions.
+VPC Flow Logs: Monitors network traffic for suspicious patterns.
+DNS Logs: Identifies suspicious domain queries.
+
+
+Exam Focus Points
+
+GuardDuty Use Cases:
+Identify malicious activities in AWS accounts and workloads.
+Detect threats to S3 buckets, EC2 instances, and more.
+Enable continuous monitoring for enhanced security requirements.
+Integration with Key AWS Services:
+GuardDuty works with CloudTrail, VPC Flow Logs, S3, and DNS Logs for threat analysis.
+
+Service Purpose:
+GuardDuty is primarily a security monitoring and detection tool.
+It's not a preventative tool (like WAF); instead, it helps detect and alert.
+
