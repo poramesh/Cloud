@@ -1,0 +1,155 @@
+Security in the Cloud
+
+1. Managed Microsoft AD (Active Directory)
+Fully managed AWS Directory Service.
+Best for 500+ users and organizations needing trust relationships.
+Can extend schema and connect to on-prem AD.
+Requires VPN or Direct Connect (DX) for integration.
+Can act as a standalone AD in AWS.
+
+2. AD Connector
+Redirects directory requests to on-prem Active Directory.
+Best for existing AD setups that need AWS integration.
+Comes in two sizes:
+Small (up to 500 users).
+Large (up to 5000 users).
+Requires VPN or DX for connectivity.
+Allows EC2 instances to join on-prem AD.
+Enables IAM authentication using on-prem AD.
+
+3. Simple AD
+Lightweight, low-cost AD-compatible service.
+Best for less than 500 users.
+Standalone fully managed directory in AWS.
+Provides basic AD features:
+User and group management.
+Group policies.
+Kerberos-based SSO.
+Supports Linux & Windows EC2 instances.
+
+4. Identity Providers (IDP) & Federation
+Allows external user identity management.
+Examples: Corporate Directory, Social Logins (Facebook, Google, Amazon).
+IAM supports:
+OpenID Connect (OIDC).
+SAML 2.0.
+No need to manage custom authentication systems.
+
+5. IAM Identity Center (Previously AWS SSO)
+Centralized access management for multiple AWS accounts.
+Manages SSO access and user permissions centrally.
+Integrates with business apps (Salesforce, Box, Office 365).
+Supports connection to AD or Azure AD.
+
+6. Amazon Cognito
+Adds user sign-up, sign-in, and access control to web & mobile apps.
+User Pool:
+Manages sign-up/sign-in.
+Supports social login (Facebook, Google, Amazon).
+Uses SAML & OIDC for federated authentication.
+Identity Pool:
+Provides temporary IAM credentials.
+Uses AWS Security Token Service (STS) to assume roles.
+
+7. AWS Key Management Service (KMS)
+Managed service for creating, storing, and managing encryption keys.
+Supports symmetric & asymmetric encryption.
+Key Types:
+KMS Keys (Previously Customer Master Keys (CMK)).
+Data Encryption Keys (DEKs) for large data encryption.
+Key Storage & Management:
+AWS-managed KMS keys – Managed by AWS, limited control.
+Customer-managed KMS keys – Full control, manual rotation.
+AWS-Owned KMS keys – Fully managed by AWS, invisible to users.
+Encrypts up to 4KB of data directly.
+Use cases:
+EBS volume encryption.
+S3 encryption.
+RDS encryption.
+
+8. AWS CloudHSM
+Dedicated hardware security module (HSM) in AWS.
+FIPS 140-2 Level 3 compliant.
+Single-tenant HSM, provides full key control.
+AWS has no access to keys.
+Use cases:
+SSL/TLS offloading.
+Storing private keys for Certificate Authorities (CA).
+Oracle Transparent Data Encryption (TDE).
+
+9. AWS Certificate Manager (ACM)
+Creates, stores, and renews SSL/TLS certificates.
+Supports single domain, multi-domain, and wildcard certificates.
+Public Certificates:
+Signed by AWS Public CA.
+Used with CloudFront, ALB, API Gateway.
+Private Certificates:
+Can create a Private CA (Certificate Authority).
+Used for internal applications.
+
+10. AWS Web Application Firewall (WAF)
+Protects applications from web exploits (SQL Injection, XSS).
+Components:
+Web ACLs – Attach to CloudFront, ALB, API Gateway.
+Rules – Define filtering criteria.
+Rule Groups – Reusable rule sets.
+IP Sets – Block or allow IP addresses.
+Regex Patterns – Define matching rules.
+Actions:
+Allow.
+Block.
+Count.
+
+11. AWS Shield
+DDoS Protection Service for AWS applications.
+Two tiers:
+Shield Standard – Free, included with CloudFront.
+Shield Advanced – Paid, better protection & response team access.
+Provides always-on detection and automatic mitigations.
+
+
+
+Key Takeaways
+AD Services: Managed Microsoft AD (for enterprises), AD Connector (on-prem integration), Simple AD (cost-effective).
+IAM & Federation: IAM Identity Center (SSO), Cognito (app authentication), IDPs (Google, Facebook, SAML).
+Encryption: KMS (AWS-managed), CloudHSM (user-controlled, higher security).
+
+
+
+
+
+
+Architecture
+
+
+1. Custom Domain & Encryption in Transit for ALB
+Use Route 53 to create an alias record pointing to the ALB's DNS name.
+Attach an SSL/TLS certificate from AWS Certificate Manager (ACM) for encryption in transit.
+
+2. Protect EC2 Website Behind ALB from Web Exploits
+Use AWS Web Application Firewall (WAF).
+Create a Web ACL with rules to block common web exploits (SQL Injection, XSS).
+Attach the Web ACL to the ALB.
+
+3. Block Access to ALB from Specific Countries
+Use AWS WAF.
+Create a Web ACL with a Geo-Match rule to block traffic from specific countries.
+Attach the Web ACL to the ALB.
+
+4. Encrypt Large Data Volumes Using KMS
+Use Customer Managed Key (CMK) in AWS KMS.
+Generate a Data Encryption Key (DEK) using CMK.
+Encrypt large volumes of data using the DEK.
+
+5. Mobile App Authentication with Social IDPs & AWS Access
+Use Amazon Cognito.
+User Pool:
+Manages authentication with Social IDPs (Google, Facebook, Amazon).
+Provides a preconfigured web UI for login.
+Identity Pool:
+Grants temporary AWS credentials for authorized access.
+
+6. Join EC2 Instances to On-Prem AD Over Direct Connect
+Use AWS AD Connector.
+Allows EC2 instances to authenticate with on-premises Microsoft AD.
+Requires Direct Connect (DX) or VPN.
