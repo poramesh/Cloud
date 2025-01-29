@@ -1,3 +1,16 @@
+*********
+these two are analytics services.
+One is Amazon Athena, and the other is AWS Glue.
+So Amazon Athena is a serverless service
+that we can use to run SQL queries against data.
+Now principally that data is on Amazon S3.
+So you point Athena at your data source in S3
+and then run SQL queries against it.
+Now the Athena can actually query data
+in a few different formats.
+You've got CSV, TSV, JSON and Apache Parquet
+and ORC formats.
+******
 
 Amazon Athena:
 
