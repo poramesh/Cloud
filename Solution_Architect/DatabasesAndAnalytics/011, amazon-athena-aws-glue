@@ -60,3 +60,248 @@ Glue Data Catalog is used to store the schema and metadata for Athena queries.
 
 
 
+::HOL::
+
+Enabling ALB Access Logging & Querying with Amazon Athena
+
+1. Launching an ALB & Enabling Access Logging
+Use AWS CloudFormation to create an Application Load Balancer (ALB).
+Select an existing CloudFormation template (ALB-CF template).
+Provide necessary details:
+Stack name: ALB Access Logs Lab.
+Image ID (AMI ID): Copy from EC2 instance.
+VPC & Subnets: Select default VPC and two subnets.
+Click Submit to create the stack.
+
+2. Creating an S3 Bucket for Access Logs
+Open Amazon S3 and create a bucket:
+Name: access-logs-alb-<unique-name>.
+Go to Permissions → Bucket Policy:
+Copy the pre-defined JSON policy (which is below)
+Update Bucket ARN with the correct bucket path.
+Save changes.
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::127311923021:root" //aws is which is gonna be same 
+      },
+      "Action": "s3:PutObject",
+      "Resource": "arn:aws:s3:::bucket-name/AWSLogs/*"
+    }
+  ]
+}
+
+3. Configuring Access Logs for ALB
+Open Load Balancers.
+Select the ALB, go to Actions → Edit Load Balancer Attributes.
+Enable Access Logs, choose the S3 bucket created earlier.
+Save changes.
+⏳ Note: It takes a few minutes for logs to appear in S3.
+
+4. Generating Test Traffic & Verifying Logs
+Copy the ALB DNS name and make test requests.
+Generate valid & invalid requests to create different log entries.
+Check S3 Bucket → AWS Logs folder to confirm log generation.
+
+5. Setting Up Amazon Athena for Log Analysis
+Creating an Athena Query Results Bucket
+Create another S3 bucket: athena-query-results-<unique-name>.
+Set this bucket as the Athena Query Results Location.
+Creating an External Table in Athena
+Open Amazon Athena → Query Editor.
+Use an SQL query to create an external table (ALB_logs).
+Update:
+Bucket name: access-logs-alb-<unique-name>.
+Account number.
+Run the query to create the table.
+
+
+
+CREATE EXTERNAL TABLE IF NOT EXISTS alb_logs (
+            type string,
+            time string,
+            elb string,
+            client_ip string,
+            client_port int,
+            target_ip string,
+            target_port int,
+            request_processing_time double,
+            target_processing_time double,
+            response_processing_time double,
+            elb_status_code string,
+            target_status_code string,
+            received_bytes bigint,
+            sent_bytes bigint,
+            request_verb string,
+            request_url string,
+            request_proto string,
+            user_agent string,
+            ssl_cipher string,
+            ssl_protocol string,
+            target_group_arn string,
+            trace_id string,
+            domain_name string,
+            chosen_cert_arn string,
+            matched_rule_priority string,
+            request_creation_time string,
+            actions_executed string,
+            redirect_url string,
+            lambda_error_reason string,
+            target_port_list string,
+            target_status_code_list string,
+            classification string,
+            classification_reason string
+            )
+            ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
+            WITH SERDEPROPERTIES (
+            "column.separator" = "\t",
+            "escape" = "\\" )                                     ...so \\t wopuld be \t
+            'input.regex' = 
+            STORED AS INPUTFORMAT 'org.apache.hadoop.mapred.TextInputFormat'
+            OUTPUTFORMAT 'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'
+            LOCATION 's3://alb-logs-3qfw4tw3tw3/AWSLogs/975050181034/elasticloadbalancing/us-east-1/';
+            TBLPROPERTIES (
+            "compression" = "gzip" 
+            );
+
+
+6. Querying ALB Logs with Athena
+Viewing the First 100 Log Entries
+
+SELECT * FROM ALB_logs 
+ORDER BY request_time 
+LIMIT 100;
+
+Counting Client Requests to a Specific URL
+
+SELECT client_ip, COUNT(*) AS visit_count 
+FROM ALB_logs 
+WHERE request_url = '<specified-url>'
+GROUP BY client_ip 
+ORDER BY visit_count DESC;
+
+Finding Requests from Chrome Users
+
+SELECT request_url, user_agent 
+FROM ALB_logs 
+WHERE user_agent LIKE '%Chrome%';
+
+Finding Requests from Safari Users
+
+SELECT request_url, user_agent 
+FROM ALB_logs 
+WHERE user_agent LIKE '%Safari%';
+
+7. Cleaning Up Resources
+Delete the CloudFormation stack.
+Delete the Athena table.
+Clean up the S3 buckets.
+
+This exercise demonstrates how to enable ALB access logging, store logs in S3, and analyze logs using Athena with SQL queries. Let me know if you need more details!
+
+
+
+
+
+ALB access logs are stored as tab-separated values (TSV) in an S3 bucket. Each log entry represents a single request handled by the load balancer.
+
+Here’s an example of how the data in an ALB log file might look:
+https 2024-01-28T12:45:30.123456Z app/my-load-balancer/1234567890abcdef 192.168.1.1:54321 10.0.0.10:80 0.001 0.005 0.002 200 200 500 600 "GET https://example.com/index.html HTTP/1.1" "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" ECDHE-RSA-AES128-GCM-SHA256 TLSv1.2 arn:aws:elasticloadbalancing:us-east-1:975050181034:targetgroup/my-target-group/abcdef1234567890 abc123 example.com arn:aws:acm:us-east-1:975050181034:certificate/abcdef123456 "1" "2024-01-28T12:45:30.123456Z" "forward" - - - "80" "200" "normal" "-"
+Each field is separated by a tab (\t).
+
+
+Breaking it Down
+
+Field	                  Example Value	                                                               Description
+Protocol	              https	                                                                       Request protocol (HTTP/HTTPS)
+Timestamp	              2024-01-28T12:45:30.123456Z	                                                 Time of request
+ELB Name	              app/my-load-balancer/1234567890abcdef	                                       Name of ALB
+Client IP:Port	        192.168.1.1:54321	                                                           IP & port of client making request
+Target IP:Port	        10.0.0.10:80	                                                               IP & port of backend instance
+Processing Times	      0.001 0.005 0.002	                                                           Time taken by ALB, target, and response
+Status Codes	          200 200	                                                                     HTTP status from ALB & target
+Bytes Transferred	      500 600	                                                                     Request & response size in bytes
+Request Info	          "GET https://example.com/index.html HTTP/1.1"	                               HTTP method, URL, and protocol
+User Agent	            "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"	                                 Browser details
+SSL Cipher & Protocol	   ECDHE-RSA-AES128-GCM-SHA256 TLSv1.2	                                       Security details
+Target Group ARN	       arn:aws:elasticloadbalancing:us-east-1:904:targetgroup/my-target-group/a690  ARN of the backend target group
+Trace ID	               abc123	                                                                      Unique request trace ID
+Domain Name	             example.com	                                                                Requested domain
+Certificate ARN	         arn:aws:acm:us-east-1:975050181034:certificate/abcdef123456	                SSL certificate ARN
+Matched Rule Priority	   1	                                                                          Rule priority in ALB listener
+Request Creation Time	   2024-01-28T12:45:30.123456Z	                                                When request was created
+Actions Executed	       "forward"	                                                                  ALB action (e.g., forward, redirect)
+Redirect URL	           -	                                                                          Empty (only for redirect actions)
+Lambda Error	           -	                                                                          Empty (only for Lambda errors)
+Target Port List	       "80"	                                                                        List of target ports used
+Target Status Code List	 "200"	                                                                      List of response codes from backend targets
+Classification	         "normal"	                                                                    Traffic classification (e.g., normal, suspicious)
+Classification Reason	   "-"	                                                                        Reason for classification
+
+
+
+How It Looks in Amazon Athena
+
+When you query alb_logs in Athena, the result will be displayed in a table format, like this:
+
+time                      	client_ip	   request_verb	  request_url	                    elb_status_code	  user_agent	                                ssl_protocol
+2024-01-28T12:45:30.123456Z	192.168.1.1	 GET	          https://example.com/index.html	200	              Mozilla/5.0 (Windows NT 10.0; Win64; x64)	   TLSv1.2
+
+
+
+
+
+Row Format and Parsing Rules
+
+ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'
+SERDE (Serializer/Deserializer) → Specifies how to read and interpret the raw text data.
+LazySimpleSerDe → A built-in deserializer that splits text into columns based on delimiters (like \t for tab-separated logs).
+
+
+SERDE Properties
+
+WITH SERDEPROPERTIES (
+  "column.separator" = "\t",
+  "escape" = "\\" )
+"column.separator" = "\t" → Defines that columns in the log file are separated by tabs (\t).
+"escape" = "\" → Tells Athena how to handle escape characters (\) in the logs.
+
+Example:
+A raw log entry might have https:\\example.com
+With escape handling, Athena interprets it as https:\example.com
+\\t in logs becomes \t (tab character) during parsing.
+
+
+
+Input & Output Formats
+
+STORED AS INPUTFORMAT 'org.apache.hadoop.mapred.TextInputFormat'
+OUTPUTFORMAT 'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'
+
+INPUTFORMAT ('TextInputFormat')
+Reads raw text files stored in S3.
+Used when logs are plain text or CSV/TSV (tab-separated values).
+
+OUTPUTFORMAT ('HiveIgnoreKeyTextOutputFormat')
+Ensures Hive/Athena doesn’t store extra metadata.
+
+
+
+
+S3 Data Location
+
+LOCATION 's3://alb-logs-3qfw4tw3tw3/AWSLogs/975050181034/elasticloadbalancing/us-east-1/';
+Points to an S3 bucket where ALB logs are stored.
+Athena will read logs directly from this S3 location.
+
+
+
+Table Properties
+
+TBLPROPERTIES ("compression" = "gzip");
+compression = "gzip" → Logs are stored compressed in .gz format.
+Athena will automatically decompress them while reading.
