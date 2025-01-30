@@ -1,0 +1,31 @@
+AWS Batch
+AWS Batch is a managed service that allows running batch workloads on AWS.
+It is used for executing large-scale computing jobs that require significant resources.
+
+Key Concepts:
+
+Batch Job:
+A unit of work (e.g., shell scripts, executables, or Docker container images).
+Represents the computing task that needs to be performed.
+
+Job Definition:
+Defines the requirements of the batch job, such as the compute resources needed.
+
+Job Queue:
+Jobs are submitted to a queue before being processed.
+
+Compute Environment:
+AWS Batch provisions and manages the required computing resources.
+It uses EC2 instances and ECS (Elastic Container Service) for execution.
+Managed vs. Unmanaged Options:
+Managed Mode: AWS handles resource provisioning and scaling automatically.
+Unmanaged Mode: You take full control over the resources and configurations.
+
+Key Benefits:
+Automated provisioning: AWS launches and terminates instances as needed.
+Efficient resource usage: Only the required compute capacity is allocated.
+Integration with EC2 and ECS: Supports both virtual machines and containers.
+
+Exam Relevance:
+AWS Batch is not a major exam topic but might appear in some questions.
+Just understanding the high-level concept is sufficient.
