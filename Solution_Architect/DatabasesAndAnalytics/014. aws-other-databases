@@ -1,0 +1,45 @@
+Database Services
+
+1. Amazon DocumentDB
+MongoDB-compatible managed database service.
+Purpose-built for JSON data management at scale.
+Scalability: Storage automatically scales up to 64 TB without affecting applications.
+Performance: Handles millions of requests per second with up to 15 low-latency read replicas.
+Availability: 99.99% (four nines) uptime, replicating six copies of data across three Availability Zones.
+Migration: Can migrate from MongoDB using AWS Database Migration Service (DMS).
+Use Case: Ideal for applications needing MongoDB-style document storage with managed scalability.
+
+2. Amazon Keyspaces (for Apache Cassandra)
+Managed Apache Cassandra-compatible database service.
+Serverless and highly scalable, automatically adjusts to workload traffic.
+Performance: Supports thousands of requests per second with low-latency responses.
+Availability: 99.99% SLA within a region.
+Use Case: Best for applications requiring Cassandra Query Language (CQL) and need high availability, scalability, and automatic management.
+
+3. Amazon Neptune
+Fully managed graph database service.
+Designed for tracking relationships between entities.
+Supports open-source graph query languages:
+Gremlin, openCypher, SPARQL.
+Performance:
+99.99% availability.
+Fault-tolerant and self-healing storage.
+Storage grows in increments of 10 GB, up to 64 TB.
+Up to 15 read replicas for scalability.
+Use Case: Best for applications like identity management, fraud detection, knowledge graphs, and recommendation engines.
+
+4. Amazon QLDB (Quantum Ledger Database)
+Fully managed ledger database.
+Immutable and cryptographically verifiable transaction log.
+Append-only journal:
+Data cannot be changed or deleted once written.
+Ensures auditability and data integrity.
+Uses cryptographic hashing (SHA-256) to secure change history.
+Serverless and automatically scalable.
+Use Case: Best for applications needing immutable, tamper-proof transaction records, such as financial transactions, supply chain tracking, and compliance logs.
+
+Exam Tips
+If you see MongoDB in a question → Think of DocumentDB.
+If you see Apache Cassandra → Think of Keyspaces.
+If a question mentions relationships and graph queries → Think of Neptune.
+If the focus is on immutability, transaction logs, or audit trails → Think of QLDB.
