@@ -1,0 +1,71 @@
+Amazon OpenSearch Service (formerly Amazon Elasticsearch Service)
+
+Fully managed service for searching, visualizing, and analyzing text and unstructured data.
+Petabyte scale, secure, highly available, and scalable.
+Deploys nodes and replicas across Availability Zones (AZs).
+Based on open-source Elasticsearch and supports SQL queries.
+Scales by adding/removing EC2 instances (not serverless).
+Supports backup via snapshots.
+Encryption: at rest & in transit.
+
+Deployment
+Cluster = OpenSearch Service Domain
+Deployed via Management Console, API, or CLI.
+Configure instance types, number of instances, and storage (UltraWarm, Cold Storage).
+
+Data Ingestion
+Sources:
+Amazon Kinesis Data Firehose
+Logstash
+Elasticsearch/OpenSearch APIs
+
+Visualization & Analysis
+Use Kibana (now called OpenSearch Dashboards) for:
+Searching, visualizing, and analyzing data.
+Pointing dashboards to OpenSearch clusters.
+
+VPC vs. Public Deployment
+VPC Deployment:
+Secure intra-VPC communication.
+Requires VPN or proxy for external access.
+Limitations:
+No IP-based access policies.
+Cannot switch to a public endpoint.
+Cannot move between VPCs (but can modify subnets/security groups).
+Public Domain:
+Direct access from the internet.
+
+ELK Stack (Elasticsearch, Logstash, Kibana)
+Logstash → Ingests data into OpenSearch.
+OpenSearch → Stores and indexes data.
+Kibana (OpenSearch Dashboards) → Visualizes and analyzes data.
+Use cases:
+Application & infrastructure monitoring.
+Log aggregation & analysis.
+Security analytics & troubleshooting.
+
+Access Control
+Resource-based policies (Domain Access Policies).
+Identity-based policies (IAM Users/Roles).
+IP-based policies (not available for VPC deployments).
+Fine-Grained Access Control (RBAC, Index/Field-level security, Multi-tenancy).
+
+Authentication Options
+SAML Federation (for on-premises directories like Active Directory).
+Amazon Cognito (for social identity providers).
+
+
+Best Practices
+Deploy across 3 AZs for best availability.
+Use multiples of 3 instances for equal AZ distribution.
+If 3 AZs are unavailable, use 2 AZs with equal instances.
+Use 3 dedicated master nodes.
+Configure at least one replica per index.
+Apply restrictive resource-based access policies.
+Deploy in Amazon VPC for security.
+Enable Node-to-Node Encryption & Encryption at Rest for sensitive data.
+
+Exam Tips
+Amazon OpenSearch Service = Elasticsearch (same concepts apply).
+Hands-on knowledge is not required—just focus on concepts.
+Expect exam questions on deployment, access control, and best practices.
