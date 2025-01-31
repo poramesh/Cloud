@@ -1,0 +1,244 @@
+**AWS Databases and Analytics Exam Cram Notes**
+
+**Database Options**
+- **Database on EC2**: Full control over instance and database; useful when RDS does not support a third-party database engine.
+- **RDS (Relational Database Service)**: For structured, SQL-based relational databases. Supports SQL, Oracle, MySQL, Postgres, Aurora, and MariaDB.
+- **DynamoDB**: NoSQL database; highly scalable with in-memory performance.
+- **Redshift**: Data warehouse for large volumes of aggregated data.
+- **ElastiCache**: Temporary in-memory storage for small amounts of data.
+- **EMR (Elastic MapReduce)**: Used for running analytics workloads using Hadoop and Spark.
+
+---
+
+### **RDS Overview**
+- Uses **instances**, requiring selection of instance family and type.
+- **Online transaction processing (OLTP)** type database.
+- Features: **Easy setup, high availability, fault tolerance, scalability**.
+- **Encryption**:
+  - Enabled at creation using **KMS keys**.
+  - Encrypted snapshots and backups.
+  - AES-256 encryption with minimal performance impact.
+- **Scaling**:
+  - Scale up by increasing instance size.
+  - Read replicas for read-heavy workloads.
+  - Multi-AZ for disaster recovery.
+
+**Multi-AZ vs Read Replica**
+- **Multi-AZ**:
+  - Synchronous replication.
+  - Primary instance active, standby used for failover.
+  - Backups taken from standby.
+- **Read Replicas**:
+  - Asynchronous replication.
+  - All read replicas are accessible.
+  - No backups by default.
+  - Can be deployed within the same AZ, another AZ, or another region.
+
+**Backup & Maintenance**
+- **Manual backups (Snapshots)**: Backup the entire instance.
+- **Automated backups**: Taken from standby in Multi-AZ deployments.
+- **Maintenance window**: Default weekly but configurable.
+
+---
+
+### **Aurora Overview**
+- **AWS-managed RDS database**, compatible with MySQL & Postgres.
+- **5x faster than MySQL, 3x faster than Postgres**.
+- **Fault-tolerant, self-healing storage** (scales up to **128TB**).
+- **Global Database**: Cross-region replication with read scaling.
+- **Multi-Master**: Scales out writes within a region.
+- **Aurora Serverless**: On-demand auto-scaling, no support for read replicas or public IPs.
+- **Aurora vs MySQL Replica**:
+  - **Aurora Replica**: Lower latency, within-region, no data loss, automated failover.
+  - **MySQL Replica**: Cross-region, potential data loss, manual failover.
+
+**When Not to Use RDS?**
+- When you need **root access** to the OS.
+- If using **unsupported database engines**.
+- If handling **large binary objects** (use S3).
+- If requiring **automated scalability** (use DynamoDB).
+
+---
+
+### **ElastiCache Overview**
+- Fully managed **Redis & Memcached** implementation.
+- **Key-Value store** with **low-latency**.
+- **Use cases**: Caching frequent database queries, session state storage.
+- **Redis vs Memcached**:
+  - **Redis**: Supports replication, encryption, backups, high availability.
+  - **Memcached**: No replication, no encryption, no backups.
+
+---
+
+### **DynamoDB Overview**
+- Fully managed **NoSQL database**.
+- **Schema-less**; supports **key-value & document store**.
+- **Synchronous replication** across three facilities.
+- **Pricing models**:
+  - **On-demand capacity** (pay per usage).
+  - **Provisioned capacity** (pay per reserved reads/writes).
+- **DynamoDB Accelerator (DAX)**: In-memory cache reducing latency.
+- **DynamoDB Streams**: Captures item-level modifications for 24 hours.
+- **Global Tables**: Multi-region, multi-master replication.
+- **TTL (Time to Live)**: Automatic expiration of items.
+
+**DAX vs ElastiCache**
+- **DAX**: Optimized for DynamoDB, fully managed, automatic integration.
+- **ElastiCache**: Requires code modification, supports more data stores.
+
+---
+
+### **Redshift Overview**
+- **SQL-based data warehouse** for **OLAP** use cases.
+- **EC2-backed instances**, requiring family and type selection.
+- **Automatic replication and backups**.
+- **Use Cases**:
+  - **Complex queries** on structured/semi-structured data.
+  - **Data lakes** with **Spectrum** (direct S3 access).
+- **Scales with simple API calls**.
+
+---
+
+### **Analytics Services**
+
+#### **EMR (Elastic MapReduce)**
+- **Managed cluster platform** for running **Hadoop & Spark**.
+- Used for **big data processing, ETL, and analytics**.
+
+#### **Kinesis Data Streams**
+- **Real-time streaming data processing**.
+- **Producers → Shards → Consumers**.
+- Default **24-hour storage**, extendable to **7 days**.
+- **Client Library (KCL)** ensures data is processed only once per worker.
+
+#### **Kinesis Firehose**
+- **Near real-time data delivery**.
+- No shards, fully managed scalability.
+- **Destinations**: Redshift, S3, Elasticsearch, Splunk, etc.
+
+#### **Amazon Athena**
+- **Query S3 data using SQL**.
+- **Optimizations**:
+  - Partitioning & bucketing.
+  - Compression (Apache Parquet/ORC recommended).
+  - Columnar storage.
+  - Limiting columns in queries.
+
+#### **AWS Glue**
+- **Fully managed ETL service**.
+- Runs on **Apache Spark**.
+- **Discovers & catalogs data** for analytics.
+- **Crawlers** automate catalog updates.
+- Works with **S3, Redshift, RDS, EC2** databases.
+
+---
+
+### **Summary Table**
+| **Service**     | **Type**                    | **Use Case**                      |
+|------------     |----------                   |-------------                      |
+| **RDS**         | Relational (SQL)            | OLTP, banking, e-commerce         |
+| **Aurora**      | MySQL/Postgres-compatible   | High performance relational DB    |
+| **DynamoDB**    | NoSQL (Key-Value, Document) | Serverless apps, flexible schemas |
+| **ElastiCache** | In-memory Cache             | Caching, session storage          |
+| **Redshift**    | Data Warehouse (OLAP)       | Analytics, business intelligence  |
+| **EMR**         | Big Data Processing         | Hadoop, Spark-based workloads     |
+| **Kinesis**     | Real-time streaming         | Live data analytics               |
+| **Athena**      | SQL on S3                   | Querying S3 data                  |
+| **Glue**        | ETL Service                 | Preparing data for analytics      |
+
+These notes provide a structured summary of AWS database and analytics services for exam preparation.
+
+
+
+
+
+
+
+
+
+
+
+
+# Database and Analytics Architecture Patterns in AWS
+
+## Relational Database Migration to AWS with High Availability
+- Use **Amazon RDS MySQL**.
+- Configure a **Multi-AZ standby node** for high availability.
+
+## Handling High Query Traffic in RDS
+- Configure **Read Replicas**.
+- Modify the application to use the **reader endpoint** for read queries.
+
+## Addressing Storage Capacity Limits and High Write Latency in RDS
+- **Scale up** the DB instance to one with more storage and CPU.
+- **Do not** add a read replica as it only helps with read queries.
+
+## Encrypting an Unencrypted RDS Database with a Cross-Region Read Replica
+1. Create an **encrypted snapshot** of the primary DB.
+2. Restore the snapshot to a **new encrypted DB instance**.
+3. Create an **encrypted cross-region read replica**.
+
+## Cross-Region Replication for Amazon Aurora
+- Use **Aurora MySQL replica type** in the second region.
+
+## Read Replica for Aurora in the Same Region with Minimal Sync Latency
+- Use an **Aurora Replica** (not a MySQL replica), which can be deployed in a different AZ.
+
+## Aurora Deployment with Low-Latency Read-Only Access from Another Region
+- Use an **Aurora Global Database**.
+- Configure the application in the second region to use the **reader endpoint**.
+
+## Aurora Multi-Master Setup for Multi-Node Writes
+- Use **Aurora Multi-Master** for in-region multi-master support.
+
+## Low-Latency Session State Data Store
+- Use **ElastiCache** or **DynamoDB**.
+
+## Multi-Threaded In-Memory Datastore for Unstructured Data
+- Use **ElastiCache with Memcached** (not Redis).
+
+## In-Memory Datastore with Microsecond Performance for Unstructured Data
+- Use **DynamoDB Accelerator (DAX)**.
+
+## In-Memory Datastore with Data Persistence and High Availability
+- Use **ElastiCache with Redis**.
+
+## Serverless NoSQL Key-Value Store Database
+- Use **Amazon DynamoDB**.
+
+## Serverless Relational Database Supporting MySQL/PostgreSQL
+- Use **Amazon Aurora Serverless**.
+
+## Relational Database for a Workload with Unknown Usage Pattern
+- Use **Aurora Serverless**.
+
+## Key-Value Database with Multi-Region Write Capabilities
+- Use **DynamoDB Global Tables**.
+
+## Optimizing Amazon Athena for Analyzing Large Data Volumes
+- Store data using **Apache Hive partitioning**.
+- Use **Apache Parquet or ORC storage formats**.
+
+## Handling Lambda Overload While Processing Streaming Data from API Gateway
+- Stream data into **Kinesis Data Streams** from API Gateway.
+- Process data in **batches**.
+
+## Processing Streaming Data with SQL
+- Load data into **Kinesis Data Streams**.
+- Analyze data using **Kinesis Data Analytics**.
+
+## Sending AWS WAF Security Logs to a Third-Party Auditing Application
+- Use **Kinesis Data Firehose** to send logs to an **HTTP endpoint**.
+
+## Storing Real-Time Streaming Data for Future Analysis
+- Use **Kinesis Data Streams** for real-time processing.
+- Use **Firehose** to store the data in a persistent data store.
+
+## Running Complex Queries Across Consolidated Datasets for Business Forecasting
+- Load OLTP database data into **Amazon Redshift** for **OLAP** (Online Analytical Processing).
+
+---
+These architecture patterns provide optimized solutions for databases and analytics use cases in AWS.
+
+
+
