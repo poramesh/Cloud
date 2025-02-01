@@ -1,0 +1,53 @@
+AWS Cost Allocation Tags 
+
+Purpose: Helps organize AWS resources and track costs based on tags.
+Key Benefit: Allows users to attribute costs to specific departments, teams, or users.
+Used in: AWS Billing Console and Cost Explorer for cost analysis.
+
+
+Types of Cost Allocation Tags
+
+User-Defined Tags
+Created manually by users to track resources.
+Example:
+Tag Key: Department
+Tag Value: Operations
+Used to categorize resources for better cost tracking.
+
+AWS-Generated Tags
+Pre-configured by AWS and cannot be modified.
+Example: CreatedBy (identifies the IAM user or role that launched the resource).
+Must be enabled manually before AWS starts using them in reports.
+
+
+
+Enabling Cost Allocation Tags
+
+Go to AWS Billing Dashboard
+Navigate to "Cost Allocation Tags"
+Enable AWS-Generated Tags (e.g., CreatedBy).
+Activate User-Defined Tags that have been applied to resources.
+Wait for AWS to process the data (may take a few days).
+
+
+
+Using Cost Allocation Tags in Cost Explorer
+
+Go to AWS Cost Explorer.
+Apply Filters:
+Filter by Department → See costs related to Operations.
+Filter by Created By → Identify which IAM user launched resources.
+View Cost Breakdown based on these tags.
+Analyze Spending Trends across different teams or roles.
+
+
+Example Use Case
+A company applies Department = Operations to all EC2 instances used by the operations team.
+Later, in Cost Explorer, they filter by Department = Operations to see total spending for that team.
+
+
+Summary
+Cost Allocation Tags help organize resources and track spending at a granular level.
+User-Defined Tags allow custom cost tracking based on business needs.
+AWS-Generated Tags automatically assign costs to users or roles.
+Cost Explorer Integration helps analyze and optimize AWS spending.
