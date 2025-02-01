@@ -1,0 +1,54 @@
+AWS License Manager 
+
+AWS License Manager helps manage software licenses from vendors like Microsoft, Oracle, SAP, IBM, and others. It provides 
+centralized management for AWS and on-premises resources.
+
+Key Features:
+Tracks license usage based on virtual cores (vCPUs), sockets, or number of machines.
+Manages and distributes software licenses across AWS accounts and organizations.
+Enforces limits across multiple AWS regions.
+Prevents exceeding license allowances by blocking instance launches when limits are reached.
+Provides reports and automated tracking of license usage.
+
+
+
+**********************************
+Understanding Sockets, Cores, and vCPUs
+Socket: A physical slot on a motherboard that holds a processor. A server can have one or multiple sockets.
+Core: Each CPU (processor) has multiple cores, which are independent processing units within the CPU.
+vCPU (Virtual CPU): In a virtualized environment (like AWS EC2), a vCPU represents a portion of a physical core assigned to a virtual machine.
+
+Example:
+A dual-socket server means the motherboard has two CPU slots, allowing two physical processors to be installed.
+If each processor has 8 cores, then the total core count is 16.
+In AWS, these 16 cores could be mapped to 32 vCPUs (if hyper-threading is enabled).
+
+Why Does Licensing Use Sockets?
+Some software vendors (like Microsoft and Oracle) license their products per socket, meaning the number of physical CPU sockets in
+a server determines how many licenses you need. Others may license based on cores or vCPUs.
+
+
+
+*********************************
+
+License Manager Console Overview:
+Granted Licenses – Tracks licenses purchased from the AWS Marketplace.
+Self-Managed Licenses – Manages licenses purchased directly from vendors.
+
+Steps to Create a Self-Managed License:
+Go to Self-Managed Licenses → Click Create a Self-Managed License.
+Provide a name (e.g., "Windows Server License").
+Choose License Type:
+Based on cores, vCPUs, sockets, or instances.
+Set license count (e.g., 16 vCPUs).
+Enable Enforce Limits – Prevents launching new instances if the license limit is reached.
+Set License Rules (optional):
+Minimum vCPUs required.
+Tenancy requirements (Shared, Dedicated Host, or Dedicated Instances).
+Enable Automated Discovery – Tracks license usage automatically.
+Click Create.
+
+Additional Features:
+Host Resource Groups – For dedicated hosts.
+License Type Conversion – Convert between different license types.
+Usage Reports & Inventory Search – Track and manage all license data efficiently.
