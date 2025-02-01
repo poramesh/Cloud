@@ -1,0 +1,44 @@
+AWS Budgets 
+
+Purpose: Allows users to set custom budgets for AWS spending and receive notifications if they approach or exceed their budget.
+Integration: Works with Cost Explorer, AWS Chatbot, and Service Catalog.
+Use Case Example:
+If you set a $100 budget and AWS forecasts $129 in spending, you will receive an alert so you can take action.
+
+
+Key Features
+
+Budget Types
+Cost Budget: Tracks spending against a dollar threshold.
+Usage Budget: Tracks AWS service usage limits (e.g., EC2 hours, data transfer).
+Reservation Budget: Monitors Reserved Instance (RI) utilization and coverage.
+Savings Plan Budget: Tracks AWS Savings Plans utilization.
+
+Alerts & Notifications
+Get notified when actual or forecasted spending exceeds a threshold.
+Example: Notify at 80% usage of the set budget.
+Alerts sent via email.
+
+Budget Reports
+Allows users to schedule daily, weekly, or monthly budget reports.
+Delivered via email.
+
+
+AWS Budgets Setup Process
+
+>Go to the AWS Billing Dashboard → Select Budgets.
+
+>Create a New Budget
+Choose a budget type (e.g., cost budget).
+Set a budgeted amount (e.g., $10 per month).
+Configure alert thresholds (e.g., 80% usage alert).
+Enter email for notifications.
+
+>(Optional) Create Budget Reports
+Set up automated budget reports.
+Choose recipients and report frequency.
+
+
+Summary
+AWS Budgets is a cost management tool that helps users monitor spending, get alerts on budget thresholds, and track AWS service usage. 
+It integrates with AWS Cost Explorer and AWS Chatbot, making it easier to manage and optimize cloud costs.
