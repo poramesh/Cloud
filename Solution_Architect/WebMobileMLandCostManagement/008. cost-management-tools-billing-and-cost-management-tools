@@ -1,0 +1,95 @@
+AWS Cost Management Tools & Concepts:
+
+
+1. AWS Cost Explorer
+Purpose: Free tool to analyze and forecast AWS costs.
+Features:
+View cost data for past 13 months.
+Forecast spending up to 3 months ahead.
+Identify service usage patterns.
+Break down costs by:
+Service usage (which AWS services consume the most).
+Availability Zone (AZ) traffic.
+Linked accounts in AWS Organizations.
+
+
+2. AWS Cost & Usage Report (CUR)
+Purpose: Generates detailed cost reports in an S3 bucket.
+Report Includes:
+Cost breakdown by hour, day, or month.
+Details by product, resource, and tags.
+Can be updated up to 3 times a day.
+Access Methods:
+AWS Console
+AWS CUR API (Create, Retrieve, Delete reports).
+
+
+
+3. AWS Price List API
+Purpose: Queries AWS service pricing.
+Two APIs Available:
+Query API (Price List Service API)
+Uses JSON to query prices.
+Bulk API (AWS Price List API)
+Uses HTML for bulk price queries.
+Alerts:
+Can integrate with SNS notifications to alert when AWS prices change.
+Useful for custom-built cost tracking systems.
+
+
+Summary
+Cost Explorer → Visualizes past & future costs, identifies trends.
+Cost & Usage Report (CUR) → Detailed billing reports in S3.
+Price List API → Programmatically query AWS service prices.
+SNS Alerts → Notify users when AWS pricing changes.
+
+
+
+
+
+AWS Billing & Cost Management Tools
+
+1. Cost Explorer
+Purpose: Helps analyze AWS spending.
+Key Features:
+View monthly, daily, or hourly spend.
+Generate custom reports.
+Identify service-specific costs (e.g., EC2, Route 53, WAF).
+Apply filters:
+By service (e.g., EC2 instances).
+By linked account (for AWS Organizations).
+By region, instance type, usage type, etc.
+Use Case: Helps track cost trends and optimize AWS spending.
+
+
+2. Cost & Usage Reports (CUR)
+Purpose: Provides detailed cost breakdowns in an S3 bucket.
+Report Details:
+Data is sent hourly.
+Stored in date-based folders.
+Can be drilled down to analyze specific cost details.
+Use Case: Helps track spending trends over time and supports financial analysis.
+
+
+3. AWS Bills Section
+Purpose: View and analyze AWS bills.
+Features:
+Filter by month to see detailed cost data.
+Breakdown by service (e.g., EC2, RDS, etc.).
+View charges by linked accounts (for AWS Organizations).
+Use Case: Helps track monthly expenses and service usage.
+
+
+4. Other Cost Management Tools
+Reporting & Budgets: Previously covered in earlier lessons.
+Cost Attribution: Helps understand who or what is incurring costs.
+
+
+Summary
+Cost Explorer → Visualize spending trends & filter by service, region, and usage type.
+Cost & Usage Reports → Detailed cost tracking via S3 bucket.
+Bills Section → Analyze monthly billing details.
+Multiple Filtering Options → Helps track AWS spending efficiently.
+
+Exam Tip:
+Spend time exploring these tools in the AWS Management Console to prepare for the AWS certification exam.
