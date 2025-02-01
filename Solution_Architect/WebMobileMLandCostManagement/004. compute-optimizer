@@ -1,0 +1,39 @@
+AWS Compute Optimizer:
+
+Purpose: Helps optimize AWS resources to reduce costs and improve performance.
+How It Works: Uses machine learning to analyze historical utilization metrics (e.g., from CloudWatch).
+
+Supported Services:
+EC2 Instances
+EBS Volumes
+AWS Lambda Functions
+
+
+Key Features
+
+Optimization Guidance
+Identifies overprovisioned resources (wasting money).
+Identifies underprovisioned resources (causing performance issues).
+Provides recommendations for optimal instance types.
+
+Dashboard Insights
+Breakdown of under-provisioned, optimized, and over-provisioned instances.
+Cost savings analysis with suggested instance type changes.
+
+Viewing Recommendations
+Available via AWS Console or AWS CLI.
+Displays:
+Instance ID
+Current instance type
+Recommendation for a better instance type
+Estimated cost savings
+
+Example Use Case
+An EC2 instance currently using c5.xlarge might be overprovisioned.
+Compute Optimizer recommends t3.large, which costs 50% less.
+Helps businesses cut unnecessary costs while maintaining performance.
+
+Summary
+AWS Compute Optimizer is a cost-saving and performance-enhancing tool that uses machine learning to recommend better AWS resource configurations.
+It is useful for EC2 instances, EBS volumes, and Lambda functions, helping to reduce over-provisioning and optimize AWS infrastructure.
+
