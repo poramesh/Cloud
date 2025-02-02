@@ -1,0 +1,44 @@
+AWS Database Migration Service (DMS)
+
+1. Purpose of AWS DMS
+Migrates databases from various sources to AWS.
+Supports homogeneous (same DB type) and heterogeneous (different DB types) migrations.
+Can handle on-premises to AWS, cloud-to-cloud, and database consolidation scenarios.
+Continuous data replication for disaster recovery and multi-source/multi-target use cases.
+
+
+2. DMS Migration Scenarios
+Source	              Target	                 Migration Type
+Oracle	              Amazon Redshift	         Heterogeneous (Needs Schema Conversion Tool - SCT)
+MySQL	                Aurora MySQL	           Homogeneous
+EC2-hosted DB	        RDS-hosted DB	           Cloud-to-cloud
+On-premises Oracle	  RDS Oracle	             Homogeneous
+Microsoft SQL Server  RDS SQL Server	         Homogeneous
+Multiple DBs	        Single DB Consolidation	 Consolidation
+
+Destinations: Aurora, Redshift, DynamoDB, DocumentDB.
+Sources: On-premises, EC2, or RDS-hosted databases.
+
+
+3. AWS Schema Conversion Tool (SCT)
+Used for heterogeneous migrations (e.g., Oracle → Redshift).
+Converts database schema and code objects (views, stored procedures, functions).
+
+
+4. Common Use Cases for DMS
+✅ On-premises to AWS cloud migrations.
+✅ Cloud-to-cloud migrations (EC2 to RDS, RDS to Aurora).
+✅ Development & test scenarios (migrating test databases).
+✅ Database consolidation (merging multiple databases into one).
+✅ Continuous data replication for disaster recovery.
+✅ Single-source to multi-target replication (one DB → multiple DBs).
+✅ Multi-source to single-target replication (multiple DBs → one DB).
+
+
+5. Exam Tips & Key Takeaways
+✅ Use DMS for database migration (not for storage or app migration).
+✅ Homogeneous migration? → No schema conversion needed.
+✅ Heterogeneous migration? → Use Schema Conversion Tool (SCT) before DMS.
+✅ Supports both full-load & continuous replication.
+✅ Can migrate databases running on-prem, EC2, or RDS.
+✅ Use cases include cloud migration, DR, and DB consolidation.
