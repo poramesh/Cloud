@@ -1,0 +1,63 @@
+AWS Application Discovery Service 
+
+
+1. Purpose of Application Discovery Service
+The starting point for migration planning.
+Gathers detailed information about on-premises infrastructure.
+Helps in assessing migration requirements.
+Supports agent-based and agentless discovery methods.
+
+
+2. Key Components & How It Works
+On-premises Data Center → Application Discovery Service → AWS Migration Hub
+Two types of environments:
+VMware (Virtual Machines)
+Hyper-V / Physical Servers
+Collected Data:
+Hostnames, IPs, MAC addresses
+Disk resource allocation, CPU, RAM, Disk I/O
+VM utilization metrics, network I/O, running processes
+Performance time series data
+
+3. Discovery Methods
+Method	             Type	        Best for	                     Deployment	                          Collected Data
+Discovery Connector  Agentless	  VMware Environments            Deploy OVA file in vCenter	          Static config, VM utilization metrics
+Discovery Agent	     Agent-based	Physical & Hyper-V Servers	   Install per server (Windows/Linux)	  More detailed data (network I/O, running processes, time-series performance metrics)
+
+Key Exam Tip:
+Discovery Connector → Only for VMware.
+Discovery Agent → Required for Hyper-V & Physical servers.
+If both VMware & Hyper-V/Physical exist, use both Connector & Agent.
+
+
+4. Storing & Analyzing Data
+Data can be stored in Amazon S3.
+Can be analyzed using:
+Amazon Athena
+Amazon QuickSight
+
+
+5. Deployment Considerations
+
+Factor	          Discovery Connector	           Discovery Agent
+Method	          Agentless	                     Agent-based
+Where Deployed?	  vCenter (VMware)	             Each physical/Hyper-V server
+OS Support	      Any OS in VMware	             Windows, Linux (Amazon Linux, Ubuntu, RHEL, CentOS, SUSE, Windows Server)
+Collected Data	  Basic config, VM utilization	 Detailed performance & process-level data
+
+
+6. AWS Console - Discovery Service Setup
+Navigate to AWS Management Console → Migration & Transfer → Application Discovery Service.
+Discovery Options:
+Import data manually (CSV template format)
+Discovery Connector (VMware)
+Discovery Agent (Physical/Hyper-V)
+
+
+7. Exam Tips & Key Takeaways
+✅ Start with Application Discovery Service to assess migration needs.
+✅ VMware? Use Discovery Connector.
+✅ Physical/Hyper-V? Use Discovery Agent.
+✅ Best practice: Use both methods if there’s a mix of VMware, Hyper-V, and physical servers.
+✅ Store data in S3 for further analysis with Athena/QuickSight.
+✅ Know the CSV import format for manual data entry.
