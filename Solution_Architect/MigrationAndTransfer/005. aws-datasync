@@ -1,0 +1,48 @@
+AWS DataSync
+
+Purpose: AWS DataSync is a service designed for migrating data, automating and accelerating data transfer between on-premises and AWS storage services.
+
+Key Features
+Supported Storage Protocols:
+NFS (Network File System)
+SMB (Server Message Block)
+S3 API
+HDFS (Hadoop Distributed File System)
+
+Migration Targets: Data can be migrated to various AWS services, including:
+S3
+FSx (including Windows FSx, Lustre FSx, OpenZFS FSx, and NetApp ONTAP)
+Elastic File System (EFS)
+S3 on Outposts
+AWS Snowcone (via DataSync agent)
+
+Security:
+Data is encrypted in transit using Transport Layer Security (TLS).
+
+Automated Transfers:
+Supports scheduled and automated data transfer between on-premises and AWS.
+
+AWS Snowcone Integration: DataSync can be used to transfer data to and from AWS Snowcone devices, with a DataSync agent installed on the Snowcone device.
+
+
+
+Use Cases and Benefits
+
+Accelerated Data Migration: DataSync automates and accelerates data transfer, making it easier and faster to move large volumes of data to AWS.
+Support for Multiple Storage Systems: Supports a variety of file systems and storage types, both on-premises and in AWS.
+Secure Data Transfer: Ensures that data is securely transferred between environments using encryption.
+
+
+Supported AWS FSx Services
+
+Windows FSx
+Lustre FSx
+OpenZFS FSx
+NetApp ONTAP
+Conclusion
+
+
+
+AWS DataSync is a powerful tool for securely and efficiently migrating data from on-premises environments to AWS storage services,
+supporting a wide range of storage types and file systems. It integrates well with AWS services and provides features like scheduling, 
+automation, and encryption to streamline the migration process.
