@@ -1,0 +1,63 @@
+ 7 Rs of Migration
+
+The 7 Rs of Migration represent strategies for moving applications and data to the cloud. These strategies range
+from the least effort to the most effort. Different sources may refer to this as the 6 Rs or 7 Rs, with the
+only difference being a breakdown of one of the strategies into two.
+
+
+The 7 Rs of Migration
+
+Retire:
+The application or system is no longer needed.
+It is simply turned off and discarded.
+
+Retain:
+The application/system is kept as-is for the time being.
+It could be due to factors like depreciating hardware, low priority, or pending future review.
+
+Relocate:
+The application or system is moved without modification.
+This can be a lift-and-shift scenario, where physical servers or virtual machines are transferred from one data center to another without 
+changing anything (e.g., turning off a server, moving it, and powering it back on).
+
+Rehost:
+Often called lift-and-shift in AWS terminology.
+The operating system (OS) and application are moved to a new host (e.g., on AWS EC2).
+This may involve some changes, such as driver updates or OS modifications to support the new host.
+
+Repurchase:
+Moving to a Software as a Service (SaaS) solution.
+Example: Replacing an on-premises CRM system with Salesforce.
+This can involve significant effort in terms of data migration, integration, and potentially restructuring how the system works.
+
+Replatform:
+The application is re-platformed to take advantage of cloud features.
+Example: Moving an application from on-premises Linux servers with a MySQL database to Elastic Beanstalk and Amazon RDS.
+This often requires some refactoring but not as much as refactoring.
+
+Refactor:
+The application is redesigned to be cloud-native and utilize serverless and event-driven architectures.
+Significant development effort is required.
+Example: Migrating traditional architecture to serverless services such as Lambda, DynamoDB, and SQS.
+Detailed Focus on the 3 Key Rs for AWS:
+
+Rehost:
+AWS recommends using AWS MGN (Application Migration Service) for rehosting.
+Involves moving applications from on-premises or virtualized environments (e.g., VMware or Hyper-V) to AWS EC2.
+You can perform tests and final synchronization before cutting over.
+
+Replatform:
+Example: Migrating to Amazon RDS or Elastic Beanstalk.
+Involves moderate development and migration effort.
+Tools like Database Migration Service (DMS) and Schema Conversion Tool may be used for database migration.
+
+Refactor:
+Focuses on adopting cloud-native, serverless architectures.
+Can involve significant development work to migrate traditional applications to serverless and event-driven cloud services (e.g., Lambda, DynamoDB, SQS).
+While the operational cost may be low, the development effort and complexity can be high.
+
+
+Summary
+The 7 Rs of Migration represent different approaches to cloud migration, ranging from simple (Retire) to complex (Refactor). AWS particularly 
+focuses on Rehost, Replatform, and Refactor for migration strategies, each requiring different levels of development, migration, and effort.
+Understanding these strategies will help in determining the most appropriate approach based on the complexity and goals of your migration project.
