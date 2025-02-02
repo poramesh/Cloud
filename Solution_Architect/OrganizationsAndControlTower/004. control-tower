@@ -1,0 +1,69 @@
+AWS Control Tower 
+
+1. Overview of AWS Control Tower
+AWS Control Tower builds on AWS Organizations to provide automated governance and management of multiple AWS accounts.
+It creates a Landing Zone, which is a well-architected, multi-account baseline with security and compliance best practices.
+Organizations can create a similar setup manually, but Control Tower automates the process.
+
+
+2. AWS Control Tower Features
+>Automated multi-account setup with predefined security and compliance.
+>Pre-configured organizational structure:
+Management Account (Root)
+Security OU
+Sandbox OU
+Production OU
+Shared Accounts (Audit & Log Archive)
+>Guardrails for governance and security:
+Preventive Guardrails → Restrict actions before they happen.
+Detective Guardrails → Monitor violations after they happen.
+>Integration with AWS IAM Identity Center (for SSO and user management).
+
+
+3. Landing Zone Components
+A Landing Zone is a predefined AWS environment set up by Control Tower.
+
+It includes:
+Management Account (Root of Organization)
+Shared Security Accounts:
+Log Archive Account → Stores AWS CloudTrail logs and AWS Config logs centrally.
+Audit Account → Aggregates security logs and enforces compliance.
+
+
+4. Guardrails in AWS Control Tower
+Preventive Guardrails (Proactive Restrictions)
+Implemented using Service Control Policies (SCPs).
+Restrict API actions across AWS accounts.
+Examples:
+Prevent deletion of AWS CloudTrail logs.
+Disallow public read access to S3 buckets.
+Require encryption on EBS volumes.
+Block SSH/RDP access from "0.0.0.0/0" (open internet).
+
+Detective Guardrails (Monitoring & Compliance)
+Implemented using AWS Config rules.
+Detects non-compliance and can trigger remediation actions.
+Examples:
+Detect publicly accessible S3 buckets.
+Check if S3 versioning is enabled.
+Ensure RDS instances are encrypted.
+Monitor IAM policies for excessive permissions.
+
+
+5. AWS Organizations vs AWS Control Tower
+Feature	                  AWS Organizations               	AWS Control Tower
+Purpose	                  Manage multiple AWS accounts	    Automate governance & best practices
+Account Structure	        Organizational Units (OUs)	      Pre-built Landing Zone (OUs & accounts)
+Billing	                  Consolidated billing	            Uses AWS Organizations' billing
+Access Management	        IAM & SCPs	                      IAM Identity Center (SSO)
+Security Controls	        SCPs, IAM policies	              SCPs + Preventive & Detective Guardrails
+Compliance Monitoring	    Manual setup (AWS Config)	        Built-in AWS Config guardrails
+Logging & Auditing	      Manually configured	              Automated centralized logging
+
+
+6. Key Takeaways
+✅ AWS Control Tower automates multi-account setup while AWS Organizations provides basic account management.
+✅ Landing Zone provides a secure and compliant AWS environment from the start.
+✅ Guardrails ensure security by preventing and detecting violations.
+✅ AWS Control Tower leverages AWS Organizations, but adds automation, governance, and centralized logging.
+✅ Ideal for enterprises looking to simplify multi-account management.
