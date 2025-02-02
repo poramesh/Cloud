@@ -1,0 +1,54 @@
+AWS Migration Tools 
+
+
+1. AWS Migration Workflow
+Source: On-premises corporate data center with:
+Physical servers
+Virtual Machines (VMware, Hyper-V)
+Databases
+File storage (NAS, file servers, etc.)
+
+Connectivity options:
+VPN, Direct Connect, or Internet to AWS
+
+
+2. AWS Migration Tools & Their Functions
+
+Service                                	    Purpose	                                                Destination
+AWS Application Discovery Service         	Collects on-premises system information (hostnames,
+                                            IPs, MAC addresses, CPU, memory,
+                                            network utilization, disk usage)	                       S3, Athena, QuickSight for analytics
+AWS Application Migration Service (MGN)	    Migrates servers to EC2                                	 EC2
+AWS Database Migration Service (DMS)	      Migrates databases to AWS RDS	                           RDS, DynamoDB, Redshift
+AWS DataSync	                              Transfers large amounts of file data	                   S3, EFS, FSx
+AWS Migration Hub	                          Centralized monitoring of migrations (AWS tools & 
+                                            partner tools)	                                         N/A
+
+
+3. AWS Application Discovery Service
+Collects detailed system metadata from on-premises servers.
+Helps in planning migrations.
+Data collected:
+Hostnames, IPs, MAC addresses
+Resource utilization (CPU, memory, disk, network)
+
+
+4. Discovery Methods
+
+Method	                                    Use Case	                       How It Works
+Agentless Discovery (Discovery Connector)	  VMware Environments	             Deploy an OVA appliance in vCenter
+Agent-based Discovery (Discovery Agent)	    Physical Servers & Hyper-V VMs	 Install agent per server (Windows/Linux)
+
+Agent-based discovery collects more detailed data than agentless discovery.
+Data Storage & Analysis:
+Can store collected data in S3.
+Use Athena and QuickSight for business intelligence & analytics.
+
+
+Key Takeaways
+✅ Application Discovery Service → Collects system metadata before migration.
+✅ Application Migration Service (MGN) → Moves servers to EC2.
+✅ Database Migration Service (DMS) → Moves databases to RDS.
+✅ DataSync → Moves file data to AWS storage services.
+✅ Migration Hub → Monitors migration progress centrally.
+✅ Discovery Connector (Agentless) for VMware, Discovery Agent (Agent-based) for detailed data.
