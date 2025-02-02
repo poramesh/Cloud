@@ -1,0 +1,46 @@
+AWS Organization and Adding an Account
+
+1. Creating an AWS Organization
+Go to AWS Management Console → AWS Organizations.
+Click Create Organization (if not already created).
+This creates the management account (root account).
+
+2. Adding an AWS Account to the Organization
+Navigate to AWS Organizations → Accounts.
+Click Add an AWS account.
+Two options:
+Create an account (new AWS account).
+Invite an existing account (send email request).
+Provide:
+Account name.
+Unique email address (must not be used in AWS before).
+IAM role (default: OrganizationAccountAccessRole).
+
+3. Service Control Policies (SCPs)
+Found under AWS Organizations → Policies.
+Default SCP: FullAWSAccess
+Allows all actions on all resources ("Action": "*", "Resource": "*").
+Applied to Root, all OUs, and all accounts.
+SCPs control the maximum permissions available to accounts.
+
+4. Switching Roles into the New Account
+Copy the AWS Account Number of the new account.
+Click Switch Role (top-right corner of AWS console).
+Enter:
+Account ID.
+Role name (OrganizationAccountAccessRole).
+Display name (e.g., DCT-PRODUCTION).
+Choose a color code (e.g., red for production).
+
+5. Verifying Admin Access
+After switching roles, navigate to IAM → Roles.
+Locate OrganizationAccountAccessRole.
+Check that it has AdministratorAccess permissions.
+Validate by accessing EC2, IAM, or other AWS services.
+
+Summary
+AWS Organizations allows centralized account management.
+The management account creates and manages all linked accounts.
+SCPs enforce security policies across the organization.
+Switching roles enables access to linked accounts.
+New accounts get the OrganizationAccountAccessRole with admin permissions.
