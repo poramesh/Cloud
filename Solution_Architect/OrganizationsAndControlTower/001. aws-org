@@ -1,1 +1,71 @@
 
+AWS Organizations
+
+A management service to collect, organize, and manage multiple AWS accounts.
+Allows centralized billing and governance policies across accounts.
+Enables automated AWS account creation and management.
+
+
+Two AWS Organizations Feature Sets
+a) Consolidated Billing
+Single bill for multiple AWS accounts (via management account).
+All usage is aggregated, but each account remains independent.
+Benefits:
+Simplifies payment (one credit card, one bill).
+Volume pricing discounts across accounts.
+b) All Features
+Includes Service Control Policies (SCPs) and Tag Policies.
+Enables advanced governance and security.
+
+
+AWS Organizations Hierarchy
+
+Management Account (Root Account)
+The top-level account that creates and manages the Organization.
+Previously called the master account.
+Handles billing but cannot access resources of other accounts.
+
+Member (Linked) Accounts
+Independent AWS accounts that are centrally managed.
+Can have different roles, users, and groups.
+
+Organizational Units (OUs)
+Group accounts together for easier management.
+Policies like SCPs can be applied at the OU level.
+
+
+Key Features in AWS Organizations
+a) Service Control Policies (SCPs)
+Security control mechanism that limits permissions in member accounts.
+SCPs define the maximum permissions available to accounts.
+Applied at the root, OU, or account level.
+b) Tag Policies
+Enforce consistent tagging across AWS resources.
+c) AWS Single Sign-On (SSO)
+Centralized authentication across AWS accounts.
+Supports Active Directory integration.
+d) AWS CloudTrail Integration
+Enables centralized logging of AWS API activity for compliance.
+Can be applied across all accounts from the management account.
+e) Programmatic Account Creation
+AWS Organizations API allows for automated account creation.
+New accounts can be automatically assigned to OUs.
+
+
+Example AWS Organization Structure
+1. Management Account (Root)
+2. OUs (Organizational Units)
+>Production OU
+Production Account
+>Development OU
+Development Account
+Test Account
+
+Each OU has specific policies applied, ensuring governance and security.
+
+Summary
+AWS Organizations enables centralized billing, governance, and security for multiple accounts.
+Two feature sets: Consolidated Billing and All Features (with SCPs and Tag Policies).
+Organizational Units (OUs) help group accounts for structured management.
+Service Control Policies (SCPs) enforce security across accounts.
+Supports SSO, CloudTrail logging, and programmatic account creation.
