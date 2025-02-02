@@ -1,0 +1,42 @@
+AWS Application Migration Service (AWS MGN)
+
+Purpose: AWS Application Migration Service (AWS MGN) is used for migrating servers, including both virtual and physical servers, to the cloud.
+
+Key Features
+Agentless Snapshot-Based Replication: The AWS MGN uses agentless snapshot-based replication, but AWS recommends agent-based replication where possible,
+as it supports continuous data protection.
+Launch Templates: Migration service creates launch templates for instances, which are used to launch EC2 instances in the cloud after the final cutover.
+Automated Incremental and Scheduled Migrations: The service provides automation for incremental and scheduled migrations of servers.
+Cloud Integration: It integrates with services like EventBridge to trigger actions using AWS Lambda, automating workflows during migration.
+Application Dependency Mapping: It helps map application dependencies (e.g., between web services, databases, and other servers), making it easier to group 
+and migrate applications with interdependencies.
+
+
+
+Migration Process
+EC2 Instances: The migration results in the deployment of EC2 instances in the cloud after the migration.
+CloudFormation Integration: Optionally, you can create a CloudFormation template to deploy resources through CloudFormation.
+
+
+Migration Types
+Lift and Shift Migration: AWS MGN supports a highly automated lift-and-shift (re-hosting) migration, where applications are moved 
+from on-premises environments to AWS with minimal changes.
+Block-Level Replication: AWS MGN uses continuous block-level replication to enable shorter cutover windows, usually measured in minutes.
+
+
+Comparison with Server Migration Service (SMS)
+SMS: The older Server Migration Service (SMS) uses incremental snapshot-based replication, which results in longer cutover windows (measured in hours).
+MGN vs. SMS: AWS recommends using MGN over SMS for better performance and efficiency.
+
+
+Additional Notes
+Migration Waves: Entire application groups can be launched together in a single migration wave.
+Cloud Migration Factory Integration: MGN integrates with the Cloud Migration Factory, enabling better orchestration of manual migration processes.
+
+
+
+Benefits
+Continuous Block-Level Replication: Provides continuous protection and short cutover times.
+Highly Automated: The migration is largely automated, reducing manual effort during the process.
+Scalable: The service supports both virtual and physical server migrations.
+This is a quick summary of AWS MGN and its benefits for migrating applications to AWS.
