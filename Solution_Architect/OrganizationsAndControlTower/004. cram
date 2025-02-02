@@ -1,0 +1,103 @@
+AWS Organizations 
+
+1. Overview of AWS Organizations
+AWS Organizations allows centralized management of multiple AWS accounts.
+Two feature sets:
+Consolidated Billing (Basic)
+All Features (Advanced, includes Service Control Policies)
+Includes:
+Root Account
+Organizational Units (OUs)
+Service Control Policies (SCPs)
+
+
+2. Consolidated Billing
+Single payment method for all AWS accounts in the Organization.
+Combined charge view across all accounts.
+Cost savings via volume discounts and Reserved Instance sharing across accounts.
+Default limit of 20 linked accounts (can request an increase).
+Paying account should be used only for billing purposes, not for resource access.
+
+
+3. Service Control Policies (SCPs)
+Manage maximum permissions across accounts and OUs.
+Require “All Features” mode to be enabled.
+SCPs apply to:
+Accounts & Organizational Units (OUs)
+IAM Users and Roles (but not resource-based policies)
+Root account in member accounts
+SCPs do not apply to the Management Account.
+
+
+4. SCP Strategies
+Deny List Strategy (Default)
+FullAWSAccess SCP is attached to every OU and account by default.
+Grants full access, and you must explicitly deny actions using SCPs.
+SCPs are created to deny specific permissions as needed.
+
+Allow List Strategy
+Remove the FullAWSAccess SCP → No permissions are granted by default.
+Must explicitly allow required permissions using SCPs.
+SCPs must be attached at every level in the hierarchy (root, OU, account).
+
+5. Migrating Accounts Between Organizations
+Accounts can be moved between organizations.
+Root user or IAM admin access is required for both the source (member) and destination (management) accounts.
+Migration methods:
+AWS Organizations Console (for a few accounts).
+AWS CLI or API (for bulk migration).
+
+
+6. Key Takeaways
+✅ AWS Organizations groups and manages multiple accounts centrally.
+✅ Consolidated Billing provides cost savings and simplified payments.
+✅ SCPs control account permissions, but don’t apply to the management account.
+✅ Two SCP strategies: Deny List (default) & Allow List (restrictive).
+✅ Account migration requires root or IAM access and can be done via Console, CLI, or API.
+
+
+
+
+
+Architecture Patterns
+
+1. Creating AWS Accounts Programmatically
+Use AWS Organizations API to create accounts at scale.
+If creating only one or two accounts, the Management Console is sufficient.
+
+2. Restricting IAM Changes in Member Accounts
+Use Service Control Policies (SCPs) to deny IAM modification actions.
+This ensures security and compliance across accounts.
+
+3. Moving an AWS Account Between Organizations
+Single account migration → Use AWS Organizations Console.
+Multiple accounts migration → Use AWS API or CLI for automation.
+
+4. Accessing a Newly Created AWS Account
+Solutions Architect should switch roles to access the new account.
+This is done through AWS IAM Role Switching in the Management Console.
+
+5. Restricting Permissions for Multiple Member Accounts
+Create an Organizational Unit (OU).
+Attach Service Control Policies (SCPs) to the OU instead of individual accounts.
+This approach reduces administrative overhead.
+
+6. Enabling Centralized Governance for Developer Accounts
+Create an AWS Organization.
+Send invites to developers’ AWS accounts to join the Organization.
+This allows centralized security and policy enforcement.
+
+Key Takeaways
+✅ Use AWS Organizations API for programmatic account creation.
+✅ Restrict IAM changes using SCPs.
+✅ Move accounts using Console for single or API for multiple.
+✅ Use IAM Role Switching for new account access.
+✅ Attach SCPs to OUs for easier management.
+✅ Invite developer accounts for centralized security and governance.
+
+
+
+
+
+
+
