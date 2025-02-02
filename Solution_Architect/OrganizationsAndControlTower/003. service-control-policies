@@ -1,0 +1,125 @@
+Service Control Policies (SCPs)
+
+1. What are SCPs?
+Service Control Policies (SCPs) are JSON-based policies used to limit the maximum available permissions in an AWS account.
+They do not grant permissions; instead, they restrict what actions can be performed.
+Permissions must still be granted via IAM policies.
+
+
+2. SCP Structure
+SCPs apply at different levels in the AWS Organization hierarchy:
+
+Management Account (Root) – Not affected by SCPs.
+Organizational Units (OUs) – SCPs can be applied at the OU level.
+Member Accounts – Inherit SCPs applied to parent OUs.
+Default SCP: FullAWSAccess
+
+{
+  "Effect": "Allow",
+  "Action": "*",
+  "Resource": "*"
+}
+This allows all actions on all resources.
+By default, no restrictions are applied.
+
+3. Example: Restricting EC2 Instance Types
+SCP denying the RunInstances action unless it's a t2.micro:
+{
+  "Effect": "Deny",
+  "Action": "ec2:RunInstances",
+  "Resource": "arn:aws:ec2:*:*:instance/*",
+  "Condition": {
+    "StringNotEquals": {
+      "ec2:InstanceType": "t2.micro"
+    }
+  }
+}
+Impact of this SCP:
+Users cannot launch EC2 instances except t2.micro.
+This applies to all accounts under the OU where this SCP is applied.
+Even administrators in the Development and Production accounts cannot override this restriction.
+
+4. SCP Inheritance in Organizational Units
+SCPs applied at a higher level (parent OU) will flow down to child OUs and accounts.
+If an SCP restricts an action at a higher level, all child accounts will inherit that restriction.
+Example:
+SCP applied to Development OU → Also affects Production OU.
+Even Production users can only launch t2.micro instances.
+
+5. Key Points to Remember
+SCPs do not grant permissions, they only restrict them.
+IAM policies are still required to allow specific actions.
+SCPs affect all users, including administrators.
+SCPs flow down in the organization structure and apply to all accounts below.
+The Management Account is not affected by SCPs.
+
+
+
+
+::::HOL::::
+
+Working with Service Control Policies (SCPs)
+
+1. Organizational Structure Setup
+AWS Organization Hierarchy:
+Root (Top level)
+DCT Labs (Management Account)
+DCT-PRODUCTION (Production Account)
+Created a new Organizational Unit (OU) named "Prod".
+Moved DCT-PRODUCTION account into the Prod OU.
+
+2. Enabling and Using SCPs
+SCPs must be enabled first in AWS Organizations.
+AWS uses a deny-list strategy, meaning SCPs deny actions explicitly while everything is allowed by default.
+The default FullAWSAccess SCP allows all actions:
+{
+  "Effect": "Allow",
+  "Action": "*",
+  "Resource": "*"
+}
+
+3. Creating and Applying an SCP
+Step 1: Define the Policy to Deny Role Modification
+Created a new SCP to deny IAM role modifications.
+The SCP explicitly denies actions such as:
+iam:AttachRolePolicy
+iam:DeleteRole
+iam:DeleteRolePermissionsBoundary
+
+{
+  "Effect": "Deny",
+  "Action": [
+    "iam:AttachRolePolicy",
+    "iam:DeleteRole",
+    "iam:DeleteRolePermissionsBoundary"
+  ],
+  "Resource": "arn:aws:iam::<account-id>:role/TestSCP"
+}
+Step 2: Create an IAM Role
+Switched to the DCT-PRODUCTION account.
+Created a new IAM role (TestSCP) with Administrator Access.
+Copied the ARN of the role for use in the SCP.
+Step 3: Apply the SCP
+Created an SCP named DenyModifyIAMRole.
+Attached it to the Prod OU.
+
+4. Testing the SCP
+Switched roles into the DCT-PRODUCTION account.
+Tried to:
+Attach a policy to the IAM role → Denied.
+Delete the IAM role → Denied.
+AWS provided an explicit deny message confirming that the SCP was preventing the action.
+
+5. Detaching the SCP
+Switched back to the Management Account.
+Detached the SCP from the Prod OU.
+Switched back to DCT-PRODUCTION.
+Successfully deleted the IAM role after removing the SCP.
+
+6. Key Takeaways
+✅ SCPs override even Administrator permissions in member accounts.
+✅ SCPs flow down through the organization hierarchy.
+✅ SCPs do not grant permissions, they only restrict them.
+✅ Detaching an SCP restores permissions that were previously blocked.
+
+This lesson demonstrated how to apply an SCP to restrict IAM role modifications and how SCPs effectively limit permissions within an AWS Organization.
