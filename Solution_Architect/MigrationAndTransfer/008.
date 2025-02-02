@@ -1,0 +1,114 @@
+Migration and Transfer Services:
+
+1. Server Migration Service (SMS)
+Agentless service for migrating on-premises and cloud-based VMs to AWS.
+Source platforms: VMware, Hyper-V, or Azure.
+Connector installation: On the source platform to enable migration.
+Replication: Server volumes are replicated, encrypted with TLS, and saved as AMIs (Amazon Machine Images), which can then be launched as EC2 instances.
+Application groupings: SMS supports launching servers in a CloudFormation stack.
+Replication duration: Can replicate servers for up to 90 days.
+Automated live incremental replication.
+Supported by AWS console.
+
+
+2. Database Migration Service (DMS)
+Use cases:
+Cloud to cloud: EC2 to RDS, RDS to RDS, or RDS to Aurora.
+On-premises to cloud: Migrating databases from on-premises to AWS.
+Homogeneous migration: Same database type (e.g., Oracle to Oracle, MySQL to RDS MySQL).
+Heterogeneous migration: Different database types (e.g., Oracle to Aurora, SQL Server to RDS MySQL).
+
+Schema Conversion Tool: Used for converting schemas during migration (especially for heterogeneous migrations).
+
+Features:
+Continuous data replication to minimize downtime.
+Fully managed migration process.
+Log storage and compute resource costs based on usage.
+Use cases: Development and testing, database consolidation, disaster recovery (DR), dev/test workloads, or single/multiple-source-to-single/multiple-target databases.
+
+3. DataSync
+Software agent to connect to on-premises NAS (Network-Attached Storage) systems.
+Protocols: Supports NFS and SMB.
+Data transfer: Scheduled, automated data transfer to AWS with TLS encryption.
+Destinations: S3, EFS, or FSx for Windows File Server.
+Performance: Optimizes performance for data transfers.
+Metadata and permissions: Preserved during transfer.
+Pay-per-gigabyte for data transferred.
+
+
+4. Snowball Family
+Used for migrating large volumes of data to AWS.
+
+Devices in the Snowball family:
+Snowball Edge Compute Optimized: Provides block and object storage with an optional GPU, suitable for data collection, machine learning, and 
+edge computing in environments with intermittent connectivity.
+Snowball Edge Storage Optimized: Provides block storage and S3-compatible object storage for local storage and large-scale data transfer.
+Snowcone: Small device for edge computing, storage, and data transfer. Can transfer data offline or online with AWS DataSync agent.
+
+Security: Snowball devices offer 256-bit encryption using AWS KMS keys and have tamper-resistant enclosures with TPM (Trusted Platform Module).
+
+Client software: Used to identify, compress, encrypt, and transfer data to Snowball devices.
+
+Device capacities:
+Snowball: 50–80 terabytes.
+Snowball Edge: Up to 100 terabytes.
+Snowmobile: Exabyte-scale (up to 100 petabytes per Snowmobile).
+
+Optimizing Snowball transfer performance:
+Use Mac/Linux Snowball client.
+Batch small files together.
+Perform multiple copy operations at one time.
+Transfer directories, not individual files.
+
+
+5. Use Cases for Snowball:
+Cloud Data Migration: Migrating large data volumes to AWS.
+Content Distribution: Sending large datasets to clients or customers.
+Tactical Edge Computing: Data collection and computing at remote locations.
+Machine Learning: Running machine learning models directly on Snowball devices.
+Manufacturing: Data collection and analysis at factories, including pre-processing and compression in remote locations.
+
+
+
+
+
+
+
+
+
+
+Architecture Patterns for Migration and Transfer Services:
+
+1. Migrating Linux and Windows VMs to the Cloud (VMware to AWS)
+Requirement: Determine the performance requirements for right-sizing.
+Solution: Install the Application Discovery Service (ADS) connector in VMware vCenter to gather data for right-sizing the VMs.
+
+2. Migrating VMware VMs and Physical Servers (with dependencies between application components)
+Requirement: Migrate a mixture of VMware VMs and physical servers to AWS, with dependencies between application components.
+Solution: Install the MGN replication agent and create application groups to migrate the servers in waves.
+
+3. Migrating an Oracle Data Warehouse to AWS
+Requirement: Migrate an Oracle Data Warehouse to AWS.
+Solution: Use AWS Database Migration Service (DMS) and the Schema Conversion Tool (SCT) to migrate to an Amazon Redshift data warehouse.
+
+4. Using Snowball Edge to Transfer Millions of Small Files
+Problem: Transfer times for millions of small files are very slow when using Snowball Edge with a shell script.
+Solution: Perform multiple copy operations at the same time by running each command in separate terminal
+windows or instances of the Snowball client.
+
+5. Minimizing Downtime for Servers Migrating to AWS
+Requirement: Minimize downtime for servers during migration.
+Solution: Use MGN and perform final synchronization before cutting over, ensuring the migration takes place during a short outage window.
+
+6. Migrating 50 Terabytes of Data with Limited Bandwidth
+Requirement: Migrate 50 terabytes of data with only a 1 gigabit per second internet link and the migration is urgent.
+Solution: Use Snowball to transfer the large data volume efficiently.
+These solutions utilize different AWS migration services, such as Application Discovery Service (ADS), MGN, DMS, and Snowball,
+tailored to meet the specific requirements of each migration scenario.
+
+
+
+
+
+
+
