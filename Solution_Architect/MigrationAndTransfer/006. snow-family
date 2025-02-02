@@ -1,0 +1,61 @@
+Snow Family
+
+The Snow Family includes physical devices designed for migrating large volumes of data to AWS. These devices are ruggedized, 
+tamper-resistant, and use encryption for secure data transfer. The primary devices in the Snow Family include Snowball, Snowball Edge, SnowCone, and Snowmobile.
+
+Key Devices in the Snow Family
+
+Snowball:
+A physical ruggedized device used for moving large data volumes (50-80 TB) quickly when internet links are slow or heavily burdened.
+Used for cloud data migration by loading data onto the device and physically transporting it to AWS for upload to Amazon S3.
+Uses 256-bit encryption managed by AWS Key Management Service (KMS).
+
+Snowmobile:
+A truck with a large container, capable of storing up to 100 petabytes of data (exabyte scale).
+Used for massive data transfers that would take too long over the internet, typically when dealing with hundreds of terabytes to petabytes of data.
+
+Snowball Edge:
+Optimized for edge computing, supporting both block and object storage and optional GPU.
+Used for applications like data collection, machine learning, and processing in environments where internet connectivity is poor (edge locations).
+Storage capacity of 100 TB.
+
+SnowCone:
+The smallest device in the Snow Family, optimized for edge computing, storage, and data transfer.
+Supports offline or online data transfer to services like Amazon S3, EFS, and FSx for Windows File Server.
+Lightweight and portable, ideal for remote locations with limited connectivity.
+
+
+
+Data Transfer and Optimization
+
+Data Transfer:
+Snowball devices use 256-bit encryption for secure storage and transport of data.
+The data is transferred using client software installed on local computers that helps with compressing, encrypting, and loading data onto the devices.
+Snowball devices support parallel transfers using multiple instances of the Snowball client to increase transfer performance, especially for many small files.
+
+Optimizing Transfer:
+Use the latest Mac or Linux Snowball client.
+Batch small files together and perform multiple copy operations in parallel.
+Transfer directories instead of individual files to optimize speed.
+
+Capacities and Scales
+Snowball: 50-80 TB (petabyte scale).
+Snowball Edge: 100 TB (petabyte scale).
+Snowmobile: Up to 100 petabytes (exabyte scale).
+
+
+
+Use Cases
+Cloud Data Migration: Moving large data sets to AWS cloud storage.
+Content Distribution: Uploading data to the cloud and distributing it to customers.
+Tactical Edge Computing: Collecting data at remote locations and processing it on the edge devices.
+Machine Learning: Running ML models on Snowball Edge and SnowCone devices at the edge.
+Manufacturing: Collecting and processing data in factories, even in locations with poor internet connectivity.
+Remote Locations: Data collection, preprocessing, and analysis in remote or temporary sites.
+
+
+
+Summary
+The AWS Snow Family provides physical devices designed for handling large-scale data migrations, edge computing, and storage needs,
+especially in environments with poor internet connectivity. Whether it's Snowball, Snowball Edge, SnowCone, or Snowmobile, these devices
+are essential for securely transferring large volumes of data to AWS, while supporting edge computing tasks in remote locations.
