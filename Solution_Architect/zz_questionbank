@@ -1,0 +1,573 @@
+
+Internet Access for Private Subnets
+Scenario: A VPC with public and private subnets across three Availability Zones needs to allow EC2 instances in private subnets 
+to access the internet for software updates.
+
+Correct Answer: Create three NAT Gateways, one for each public subnet in each Availability Zone, and configure private route tables to
+forward non-VPC traffic to the NAT Gateway in its AZ.
+
+Explanation:
+- NAT Gateway enables instances in private subnets to access the internet while preventing inbound connections.
+- Other options (NAT instances, private internet gateways, egress-only gateways) are either outdated or incorrect.
+
+---
+
+Migrating On-Premises SFTP Server to AWS
+Scenario: A company needs to migrate a 200GB NFS-based file system to an Amazon EC2 instance using Amazon EFS.
+
+Correct Answers:
+1. Install AWS DataSync agent in the on-premises data center.
+2. Use AWS DataSync to create a suitable location configuration.
+
+Explanation:
+- AWS DataSync efficiently transfers data between on-premises and AWS.
+- EFS can be shared across multiple instances and AZs.
+- EBS is not required, and manual OS copy commands are inefficient.
+
+---
+
+Optimizing AWS Glue Job Execution
+Scenario: An AWS Glue ETL job processes XML data in S3 daily, but it is reprocessing all data on each run.
+
+Correct Answer: Enable AWS Glue job bookmarking.
+
+Explanation:
+- Glue job bookmarking keeps track of processed data and only processes new data.
+- Deleting data, setting worker count, or using ML algorithms are not valid solutions.
+
+---
+
+Protecting a Website from DDoS Attacks
+Scenario: A Windows-based website running on EC2 needs protection against large-scale DDoS attacks with zero downtime.
+
+Correct Answers:
+1. Use AWS Shield Advanced to stop DDoS attacks.
+2. Configure Amazon CloudFront to distribute static and dynamic content.
+
+Explanation:
+- AWS Shield protects against DDoS attacks.
+- CloudFront with AWS Shield reduces attack surface by handling requests at the edge.
+- GuardDuty is for threat detection, not mitigation.
+- Lambda functions for blocking IPs are reactive rather than proactive.
+- Auto Scaling policies do not directly address DDoS mitigation.
+
+---
+
+Lambda Invocation and Least Privilege
+A Lambda function needs to be invoked by an EventBridge rule. Which policy should be applied to follow the principle of least privilege?
+
+Answer: Add a resource-based policy to the function with `lambda:InvokeFunction` as the action and `events.amazonaws.com` as the principal.
+
+Explanation:
+- Using `lambda:InvokeFunction` ensures that only the required action is granted.
+- `events.amazonaws.com` as the principal allows only EventBridge to invoke the function.
+- Granting `lambda:*` would provide excessive permissions, violating the least privilege principle.
+
+---
+
+Storing Confidential Data in S3 with Encryption and Key Rotation
+Question:
+A company needs to store confidential data in Amazon S3. The data must be encrypted at rest, key usage must be logged for auditing,
+and keys must be rotated annually. Which solution is the most operationally efficient?
+
+Answer:
+Use Server-Side Encryption with AWS Key Management Service (SSE-KMS) with automatic key rotation.
+
+Explanation:
+- SSE-KMS provides encryption at rest at the S3 server side.
+- AWS KMS logs key usage in CloudTrail for auditing.
+- Automatic key rotation ensures compliance without manual intervention.
+- SSE-S3 lacks key usage logging, and customer-managed keys require manual rotation, making them less efficient.
+
+---
+
+Multi-Tier Architecture for Tracking Bicycle Locations
+Question:
+A bicycle-sharing company needs to track bicycle locations using a REST API. What is the best architecture?
+
+Answer: Use API Gateway with AWS Lambda and Amazon DynamoDB.
+
+Explanation:
+- API Gateway enables REST API access.
+- AWS Lambda processes the incoming location data without needing a constantly running server.
+- DynamoDB efficiently stores and retrieves real-time location data.
+- Using Kinesis for analytics is unnecessary, and QuickSight is for data visualization, which isn't required for tracking purposes.
+
+---
+
+Handling Sold Automobile Listings in RDS
+Question:
+An automobile sales website needs to remove sold listings from the website and send data to multiple target systems. Which solution should the solutions architect recommend?
+
+Answer: Create an AWS Lambda function triggered when RDS is updated, which sends the information to an SQS queue for multiple consumers.
+
+Explanation:
+- The Lambda function listens for RDS updates and pushes messages to SQS.
+- Multiple consumers can process the queue messages asynchronously.
+- FIFO queues are unnecessary since ordering is not a strict requirement.
+- Using SNS adds unnecessary complexity when a queue alone can distribute messages to multiple consumers.
+
+---
+
+Preventing Object Modifications in S3
+Question:
+A company needs to store data in Amazon S3 and prevent unauthorized modifications. Some users should be able to delete objects when necessary. What should be done?
+
+Answer:Enable S3 Object Lock with legal holds and configure IAM permissions for deletion.
+
+Explanation:
+- S3 Object Lock prevents unauthorized modifications.
+- Legal holds allow objects to remain unchangeable indefinitely until explicitly removed.
+- IAM permissions ensure only authorized users can delete objects.
+- Retention periods would impose fixed times, which is not required.
+
+---
+
+Optimizing Image Uploads in a Social Media Application
+Question:
+A social media company wants to improve image upload performance. Which two actions should be taken?
+
+Answer:
+Configure the application to upload images directly to S3 via pre-signed URLs.
+Use S3 event notifications to trigger a Lambda function for image processing.
+
+Explanation:
+- Pre-signed URLs allow users to upload directly to S3, reducing web server load.
+- Lambda processes images asynchronously after upload, improving performance.
+- Using Glacier is unnecessary as data needs to be readily accessible.
+-Uploading through the web server increases latency, which is already an issue.
+
+
+How It Works:
+Your web server generates a pre-signed URL using AWS SDKs. This URL includes temporary credentials that grant permission to upload a file to a specific S3 bucket.
+The user (e.g., from a browser or mobile app) uses this pre-signed URL to upload their file directly to S3.
+The upload happens without involving your web server, reducing the load on it.
+
+Example Use Case:
+
+Imagine a social media app where users upload profile pictures. Instead of sending the images to your backend server first, you:
+Generate a pre-signed URL on the backend.
+Send the URL to the user's browser.
+The browser uploads the image directly to S3 using that URL.
+Your backend just stores the file reference instead of handling the upload itself
+---
+
+High Availability for a Message Processing System
+Question:
+A company runs a message processing system using ActiveMQ on EC2. How can the architecture be made highly available with low operational complexity?
+
+Answer:
+Use Amazon MQ with active-standby brokers across two availability zones, auto-scaling EC2 consumers, and RDS with Multi-AZ.
+
+Explanation:
+- Amazon MQ with active-standby ensures failover across AZs.
+- Auto-scaling EC2 instances allow elasticity based on demand.
+- Multi-AZ RDS ensures database availability.
+- Manually managing EC2 instances and databases increases complexity.
+
+---
+
+
+
+Scenario 1: Moving a Containerized Web Application to AWS
+Problem:
+A company runs a containerized web application on on-premises servers, but these servers cannot handle the increasing traffic. The company wants to migrate the application to AWS with minimal code changes and operational overhead.
+
+Solution:
+The best approach is Amazon ECS (Elastic Container Service) with Fargate because:
+
+ECS is a managed container orchestration service.
+Fargate eliminates the need to manage EC2 instances, reducing operational overhead.
+It provides automatic scaling and cost efficiency.
+❌ Other incorrect options:
+
+EC2 instances to host containers: Increases operational burden.
+AWS Lambda: Limited for long-running workloads.
+HPC (High-Performance Computing): Not relevant for web applications.
+✅ Final Answer: ECS with Fargate
+
+Scenario 2: Transferring 50 TB of Data to AWS Without Internet
+Problem:
+A company needs to transfer 50TB of data to AWS. The on-premises network has no available bandwidth for additional workloads. The company must also run a transformation job on AWS.
+
+Solution:
+Use AWS Snowball Edge (a storage-optimized device) and AWS Glue for transformation:
+
+Snowball Edge is an offline data transfer method, ideal for large data sets.
+Glue is a fully managed ETL (Extract, Transform, Load) service.
+❌ Other incorrect options:
+
+DataSync: Requires internet connectivity.
+Snowcone: Has a lower capacity (max ~8TB).
+EC2 for transformation: Increases operational complexity.
+✅ Final Answer: Snowball Edge + AWS Glue
+
+Scenario 3: Scalable Image Processing Application
+Problem:
+A company has an image analysis application that allows users to upload photos and add frames. It currently runs on a single EC2 instance with DynamoDB, but the user base is increasing.
+
+Solution:
+A serverless approach using AWS Lambda + S3 + DynamoDB:
+
+Lambda: Processes images on demand.
+S3: Stores the processed images.
+DynamoDB: Stores metadata.
+❌ Other incorrect options:
+
+Kinesis Firehose: Not needed (not a real-time streaming use case).
+More EC2 instances: Expensive and requires scaling management.
+Provisioned IOPS EBS: Unnecessary cost.
+✅ Final Answer: AWS Lambda + S3 + DynamoDB
+
+Scenario 4: Securing EC2 to S3 Traffic Using Private Network
+Problem:
+EC2 instances are in a public subnet and access S3 over the internet. A new requirement mandates that all file transfers must use a private route.
+
+Solution:
+Use an S3 Gateway VPC Endpoint:
+
+Ensures traffic does not go over the internet.
+Reduces data transfer costs.
+Improves security and performance.
+❌ Other incorrect options:
+
+NAT Gateway: Still uses the internet.
+VPN: Irrelevant since S3 is within AWS.
+Direct Connect: Overkill for this case.
+✅ Final Answer: S3 Gateway VPC Endpoint
+
+Scenario 5: Hosting a Static CMS Website
+Problem:
+A company wants to replace its CMS-based website with a scalable, secure, and low-maintenance solution. The site is updated only 4 times a year and does not need dynamic content.
+
+Solution:
+Use S3 for hosting + CloudFront for distribution:
+
+S3: Cost-effective static website hosting.
+CloudFront: Improves security and performance with HTTPS support.
+❌ Other incorrect options:
+
+Lambda for content management: Not needed.
+Auto Scaling EC2 instances: Overkill for a static website.
+WebACL without CloudFront: Doesn't optimize content delivery.
+✅ Final Answer: S3 Static Website + CloudFront
+
+Scenario 6: Sending CloudWatch Logs to OpenSearch
+Problem:
+A company needs to store CloudWatch Logs in OpenSearch (formerly Elasticsearch) in near real-time.
+
+Solution:
+Use CloudWatch Logs subscription to stream logs to OpenSearch:
+
+It’s built-in and requires minimal setup.
+It provides near real-time log streaming.
+❌ Other incorrect options:
+
+Lambda function for logging: Adds unnecessary complexity.
+Kinesis Firehose: Suitable but not required if native integration exists.
+✅ Final Answer: CloudWatch Logs subscription to OpenSearch
+
+Scenario 7: Storing 900TB of Text Documents with Scalability
+Problem:
+A company runs a web application needing 900TB of text documents storage, with unpredictable demand.
+
+Solution:
+Use Amazon S3:
+
+Highly scalable and cost-effective.
+Supports high availability and automatic scaling.
+❌ Other incorrect options:
+
+EFS: Expensive and not optimized for large-scale text storage.
+EBS: Not scalable for large datasets.
+✅ Final Answer: Amazon S3
+
+Scenario 8: Protecting Multi-Account API Gateway from Attacks
+Problem:
+A company needs to protect API Gateway from SQL Injection & XSS across multiple AWS accounts.
+
+Solution:
+Use AWS Firewall Manager + AWS WAF:
+
+Firewall Manager: Centralized security policy management across accounts.
+AWS WAF: Protects against SQL injection and XSS.
+❌ Other incorrect options:
+
+Using only WAF: Won't manage multiple accounts.
+Shield Advanced: Focuses on DDoS, not injection attacks.
+✅ Final Answer: AWS Firewall Manager + WAF
+
+Scenario 9: Routing Traffic to EC2 DNS Instances in Multiple Regions
+Problem:
+A company runs DNS services on EC2 behind an NLB (Network Load Balancer) in two regions. It needs a way to distribute traffic efficiently.
+
+Solution:
+Use AWS Global Accelerator:
+
+Provides static IPs that route users to the nearest healthy endpoint.
+Optimized routing for better performance.
+❌ Other incorrect options:
+
+CloudFront: Not meant for TCP/UDP traffic (NLB use case).
+Route 53 Geolocation Routing: Doesn't handle performance-based routing.
+✅ Final Answer: AWS Global Accelerator
+
+
+
+
+Question 21: Encrypting an Existing RDS Database and Snapshots
+Scenario:
+
+An online transaction workload is running on an unencrypted RDS DB instance (Multi-AZ).
+Daily database snapshots are taken.
+The goal is to ensure all future snapshots and the DB instance are encrypted.
+Correct Answer: ✅ Create an encrypted copy of the latest DB snapshot, then restore a new DB instance from the encrypted snapshot.
+
+Why?
+
+RDS instances cannot be encrypted after creation.
+The workaround is to take a snapshot, create an encrypted copy, and restore a new RDS instance from it.
+Once the new instance is encrypted, all future snapshots will also be encrypted.
+Question 22: Key Management for Developers
+Scenario:
+
+Developers need to encrypt data in their applications.
+The company wants to reduce operational overhead for key management.
+Correct Answer:
+✅ Use AWS Key Management Service (KMS) to manage encryption keys.
+
+Why?
+
+AWS KMS provides centralized key management with minimal operational burden.
+It integrates seamlessly with AWS services like S3, RDS, and Lambda.
+The other options (IAM policies, MFA, ACM certificates) do not address key management.
+Question 23: SSL Termination & Load Balancing
+Scenario:
+
+A dynamic web application is hosted on two EC2 instances.
+SSL termination (HTTPS) is handled at each EC2 instance, which is causing high CPU utilization.
+The goal is to offload SSL processing and improve performance.
+Correct Answer:
+✅ Import the SSL certificate into AWS Certificate Manager (ACM) and use an Application Load Balancer (ALB) for SSL termination.
+
+Why?
+
+ALB offloads SSL/TLS processing, reducing the CPU burden on EC2 instances.
+ACM manages SSL certificates centrally, removing the need to install them manually on instances.
+Question 24: Cost-Effective Batch Processing
+Scenario:
+
+A stateless batch processing job runs on multiple EC2 instances.
+The workload can start and stop at any time with no negative impact.
+The company wants a scalable and cost-effective solution.
+Correct Answer:
+✅ Use EC2 Spot Instances to run the batch processing job.
+
+Why?
+
+Spot Instances offer the lowest cost for workloads that can tolerate interruptions.
+Reserved Instances are for predictable workloads.
+On-Demand Instances are too expensive for batch jobs.
+AWS Lambda is not ideal because the job runs for over 60 minutes.
+Question 25: Private EC2 Instances with Internet Access
+Scenario:
+
+EC2 instances and RDS instances should not be exposed to the public internet.
+EC2 instances need internet access to process payments via a third-party web service.
+The solution must be highly available.
+Correct Answer:
+✅ Deploy EC2 instances in a private subnet with a NAT Gateway in a public subnet. Use an Application Load Balancer (ALB) in the public subnet.
+
+Why?
+
+Private EC2 instances need a NAT Gateway for outbound internet access.
+The ALB is in a public subnet to allow external users to access the application.
+RDS remains private, ensuring it is not directly exposed to the internet.
+Question 26: Reducing S3 Storage Costs for Long-Term Data Retention
+Scenario:
+
+Data is stored in the S3 Standard storage class.
+Data must be retained for 25 years.
+The last 2 years of data must be highly available and immediately retrievable.
+Correct Answer:
+✅ Use an S3 Lifecycle Policy to transition objects to Glacier Deep Archive after 2 years.
+
+Why?
+
+S3 Standard → Stores recent 2 years of data for high availability.
+Glacier Deep Archive → Cheapest storage for long-term retention.
+S3 Intelligent-Tiering is not cost-effective because the transition time is predictable.
+Question 27: Storage Architecture for a Media Company
+Scenario:
+
+10 TB of high-performance storage for video processing.
+300 TB of highly durable storage for media content.
+900 TB of archival storage for old media.
+Correct Answer:
+✅ Use EC2 instance store for high-performance, S3 for durable storage, and S3 Glacier for archival storage.
+
+Why?
+
+EC2 Instance Store → Provides the fastest storage for temporary high-performance workloads like video processing.
+S3 Standard → Highly durable for frequently accessed media content.
+S3 Glacier → Cost-effective for archiving large amounts of unused media.
+General Takeaways for AWS Solutions Architect Exam
+Encryption Strategies
+
+RDS encryption cannot be added after creation → Must restore from an encrypted snapshot.
+Use AWS KMS for managing encryption keys instead of manually handling them.
+Networking Best Practices
+
+Keep RDS in a private subnet and use NAT Gateway for outbound internet access.
+ALB should be in a public subnet if external users need access.
+Storage Cost Optimization
+
+Use S3 Lifecycle Policies to move data from Standard → Glacier based on access patterns.
+Instance Store is temporary and should only be used for fast, short-term storage.
+Choosing the Right EC2 Instance Pricing Model
+
+Spot Instances → Best for fault-tolerant, batch processing workloads.
+Reserved Instances → Best for predictable, long-running applications.
+On-Demand Instances → Best for short-term or unpredictable workloads.
+SSL Termination & Performance Optimization
+
+Use AWS ACM with ALB to offload SSL processing from EC2 instances.
+
+
+
+
+
+
+Scenario 1: Archival Storage in AWS
+Problem: The company is looking for an archival storage solution.
+Solution: AWS S3 Glacier is suitable for archival storage due to its low-cost and long retrieval times. It ensures data is stored securely and cost-effectively over extended periods, making it ideal for storing infrequently accessed data.
+Why not EBS?: Elastic Block Store (EBS) is not considered a good option in this scenario because it's designed for high-performance storage and is not cost-effective for archival purposes.
+Scenario 2: Containerized Stateless Applications on AWS
+Problem: The company wants to run stateless applications in containers that can tolerate infrastructure disruptions, while minimizing cost and operational overhead.
+Solution: Use Amazon EKS with spot instances for containerized applications. Spot instances are cost-effective and can be used in environments that can handle interruptions.
+Why not EC2 Auto Scaling Groups?: EC2 is not ideal here since the applications are stateless and the requirement is to minimize costs while still ensuring scalability. Spot instances are the more cost-effective solution.
+Scenario 3: Multi-Tier Web Application Migration
+Problem: The company is migrating a multi-tier web application from on-premises infrastructure to AWS. The application uses PostgreSQL.
+Solution: Migrate to Amazon Aurora (PostgreSQL). Aurora provides scalability, high availability, and durability. Additionally, Amazon Aurora minimizes operational overhead compared to traditional PostgreSQL setups.
+Why not EC2 or Elastic Cache?: EC2 requires more manual management, and Elastic Cache is unnecessary here because there’s no mention of a caching layer in the requirements.
+Scenario 4: EC2 Auto Scaling for Consistent Performance
+Problem: EC2 instances behind an Auto Scaling group need to maintain a specific CPU utilization target (40%).
+Solution: Use target tracking scaling policy in the Auto Scaling group. This dynamically adjusts the number of instances to keep CPU utilization at or near 40%.
+Why not other policies?: Target tracking scaling is the simplest and most direct way to maintain a specific performance metric.
+Scenario 5: File Sharing with S3 and CloudFront
+Problem: The company wants to serve files stored in an S3 bucket through CloudFront, but without direct access to the S3 URL.
+Solution: Use Origin Access Identity (OAI) with CloudFront. This ensures that CloudFront is the only entity that can access the S3 bucket, preventing direct access via the S3 URL.
+Why not other policies?: Writing individual S3 bucket policies is not ideal because OAI provides a cleaner and more manageable solution for restricting access.
+Scenario 6: Scalable File Distribution Globally
+Problem: A company needs to distribute downloadable historical reports globally with low cost and fast response times.
+Solution: Use Amazon CloudFront with S3. CloudFront is a content delivery network (CDN) that caches content closer to users, ensuring fast global access.
+Why not other solutions?: Other options, such as EC2 or Elastic Load Balancer, would be more costly and complex for file distribution purposes.
+Scenario 7: Oracle Database Migration and Disaster Recovery
+Problem: A company is migrating an Oracle database to AWS and needs to ensure disaster recovery (DR) and minimal operational overhead.
+Solution: Use Amazon RDS Custom for Oracle. This allows for migration while maintaining the underlying operating system access (SSH access).
+Why not standard RDS?: Standard RDS does not allow access to the underlying operating system, which is required for this migration.
+Scenario 8: Serverless Solution with S3 and Encryption
+Problem: The company needs a serverless solution to analyze data stored in S3 that requires encryption and cross-region replication.
+Solution: Use S3 Cross-Region Replication (CRR) with AWS KMS multi-region keys for encryption. Use Amazon Athena for querying the data.
+Why not other solutions?: RDS is a database service and not appropriate for querying data stored in S3. The focus is on serverless solutions and minimizing operational overhead.
+Scenario 9: Private Connectivity to External Service
+Problem: The company needs to connect to an external service hosted on a provider's VPC, with private access that restricts connection initiation from the company's VPC.
+Solution: Use VPC endpoint for private connectivity. A VPC endpoint provides a secure, private connection to external services in another VPC without traversing the public internet.
+Why not other options?: Other solutions like Virtual Private Gateway or NAT Gateway are not designed for this scenario where direct private access to an external service is needed.
+Scenario 10: Database Migration with AWS DMS
+Problem: The company is migrating its on-premises PostgreSQL database to Amazon Aurora PostgreSQL, while keeping the on-premises database accessible during the migration.
+Solution: Use AWS Database Migration Service (DMS) for the migration while maintaining synchronization between the on-premises and Aurora databases.
+Why not other options?: Creating a backup or using AWS Schema Conversion Tool (SCT) are not needed for a straightforward PostgreSQL-to-PostgreSQL migration, and event bridge is unrelated to the migration process.
+Scenario 11: Email Notifications for AWS Accounts
+Problem: A company uses AWS Organizations, and notifications sent to the root user email address are missed. Future notifications should be sent to administrators.
+Solution: Configure AWS root user email address distribution lists so that alerts are sent to administrators and not missed.
+Why not other solutions?: Directly assigning an IAM user or setting up an S3 bucket policy won’t solve the problem of ensuring administrators receive notifications in a centralized and manageable manner.
+
+
+
+
+
+Scenario 1: Global Content Delivery
+Problem: A company wants to serve content (news, weather, etc.) globally with low latency, ensuring fast and efficient content delivery.
+Solution: Amazon CloudFront is the recommended solution. By using CloudFront, content can be delivered from the nearest edge location, reducing latency and improving the user experience. CloudFront is specifically designed for serving both static and dynamic content, making it ideal for global distribution.
+Best Option: Deploy the application in a single region and use CloudFront to serve content, specifying the ALB as the origin.
+Scenario 2: Highly Available UDP-Based Architecture
+Problem: The company needs to support UDP-based traffic (Layer 4) with low latency and a static IP for the front-end tier.
+Solution: AWS Global Accelerator is the ideal solution here. It routes traffic to the nearest AWS edge location and provides a static IP, ensuring low latency and high availability for UDP-based traffic.
+Best Option: Configure AWS Global Accelerator to forward requests to the appropriate endpoints, optimizing latency and availability.
+Scenario 3: RabbitMQ on EC2 with Multi-AZ Deployment
+Problem: A company is using RabbitMQ on EC2 instances within a single availability zone (AZ) and needs to increase high availability.
+Solution: Migrate RabbitMQ to Amazon MQ, a managed service that offers high availability through multi-AZ deployments. Additionally, the database should be moved to Amazon RDS (Multi-AZ) for PostgreSQL to ensure high availability and fault tolerance.
+Best Option: Migrate the queue to Amazon MQ (active/standby pair), create a multi-AZ Auto Scaling group for EC2 instances, and use Amazon RDS for PostgreSQL (Multi-AZ) for the database.
+Scenario 4: S3 File Movement and Integration with Lambda and SageMaker
+Problem: The company needs to automatically move files from one S3 bucket to another and process them using AWS Lambda, with further integration into Amazon SageMaker pipelines.
+Solution: S3 Cross-Region Replication combined with Amazon EventBridge allows for automatic file replication and integration with other AWS services. S3 events trigger an EventBridge rule, which then invokes the Lambda function and integrates with SageMaker.
+Best Option: Configure S3 replication and use EventBridge to forward events to Lambda and SageMaker pipelines.
+Scenario 5: Optimizing EC2 and Lambda Costs
+Problem: The company needs to optimize costs for an application using EC2, AWS Fargate, and AWS Lambda, with sporadic and unpredictable EC2 usage.
+Solution: Spot Instances for the EC2 data ingestion layer, since they can be interrupted at any time and are cost-effective. For predictable workloads (such as Fargate and Lambda), using Savings Plans provides long-term cost savings.
+Best Option: Use Spot Instances for EC2 and purchase a Compute Savings Plan for Fargate and Lambda.
+Scenario 6: Web-Based Application on AWS
+Problem: The company needs to optimize a web-based application on AWS for cost, performance, and scalability.
+Solution: Given the specific details are missing, the general advice would be to use Elastic Load Balancing (ELB) for distributing traffic, EC2 Auto Scaling for scaling, and possibly CloudFront for global delivery of content. Savings Plans would also help optimize costs for predictable workloads.
+Best Option: Leverage Auto Scaling with CloudFront for content delivery and use Savings Plans for predictable compute needs.
+
+
+
+
+
+Migrating a Monolithic Application to AWS
+Problem Statement: A company wants to migrate its existing on-premises monolithic application to AWS while keeping as much of the front-end and backend code intact. They want to break the application into smaller services, managed by different teams, with a highly scalable solution that minimizes operational overhead.
+
+Solution: Option D: Host the application on Elastic Container Service (ECS), set up an application load balancer with ECS as the target.
+
+Explanation: The best solution here is to containerize the application using ECS. ECS is highly scalable and offers two options (EC2 and Fargate) for managing containers. Since the goal is to reduce operational overhead, ECS with Fargate is a great choice because it eliminates the need to manage EC2 instances manually. ECS also allows easy scaling, which is ideal for a microservices-based architecture.
+
+Question 44 - Aurora Performance Issues During Report Generation
+Problem Statement: The company is using Amazon Aurora for its e-commerce application. When large reports are generated, developers notice that read IOPS and CPU utilization spike, causing performance degradation.
+
+Solution: Option B: Migrate the monthly reporting workload to an Aurora read replica.
+
+Explanation: The issue arises due to heavy read traffic during report generation. Aurora's read replica feature allows offloading read operations from the primary database, which reduces the load on the main database and improves performance. By moving reporting queries to a read replica, the main Aurora instance can handle transactional workloads more effectively.
+
+Question 45 - Scaling an EC2-based Analytics Application
+Problem Statement: A company is hosting a web analytics application on a single EC2 instance. The application is showing signs of performance degradation, especially under heavy load, with 500 errors occurring. The company needs a cost-effective solution that allows seamless scaling.
+
+Solution: Option D: Migrate the database to Amazon Aurora MySQL, create an AMI of the web application, apply it to a launch template, create an Auto Scaling group, and attach an Application Load Balancer.
+
+Explanation: The 500 error typically indicates server overload, so introducing Auto Scaling is key to handling traffic spikes automatically. Migrating the database to Aurora improves the database performance, as it is more efficient than MySQL hosted on EC2. Using an Auto Scaling group ensures that the EC2 instances scale in response to varying load. The Application Load Balancer distributes traffic evenly among instances.
+
+Question 46 - EC2 Instances for a Stateless Web Application
+Problem Statement: A stateless web application runs on EC2 on-demand instances behind an Application Load Balancer. The application experiences heavy usage during business hours and moderate usage overnight. The company needs a cost-effective solution to handle this load.
+
+Solution: Option B: Use reserved instances for the baseline level of usage and spot instances for any additional capacity.
+
+Explanation: Reserved instances are ideal for the predictable, baseline usage that occurs during the 8-hour workday. Spot instances, which offer significant cost savings, can be used during off-peak hours (overnight or weekends) when the load is moderate to low. This hybrid approach optimizes cost without sacrificing performance.
+
+Question 47 - Retaining Application Logs for 10 Years
+Problem Statement: A company needs to retain application logs for 10 years. Logs generated for the past month are frequently accessed for troubleshooting, but older logs are rarely accessed. The company generates over 10 TB of logs per month.
+
+Solution: Option B: Store the logs in Amazon S3 and use S3 lifecycle policies to move logs older than one month to S3 Glacier Deep Archive.
+
+Explanation: Storing logs in S3 allows for scalable storage. S3 lifecycle policies automate the process of moving older logs to Glacier Deep Archive, which is highly cost-effective for long-term storage, while logs that are frequently accessed can remain in S3. This meets the company's retention requirement and ensures cost efficiency.
+
+Question 48 - Data Ingestion Workflow Failing Due to Connectivity Issues
+Problem Statement: A company has an SNS topic that triggers a Lambda function to process and store data. However, the workflow occasionally fails due to network connectivity issues, and the corresponding data isn't ingested unless manually retried.
+
+Solution: Option D: Configure an SQS queue as the on-failure destination and modify the Lambda function to process messages from the queue.
+
+Explanation: Using SQS as an on-failure destination ensures that any failed notifications are placed in a queue and retried until they are successfully processed. This solves the problem of data not being ingested during network failures, ensuring that the ingestion workflow is more resilient and fault-tolerant.
+
+Question 49 - Event Data Processing with Order Preservation
+Problem Statement: The company has a service that produces event data, which needs to be processed in order as it is received. The company wants to minimize operational overhead.
+
+Solution: Option A: Use a FIFO queue in SQS to ensure event data is processed in order.
+
+Explanation: When event data needs to be processed in a specific order, SQS FIFO (First-In-First-Out) queues are ideal. FIFO queues ensure that messages are processed in the exact order they are received, which is crucial when the order of event processing is important.
+
+Question 50 - Monitoring EC2 Instances for CPU and IOPS
+Problem Statement: A company is migrating an application from on-premises servers to EC2 instances. The company needs to implement metric alarms, where they don't need to take action for short CPU bursts, but if both CPU utilization and read IOPS are high simultaneously, immediate action is needed. The company also wants to reduce false alarms.
+
+Solution: Option C: Create a composite CloudWatch alarm that monitors multiple metrics.
+
+Explanation: A composite CloudWatch alarm is used to combine multiple metric alarms into one. It only triggers if all conditions are met. In this case, the composite alarm would monitor both CPU utilization and read IOPS. This ensures that the alarm is only triggered when both conditions are true, reducing false alarms. This approach is optimal for situations where a short burst of CPU usage is not a concern, but a sustained high load across both CPU and IOPS requires attention.
