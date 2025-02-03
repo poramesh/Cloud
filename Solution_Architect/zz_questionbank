@@ -177,32 +177,39 @@ ECS is a managed container orchestration service.
 Fargate eliminates the need to manage EC2 instances, reducing operational overhead.
 It provides automatic scaling and cost efficiency.
 
-❌ Other incorrect options:
+Other incorrect options:
 EC2 instances to host containers: Increases operational burden.
 AWS Lambda: Limited for long-running workloads.
 HPC (High-Performance Computing): Not relevant for web applications.
 ✅ Final Answer: ECS with Fargate
 
+---
 
-Scenario 2: Transferring 50 TB of Data to AWS Without Internet
+
+Transferring 50 TB of Data to AWS Without Internet
 Problem:
-A company needs to transfer 50TB of data to AWS. The on-premises network has no available bandwidth for additional workloads. The company must also run a transformation job on AWS.
+A company needs to transfer 50TB of data to AWS. The on-premises network has no available bandwidth for additional workloads. The company
+must also run a transformation job on AWS.
 
 Solution:
 Use AWS Snowball Edge (a storage-optimized device) and AWS Glue for transformation:
 
 Snowball Edge is an offline data transfer method, ideal for large data sets.
 Glue is a fully managed ETL (Extract, Transform, Load) service.
-❌ Other incorrect options:
 
+Other incorrect options:
 DataSync: Requires internet connectivity.
 Snowcone: Has a lower capacity (max ~8TB).
 EC2 for transformation: Increases operational complexity.
 ✅ Final Answer: Snowball Edge + AWS Glue
 
-Scenario 3: Scalable Image Processing Application
+---
+
+
+Scalable Image Processing Application
 Problem:
-A company has an image analysis application that allows users to upload photos and add frames. It currently runs on a single EC2 instance with DynamoDB, but the user base is increasing.
+A company has an image analysis application that allows users to upload photos and add frames. It currently runs on a single
+EC2 instance with DynamoDB, but the user base is increasing.
 
 Solution:
 A serverless approach using AWS Lambda + S3 + DynamoDB:
@@ -210,31 +217,35 @@ A serverless approach using AWS Lambda + S3 + DynamoDB:
 Lambda: Processes images on demand.
 S3: Stores the processed images.
 DynamoDB: Stores metadata.
-❌ Other incorrect options:
 
+Other incorrect options:
 Kinesis Firehose: Not needed (not a real-time streaming use case).
 More EC2 instances: Expensive and requires scaling management.
 Provisioned IOPS EBS: Unnecessary cost.
 ✅ Final Answer: AWS Lambda + S3 + DynamoDB
 
-Scenario 4: Securing EC2 to S3 Traffic Using Private Network
+
+---
+
+Securing EC2 to S3 Traffic Using Private Network
 Problem:
 EC2 instances are in a public subnet and access S3 over the internet. A new requirement mandates that all file transfers must use a private route.
 
 Solution:
 Use an S3 Gateway VPC Endpoint:
-
 Ensures traffic does not go over the internet.
 Reduces data transfer costs.
 Improves security and performance.
-❌ Other incorrect options:
 
+❌ Other incorrect options:
 NAT Gateway: Still uses the internet.
 VPN: Irrelevant since S3 is within AWS.
 Direct Connect: Overkill for this case.
 ✅ Final Answer: S3 Gateway VPC Endpoint
 
-Scenario 5: Hosting a Static CMS Website
+----
+
+Hosting a Static CMS Website
 Problem:
 A company wants to replace its CMS-based website with a scalable, secure, and low-maintenance solution. The site is updated only 4 times a year and does not need dynamic content.
 
@@ -243,79 +254,85 @@ Use S3 for hosting + CloudFront for distribution:
 
 S3: Cost-effective static website hosting.
 CloudFront: Improves security and performance with HTTPS support.
-❌ Other incorrect options:
 
+❌ Other incorrect options:
 Lambda for content management: Not needed.
 Auto Scaling EC2 instances: Overkill for a static website.
 WebACL without CloudFront: Doesn't optimize content delivery.
 ✅ Final Answer: S3 Static Website + CloudFront
 
-Scenario 6: Sending CloudWatch Logs to OpenSearch
+----
+
+Sending CloudWatch Logs to OpenSearch
 Problem:
 A company needs to store CloudWatch Logs in OpenSearch (formerly Elasticsearch) in near real-time.
 
 Solution:
 Use CloudWatch Logs subscription to stream logs to OpenSearch:
-
 It’s built-in and requires minimal setup.
 It provides near real-time log streaming.
-❌ Other incorrect options:
 
+❌ Other incorrect options:
 Lambda function for logging: Adds unnecessary complexity.
 Kinesis Firehose: Suitable but not required if native integration exists.
 ✅ Final Answer: CloudWatch Logs subscription to OpenSearch
 
-Scenario 7: Storing 900TB of Text Documents with Scalability
+
+----
+
+
+Storing 900TB of Text Documents with Scalability
 Problem:
 A company runs a web application needing 900TB of text documents storage, with unpredictable demand.
 
 Solution:
 Use Amazon S3:
-
 Highly scalable and cost-effective.
 Supports high availability and automatic scaling.
-❌ Other incorrect options:
 
+❌ Other incorrect options:
 EFS: Expensive and not optimized for large-scale text storage.
 EBS: Not scalable for large datasets.
 ✅ Final Answer: Amazon S3
 
-Scenario 8: Protecting Multi-Account API Gateway from Attacks
+-----
+
+
+
+Protecting Multi-Account API Gateway from Attacks
 Problem:
 A company needs to protect API Gateway from SQL Injection & XSS across multiple AWS accounts.
 
 Solution:
 Use AWS Firewall Manager + AWS WAF:
-
 Firewall Manager: Centralized security policy management across accounts.
 AWS WAF: Protects against SQL injection and XSS.
-❌ Other incorrect options:
 
+❌ Other incorrect options:
 Using only WAF: Won't manage multiple accounts.
 Shield Advanced: Focuses on DDoS, not injection attacks.
 ✅ Final Answer: AWS Firewall Manager + WAF
 
-Scenario 9: Routing Traffic to EC2 DNS Instances in Multiple Regions
+-----
+
+Routing Traffic to EC2 DNS Instances in Multiple Regions
 Problem:
 A company runs DNS services on EC2 behind an NLB (Network Load Balancer) in two regions. It needs a way to distribute traffic efficiently.
 
 Solution:
 Use AWS Global Accelerator:
-
 Provides static IPs that route users to the nearest healthy endpoint.
 Optimized routing for better performance.
-❌ Other incorrect options:
 
+❌ Other incorrect options:
 CloudFront: Not meant for TCP/UDP traffic (NLB use case).
 Route 53 Geolocation Routing: Doesn't handle performance-based routing.
 ✅ Final Answer: AWS Global Accelerator
 
+-----
 
-
-
-Question 21: Encrypting an Existing RDS Database and Snapshots
+Encrypting an Existing RDS Database and Snapshots
 Scenario:
-
 An online transaction workload is running on an unencrypted RDS DB instance (Multi-AZ).
 Daily database snapshots are taken.
 The goal is to ensure all future snapshots and the DB instance are encrypted.
