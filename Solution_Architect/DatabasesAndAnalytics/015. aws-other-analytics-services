@@ -64,3 +64,56 @@ If it involves "buying or selling data" → Think of Data Exchange.
 If it's about "moving and transforming data (ETL)" → Think of Data Pipeline.
 If it's about "large-scale raw data storage" → Think of Lake Formation.
 If it's about "real-time streaming data with Kafka" → Think of MSK.
+
+
+
+
+
+
+AWS Glue – Serverless ETL and Data Catalog
+
+✅ Best for: Automated ETL (Extract, Transform, Load) for analytics
+
+Key Features:
+Serverless → No need to manage infrastructure.
+Uses Apache Spark for large-scale data processing.
+Automates schema discovery with Glue Crawlers.
+Provides a managed Data Catalog (metadata for Athena, Redshift, EMR, etc.).
+Supports real-time and batch data processing.
+
+Common Use Cases:
+✔ Running ETL jobs on S3, RDS, Redshift, DynamoDB data.
+✔ Creating Athena tables from raw S3 data.
+✔ Automating data transformations (cleaning, deduplication).
+✔ Integrating with Lake Formation for data governance.
+
+
+ AWS Data Pipeline – Orchestration for Data Workflows
+✅ Best for: Automating Data Movement & Scheduling Workflows
+
+Key Features:
+Used for data movement between AWS services (e.g., S3 → Redshift).
+Allows scheduling & dependency management (e.g., run job after another finishes).
+Supports batch processing (not real-time).
+Manages workflow execution (e.g., trigger jobs based on time/events).
+Can run custom scripts (EC2, EMR, on-premise servers).
+
+Common Use Cases:
+✔ Copying data from S3 to Redshift or RDS.
+✔ Scheduling ETL workflows across multiple AWS services.
+✔ Running custom scripts on EC2/EMR at specific intervals.
+✔ Moving on-premise data to AWS storage.
+
+Key Differences Table
+Feature	                  AWS Glue	                          AWS Data Pipeline
+Purpose	                  ETL, Data Catalog, Transformations	Data movement, Workflow automation
+Serverless?	              ✅ Yes	                            ❌ No (requires EC2/EMR for processing)
+Compute Engine	          Apache Spark	                      EC2/EMR
+Real-time processing    	✅ Yes (near real-time)	            ❌ No (batch-based)
+Workflow orchestration	  ❌ No (limited job scheduling)	    ✅ Yes (triggers & dependencies)
+Best for                	Data transformation, analytics	    Scheduling and moving data
+
+
+When to Use What?
+Use AWS Glue if you need serverless ETL, schema discovery, and data cataloging.
+Use AWS Data Pipeline if you need data movement workflows and scheduling across AWS
