@@ -168,23 +168,21 @@ Explanation:
 ---
 
 
+Moving a Containerized Web Application to AWS
+Problem: A company runs a containerized web application on on-premises servers, but these servers cannot handle the increasing traffic.
+The company wants to migrate the application to AWS with minimal code changes and operational overhead.
 
-Scenario 1: Moving a Containerized Web Application to AWS
-Problem:
-A company runs a containerized web application on on-premises servers, but these servers cannot handle the increasing traffic. The company wants to migrate the application to AWS with minimal code changes and operational overhead.
-
-Solution:
-The best approach is Amazon ECS (Elastic Container Service) with Fargate because:
-
+Solution: The best approach is Amazon ECS (Elastic Container Service) with Fargate because:
 ECS is a managed container orchestration service.
 Fargate eliminates the need to manage EC2 instances, reducing operational overhead.
 It provides automatic scaling and cost efficiency.
-❌ Other incorrect options:
 
+❌ Other incorrect options:
 EC2 instances to host containers: Increases operational burden.
 AWS Lambda: Limited for long-running workloads.
 HPC (High-Performance Computing): Not relevant for web applications.
 ✅ Final Answer: ECS with Fargate
+
 
 Scenario 2: Transferring 50 TB of Data to AWS Without Internet
 Problem:
