@@ -93,7 +93,20 @@ Five nines (99.999%) availability for global tables.
 (((((((((((Provisioned capacity in DynamoDB defines the throughput you are reserving for your table to handle read and write operations. Specifically, 
 the Read Capacity Units (RCUs) and Write Capacity Units (WCUs) determine how much data the table can read or write per second. H))))))))
 
+((((5 RCUs and 5 WCUs
+You can perform 5 strongly consistent reads per second (or 10 eventually consistent reads per second) if each item is ≤ 4 KB.
+You can perform 5 writes per second if each item is ≤ 1 KB.
+If items are larger than 4 KB (for reads) or 1 KB (for writes), each operation will consume additional capacity units.
 
+
+Imagine you are building an e-commerce app that stores customer orders in a DynamoDB table.
+
+🔹 Without RCUs/WCUs:
+A sudden increase in traffic (e.g., Black Friday sale) could crash your database because too many read/write requests come in at once.
+🔹 With RCUs/WCUs:
+You can allocate enough RCUs for product searches and WCUs for order placements to handle peak traffic smoothly.
+If traffic grows, you can enable auto-scaling to increase capacity when needed.
+)))
 
 DynamoDB Hands-On Lesson Notes
 
@@ -151,6 +164,8 @@ Open CloudShell and upload the eto_items.json file (contains sample data).
         },
 ]
 }
+
+S represents string and N number 
       
 Run the following command in CloudShell to batch insert items:
 aws dynamodb batch-write-item --request-items file://eto_items.json
