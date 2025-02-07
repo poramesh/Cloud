@@ -481,20 +481,40 @@ Scenario 7: Oracle Database Migration and Disaster Recovery
 Problem: A company is migrating an Oracle database to AWS and needs to ensure disaster recovery (DR) and minimal operational overhead.
 Solution: Use Amazon RDS Custom for Oracle. This allows for migration while maintaining the underlying operating system access (SSH access).
 Why not standard RDS?: Standard RDS does not allow access to the underlying operating system, which is required for this migration.
-Scenario 8: Serverless Solution with S3 and Encryption
+
+
+----
+
+33. Serverless Solution with S3 and Encryption
 Problem: The company needs a serverless solution to analyze data stored in S3 that requires encryption and cross-region replication.
+
 Solution: Use S3 Cross-Region Replication (CRR) with AWS KMS multi-region keys for encryption. Use Amazon Athena for querying the data.
-Why not other solutions?: RDS is a database service and not appropriate for querying data stored in S3. The focus is on serverless solutions and minimizing operational overhead.
-Scenario 9: Private Connectivity to External Service
-Problem: The company needs to connect to an external service hosted on a provider's VPC, with private access that restricts connection initiation from the company's VPC.
-Solution: Use VPC endpoint for private connectivity. A VPC endpoint provides a secure, private connection to external services in another VPC without traversing the public internet.
-Why not other options?: Other solutions like Virtual Private Gateway or NAT Gateway are not designed for this scenario where direct private access to an external service is needed.
+Why not other solutions?: RDS is a database service and not appropriate for querying data stored in S3. The focus is on serverless solutions
+and minimizing operational overhead.
 
 
-Scenario 10: Database Migration with AWS DMS
-Problem: The company is migrating its on-premises PostgreSQL database to Amazon Aurora PostgreSQL, while keeping the on-premises database accessible during the migration.
+---
+
+34. Private Connectivity to External Service
+Problem: The company needs to connect to an external service hosted on a provider's VPC, with private access that restricts
+connection initiation from the company's VPC.
+
+Solution: Use VPC endpoint for private connectivity. A VPC endpoint provides a secure, private connection to external services in 
+another VPC without traversing the public internet.
+
+Why not other options?: Other solutions like Virtual Private Gateway or NAT Gateway are not designed for this scenario where 
+direct private access to an external service is needed.
+
+------
+
+35. Database Migration with AWS DMS
+Problem: The company is migrating its on-premises PostgreSQL database to Amazon Aurora PostgreSQL, while keeping the on-premises 
+database accessible during the migration.
+
 Solution: Use AWS Database Migration Service (DMS) for the migration while maintaining synchronization between the on-premises and Aurora databases.
-Why not other options?: Creating a backup or using AWS Schema Conversion Tool (SCT) are not needed for a straightforward PostgreSQL-to-PostgreSQL migration, and event bridge is unrelated to the migration process.
+
+Why not other options?: Creating a backup or using AWS Schema Conversion Tool (SCT) are not needed for a straightforward PostgreSQL-to-PostgreSQL 
+migration, and event bridge is unrelated to the migration process.
 
 
 -----
