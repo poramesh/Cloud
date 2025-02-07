@@ -98,12 +98,12 @@ Create an IAM role and instance profile
 
 1. Create an IAM policy
 aws iam create-policy --policy-name "CloudWatch-Put-Metric-Data" --policy-document '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":["cloudwatch:PutMetricData"],"Resource":"*"}]}'
-
+(The * means this permission applies to all CloudWatch metrics in the AWS account.)
 2. Create an IAM role that uses the policy document
 aws iam create-role --role-name "CloudWatch-Role" --assume-role-policy-document '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"ec2.amazonaws.com"},"Action":"sts:AssumeRole"}]}'
 
 3. Attach the policy to the role (update policy ARN)
-aws iam attach-role-policy --role-name "CloudWatch-Role" --policy-arn ""
+aws iam attach-role-policy --role-name "CloudWatch-Role" --policy-arn "CloudWatch-Put-Metric-Data"
 
 4. Create an instance profile
 aws iam create-instance-profile --instance-profile-name "CloudWatch-Instance-Profile"
@@ -140,7 +140,7 @@ This will allow us to actually add some load to the instance once we have set up
 
 Configure a shell script that uses the put-metric-data API
 1. Create a shell script named mem-usage.sh
-sudo nano mem-usage.sh //a file where we are trting to create with nano utility and we will add the below code.
+sudo nano mem-usage.sh //a file where we are trying to create with nano utility and we will add the below code.
 
 2. Add the following code and save:
 #!/bin/bash
