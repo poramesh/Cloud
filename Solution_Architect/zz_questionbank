@@ -506,22 +506,33 @@ Scenario 1: Global Content Delivery
 Problem: A company wants to serve content (news, weather, etc.) globally with low latency, ensuring fast and efficient content delivery.
 Solution: Amazon CloudFront is the recommended solution. By using CloudFront, content can be delivered from the nearest edge location, reducing latency and improving the user experience. CloudFront is specifically designed for serving both static and dynamic content, making it ideal for global distribution.
 Best Option: Deploy the application in a single region and use CloudFront to serve content, specifying the ALB as the origin.
+
+
 Scenario 2: Highly Available UDP-Based Architecture
 Problem: The company needs to support UDP-based traffic (Layer 4) with low latency and a static IP for the front-end tier.
 Solution: AWS Global Accelerator is the ideal solution here. It routes traffic to the nearest AWS edge location and provides a static IP, ensuring low latency and high availability for UDP-based traffic.
 Best Option: Configure AWS Global Accelerator to forward requests to the appropriate endpoints, optimizing latency and availability.
+
+
 Scenario 3: RabbitMQ on EC2 with Multi-AZ Deployment
 Problem: A company is using RabbitMQ on EC2 instances within a single availability zone (AZ) and needs to increase high availability.
 Solution: Migrate RabbitMQ to Amazon MQ, a managed service that offers high availability through multi-AZ deployments. Additionally, the database should be moved to Amazon RDS (Multi-AZ) for PostgreSQL to ensure high availability and fault tolerance.
 Best Option: Migrate the queue to Amazon MQ (active/standby pair), create a multi-AZ Auto Scaling group for EC2 instances, and use Amazon RDS for PostgreSQL (Multi-AZ) for the database.
+
+
 Scenario 4: S3 File Movement and Integration with Lambda and SageMaker
 Problem: The company needs to automatically move files from one S3 bucket to another and process them using AWS Lambda, with further integration into Amazon SageMaker pipelines.
 Solution: S3 Cross-Region Replication combined with Amazon EventBridge allows for automatic file replication and integration with other AWS services. S3 events trigger an EventBridge rule, which then invokes the Lambda function and integrates with SageMaker.
 Best Option: Configure S3 replication and use EventBridge to forward events to Lambda and SageMaker pipelines.
+
+
 Scenario 5: Optimizing EC2 and Lambda Costs
 Problem: The company needs to optimize costs for an application using EC2, AWS Fargate, and AWS Lambda, with sporadic and unpredictable EC2 usage.
 Solution: Spot Instances for the EC2 data ingestion layer, since they can be interrupted at any time and are cost-effective. For predictable workloads (such as Fargate and Lambda), using Savings Plans provides long-term cost savings.
 Best Option: Use Spot Instances for EC2 and purchase a Compute Savings Plan for Fargate and Lambda.
+
+
+
 Scenario 6: Web-Based Application on AWS
 Problem: The company needs to optimize a web-based application on AWS for cost, performance, and scalability.
 Solution: Given the specific details are missing, the general advice would be to use Elastic Load Balancing (ELB) for distributing traffic, EC2 Auto Scaling for scaling, and possibly CloudFront for global delivery of content. Savings Plans would also help optimize costs for predictable workloads.
@@ -530,59 +541,144 @@ Best Option: Leverage Auto Scaling with CloudFront for content delivery and use 
 
 
 
+---
+43. Migrating a Monolithic Application to AWS
+Problem Statement: A company wants to migrate its existing on-premises monolithic application to AWS while keeping as much of 
+the front-end and backend code intact. They want to break the application into smaller services, managed by different teams,
+with a highly scalable solution that minimizes operational overhead.
 
-Migrating a Monolithic Application to AWS
-Problem Statement: A company wants to migrate its existing on-premises monolithic application to AWS while keeping as much of the front-end and backend code intact. They want to break the application into smaller services, managed by different teams, with a highly scalable solution that minimizes operational overhead.
+Solution: Host the application on Elastic Container Service (ECS), set up an application load balancer with ECS as the target.
 
-Solution: Option D: Host the application on Elastic Container Service (ECS), set up an application load balancer with ECS as the target.
+Explanation: The best solution here is to containerize the application using ECS. ECS is highly scalable and offers two options
+(EC2 and Fargate) for managing containers. Since the goal is to reduce operational overhead, ECS with Fargate is a great choice because
+it eliminates the need to manage EC2 instances manually. ECS also allows easy scaling, which is ideal for a microservices-based architecture.
 
-Explanation: The best solution here is to containerize the application using ECS. ECS is highly scalable and offers two options (EC2 and Fargate) for managing containers. Since the goal is to reduce operational overhead, ECS with Fargate is a great choice because it eliminates the need to manage EC2 instances manually. ECS also allows easy scaling, which is ideal for a microservices-based architecture.
 
-Question 44 - Aurora Performance Issues During Report Generation
-Problem Statement: The company is using Amazon Aurora for its e-commerce application. When large reports are generated, developers notice that read IOPS and CPU utilization spike, causing performance degradation.
+---
 
-Solution: Option B: Migrate the monthly reporting workload to an Aurora read replica.
+44. Aurora Performance Issues During Report Generation
+Problem Statement: The company is using Amazon Aurora for its e-commerce application. When large reports are generated, developers notice that read
+IOPS and CPU utilization spike, causing performance degradation.
 
-Explanation: The issue arises due to heavy read traffic during report generation. Aurora's read replica feature allows offloading read operations from the primary database, which reduces the load on the main database and improves performance. By moving reporting queries to a read replica, the main Aurora instance can handle transactional workloads more effectively.
+Solution: Migrate the monthly reporting workload to an Aurora read replica.
 
-Question 45 - Scaling an EC2-based Analytics Application
-Problem Statement: A company is hosting a web analytics application on a single EC2 instance. The application is showing signs of performance degradation, especially under heavy load, with 500 errors occurring. The company needs a cost-effective solution that allows seamless scaling.
+Explanation: The issue arises due to heavy read traffic during report generation. Aurora's read replica feature allows offloading read operations
+from the primary database, which reduces the load on the main database and improves performance. By moving reporting queries to a read replica,
+the main Aurora instance can handle transactional workloads more effectively.
 
-Solution: Option D: Migrate the database to Amazon Aurora MySQL, create an AMI of the web application, apply it to a launch template, create an Auto Scaling group, and attach an Application Load Balancer.
 
-Explanation: The 500 error typically indicates server overload, so introducing Auto Scaling is key to handling traffic spikes automatically. Migrating the database to Aurora improves the database performance, as it is more efficient than MySQL hosted on EC2. Using an Auto Scaling group ensures that the EC2 instances scale in response to varying load. The Application Load Balancer distributes traffic evenly among instances.
+----
+45. Scaling an EC2-based Analytics Application
+Problem Statement: A company is hosting a web analytics application on a single EC2 instance. The application is showing signs of 
+performance degradation, especially under heavy load, with 500 errors occurring. The company needs a cost-effective solution that allows seamless scaling.
 
-Question 46 - EC2 Instances for a Stateless Web Application
-Problem Statement: A stateless web application runs on EC2 on-demand instances behind an Application Load Balancer. The application experiences heavy usage during business hours and moderate usage overnight. The company needs a cost-effective solution to handle this load.
+Solution: Migrate the database to Amazon Aurora MySQL, create an AMI of the web application, apply it to a launch template,
+create an Auto Scaling group, and attach an Application Load Balancer.
 
-Solution: Option B: Use reserved instances for the baseline level of usage and spot instances for any additional capacity.
+Explanation: The 500 error typically indicates server overload, so introducing Auto Scaling is key to handling traffic spikes automatically.
+Migrating the database to Aurora improves the database performance, as it is more efficient than MySQL hosted on EC2.
+Using an Auto Scaling group ensures that the EC2 instances scale in response to varying load. The Application Load Balancer distributes traffic evenly among instances.
 
-Explanation: Reserved instances are ideal for the predictable, baseline usage that occurs during the 8-hour workday. Spot instances, which offer significant cost savings, can be used during off-peak hours (overnight or weekends) when the load is moderate to low. This hybrid approach optimizes cost without sacrificing performance.
 
-Question 47 - Retaining Application Logs for 10 Years
-Problem Statement: A company needs to retain application logs for 10 years. Logs generated for the past month are frequently accessed for troubleshooting, but older logs are rarely accessed. The company generates over 10 TB of logs per month.
+*******
+"MySQL hosted on EC2" means that you are running a MySQL database on an AWS EC2 instance instead of using a managed database service like Amazon RDS.
 
-Solution: Option B: Store the logs in Amazon S3 and use S3 lifecycle policies to move logs older than one month to S3 Glacier Deep Archive.
+How It Works
 
-Explanation: Storing logs in S3 allows for scalable storage. S3 lifecycle policies automate the process of moving older logs to Glacier Deep Archive, which is highly cost-effective for long-term storage, while logs that are frequently accessed can remain in S3. This meets the company's retention requirement and ensures cost efficiency.
+You launch an EC2 instance
+Choose an Amazon Linux, Ubuntu, or any OS that supports MySQL.
 
-Question 48 - Data Ingestion Workflow Failing Due to Connectivity Issues
-Problem Statement: A company has an SNS topic that triggers a Lambda function to process and store data. However, the workflow occasionally fails due to network connectivity issues, and the corresponding data isn't ingested unless manually retried.
+You install MySQL manually
+Example for Ubuntu: 
+sudo apt update
+sudo apt install mysql-server -y
 
-Solution: Option D: Configure an SQS queue as the on-failure destination and modify the Lambda function to process messages from the queue.
+You configure MySQL
+Secure MySQL:
+sudo mysql_secure_installation
 
-Explanation: Using SQS as an on-failure destination ensures that any failed notifications are placed in a queue and retried until they are successfully processed. This solves the problem of data not being ingested during network failures, ensuring that the ingestion workflow is more resilient and fault-tolerant.
+Create users, databases, and set permissions.
 
-Question 49 - Event Data Processing with Order Preservation
-Problem Statement: The company has a service that produces event data, which needs to be processed in order as it is received. The company wants to minimize operational overhead.
+You allow remote access (optional)
+Modify /etc/mysql/mysql.conf.d/mysqld.cnf (or /etc/my.cnf on Amazon Linux).
+Change bind-address = 0.0.0.0 to allow external connections.
+Open port 3306 in your security group.
 
-Solution: Option A: Use a FIFO queue in SQS to ensure event data is processed in order.
+Why Host MySQL on EC2 Instead of RDS?
+✅ More control – You handle configurations, backups, and optimizations.
+✅ Cheaper for small workloads – No extra RDS management costs.
+✅ Custom MySQL versions – Choose any MySQL version or even MariaDB.
+✅ Run other apps on the same server – Example: LAMP/LEMP stack (Linux, Apache/Nginx, MySQL, PHP).
 
-Explanation: When event data needs to be processed in a specific order, SQS FIFO (First-In-First-Out) queues are ideal. FIFO queues ensure that messages are processed in the exact order they are received, which is crucial when the order of event processing is important.
 
-Question 50 - Monitoring EC2 Instances for CPU and IOPS
-Problem Statement: A company is migrating an application from on-premises servers to EC2 instances. The company needs to implement metric alarms, where they don't need to take action for short CPU bursts, but if both CPU utilization and read IOPS are high simultaneously, immediate action is needed. The company also wants to reduce false alarms.
+and
 
-Solution: Option C: Create a composite CloudWatch alarm that monitors multiple metrics.
 
-Explanation: A composite CloudWatch alarm is used to combine multiple metric alarms into one. It only triggers if all conditions are met. In this case, the composite alarm would monitor both CPU utilization and read IOPS. This ensures that the alarm is only triggered when both conditions are true, reducing false alarms. This approach is optimal for situations where a short burst of CPU usage is not a concern, but a sustained high load across both CPU and IOPS requires attention.
+A stateless web application is a type of web application where each request from a client (browser, API call, etc.) is treated as an independent transaction, 
+without relying on any previous requests.
+
+This means the server does not store client session data between requests. Instead, all necessary information is included in each
+request or stored externally (e.g., in a database, cache, or cookies).
+
+
+
+********
+----
+46. EC2 Instances for a Stateless Web Application
+Problem Statement: A stateless web application runs on EC2 on-demand instances behind an Application Load Balancer. The application 
+experiences heavy usage during business hours and moderate usage overnight. The company needs a cost-effective solution to handle this load.
+
+Solution: Use reserved instances for the baseline level of usage and spot instances for any additional capacity.
+
+Explanation: Reserved instances are ideal for the predictable, baseline usage that occurs during the 8-hour workday. 
+Spot instances, which offer significant cost savings, can be used during off-peak hours (overnight or weekends) when the load is moderate to low. 
+This hybrid approach optimizes cost without sacrificing performance.
+
+
+----
+47. Retaining Application Logs for 10 Years
+Problem Statement: A company needs to retain application logs for 10 years. Logs generated for the past month are frequently accessed for troubleshooting,
+but older logs are rarely accessed. The company generates over 10 TB of logs per month.
+
+Solution: Store the logs in Amazon S3 and use S3 lifecycle policies to move logs older than one month to S3 Glacier Deep Archive.
+
+Explanation: Storing logs in S3 allows for scalable storage. S3 lifecycle policies automate the process of moving older logs to Glacier Deep Archive,
+which is highly cost-effective for long-term storage, while logs that are frequently accessed can remain in S3. This meets the company's 
+retention requirement and ensures cost efficiency.
+
+
+----
+48 - Data Ingestion Workflow Failing Due to Connectivity Issues
+Problem Statement: A company has an SNS topic that triggers a Lambda function to process and store data. However, the workflow occasionally fails due to network 
+connectivity issues, and the corresponding data isn't ingested unless manually retried.
+
+Solution: Configure an SQS queue as the on-failure destination and modify the Lambda function to process messages from the queue.
+
+Explanation: Using SQS as an on-failure destination ensures that any failed notifications are placed in a queue and retried until 
+they are successfully processed. This solves the problem of data not being ingested during network failures, ensuring that the ingestion 
+workflow is more resilient and fault-tolerant.
+
+
+----
+49.  Event Data Processing with Order Preservation
+Problem Statement: The company has a service that produces event data, which needs to be processed in order as it is received. The 
+company wants to minimize operational overhead.
+
+Solution: Use a FIFO queue in SQS to ensure event data is processed in order.
+
+Explanation: When event data needs to be processed in a specific order, SQS FIFO (First-In-First-Out) queues are ideal. FIFO queues ensure that messages
+are processed in the exact order they are received, which is crucial when the order of event processing is important.
+
+
+----
+50. Monitoring EC2 Instances for CPU and IOPS
+Problem Statement: A company is migrating an application from on-premises servers to EC2 instances. The company needs to implement metric
+alarms, where they don't need to take action for short CPU bursts, but if both CPU utilization and read IOPS(i/p o/p operatn per sec) are high simultaneously, 
+immediate action is needed. The company also wants to reduce false alarms.
+
+Solution: Create a composite CloudWatch alarm that monitors multiple metrics.
+
+Explanation: A composite CloudWatch alarm is used to combine multiple metric alarms into one. It only triggers if all conditions are met.
+In this case, the composite alarm would monitor both CPU utilization and read IOPS. This ensures that the alarm is only triggered when both conditions are true, 
+reducing false alarms. This approach is optimal for situations where a short burst of CPU usage is not a concern,
+but a sustained high load across both CPU and IOPS requires attention.
