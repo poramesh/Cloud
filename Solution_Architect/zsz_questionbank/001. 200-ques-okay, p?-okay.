@@ -489,57 +489,125 @@ Scenario 9: Private Connectivity to External Service
 Problem: The company needs to connect to an external service hosted on a provider's VPC, with private access that restricts connection initiation from the company's VPC.
 Solution: Use VPC endpoint for private connectivity. A VPC endpoint provides a secure, private connection to external services in another VPC without traversing the public internet.
 Why not other options?: Other solutions like Virtual Private Gateway or NAT Gateway are not designed for this scenario where direct private access to an external service is needed.
+
+
 Scenario 10: Database Migration with AWS DMS
 Problem: The company is migrating its on-premises PostgreSQL database to Amazon Aurora PostgreSQL, while keeping the on-premises database accessible during the migration.
 Solution: Use AWS Database Migration Service (DMS) for the migration while maintaining synchronization between the on-premises and Aurora databases.
 Why not other options?: Creating a backup or using AWS Schema Conversion Tool (SCT) are not needed for a straightforward PostgreSQL-to-PostgreSQL migration, and event bridge is unrelated to the migration process.
-Scenario 11: Email Notifications for AWS Accounts
-Problem: A company uses AWS Organizations, and notifications sent to the root user email address are missed. Future notifications should be sent to administrators.
+
+
+-----
+
+36. Email Notifications for AWS Accounts
+Problem: A company uses AWS Organizations, and notifications sent to the root user email address are missed. Future notifications 
+should be sent to administrators.
+
 Solution: Configure AWS root user email address distribution lists so that alerts are sent to administrators and not missed.
-Why not other solutions?: Directly assigning an IAM user or setting up an S3 bucket policy won’t solve the problem of ensuring administrators receive notifications in a centralized and manageable manner.
 
+Why not other solutions?: Directly assigning an IAM user or setting up an S3 bucket policy won’t solve the problem of ensuring 
+administrators receive notifications in a centralized and manageable manner.
 
+------
 
-
-
-Scenario 1: Global Content Delivery
+37. Global Content Delivery
 Problem: A company wants to serve content (news, weather, etc.) globally with low latency, ensuring fast and efficient content delivery.
-Solution: Amazon CloudFront is the recommended solution. By using CloudFront, content can be delivered from the nearest edge location, reducing latency and improving the user experience. CloudFront is specifically designed for serving both static and dynamic content, making it ideal for global distribution.
+
+Solution: Amazon CloudFront is the recommended solution. By using CloudFront, content can be delivered from the nearest edge location, reducing
+latency and improving the user experience. CloudFront is specifically designed for serving both static and dynamic 
+content, making it ideal for global distribution.
+
 Best Option: Deploy the application in a single region and use CloudFront to serve content, specifying the ALB as the origin.
 
 
-Scenario 2: Highly Available UDP-Based Architecture
+----
+
+38. Highly Available UDP-Based Architecture
 Problem: The company needs to support UDP-based traffic (Layer 4) with low latency and a static IP for the front-end tier.
-Solution: AWS Global Accelerator is the ideal solution here. It routes traffic to the nearest AWS edge location and provides a static IP, ensuring low latency and high availability for UDP-based traffic.
+
+Solution: AWS Global Accelerator is the ideal solution here. It routes traffic to the nearest AWS edge location and provides a static IP, ensuring low 
+latency and high availability for UDP-based traffic.
+
 Best Option: Configure AWS Global Accelerator to forward requests to the appropriate endpoints, optimizing latency and availability.
 
 
-Scenario 3: RabbitMQ on EC2 with Multi-AZ Deployment
+-----
+
+39. RabbitMQ on EC2 with Multi-AZ Deployment
 Problem: A company is using RabbitMQ on EC2 instances within a single availability zone (AZ) and needs to increase high availability.
-Solution: Migrate RabbitMQ to Amazon MQ, a managed service that offers high availability through multi-AZ deployments. Additionally, the database should be moved to Amazon RDS (Multi-AZ) for PostgreSQL to ensure high availability and fault tolerance.
-Best Option: Migrate the queue to Amazon MQ (active/standby pair), create a multi-AZ Auto Scaling group for EC2 instances, and use Amazon RDS for PostgreSQL (Multi-AZ) for the database.
+
+Solution: Migrate RabbitMQ to Amazon MQ, a managed service that offers high availability through multi-AZ deployments. Additionally,
+the database should be moved to Amazon RDS (Multi-AZ) for PostgreSQL to ensure high availability and fault tolerance.
+
+Best Option: Migrate the queue to Amazon MQ (active/standby pair), create a multi-AZ Auto Scaling group for EC2 instances,
+and use Amazon RDS for PostgreSQL (Multi-AZ) for the database.
 
 
-Scenario 4: S3 File Movement and Integration with Lambda and SageMaker
-Problem: The company needs to automatically move files from one S3 bucket to another and process them using AWS Lambda, with further integration into Amazon SageMaker pipelines.
-Solution: S3 Cross-Region Replication combined with Amazon EventBridge allows for automatic file replication and integration with other AWS services. S3 events trigger an EventBridge rule, which then invokes the Lambda function and integrates with SageMaker.
+-----
+
+40. S3 File Movement and Integration with Lambda and SageMaker
+Problem: The company needs to automatically move files from one S3 bucket to another and process them using AWS Lambda, with further integration 
+into Amazon SageMaker pipelines.
+Solution: S3 Cross-Region Replication combined with Amazon EventBridge allows for automatic file replication and integration
+with other AWS services. S3 events trigger an EventBridge rule, which then invokes the Lambda function and integrates with SageMaker.
+
 Best Option: Configure S3 replication and use EventBridge to forward events to Lambda and SageMaker pipelines.
 
 
-Scenario 5: Optimizing EC2 and Lambda Costs
-Problem: The company needs to optimize costs for an application using EC2, AWS Fargate, and AWS Lambda, with sporadic and unpredictable EC2 usage.
-Solution: Spot Instances for the EC2 data ingestion layer, since they can be interrupted at any time and are cost-effective. For predictable workloads (such as Fargate and Lambda), using Savings Plans provides long-term cost savings.
+***
+Amazon SageMaker is a fully managed service provided by AWS that enables developers, data scientists, and machine learning (ML) practitioners to build, train, and 
+deploy machine learning models quickly and easily. It provides a set of tools and features for the entire machine learning lifecycle,
+from data preparation to model deploymen
+
+SageMaker Workflow Example:
+Data Preparation: Use SageMaker Data Wrangler to import, clean, and prepare the data from Amazon S3.
+Model Building: Create and train a model using SageMaker Studio or pre-built algorithms.
+Model Deployment: Deploy the trained model to a real-time inference endpoint.
+Model Monitoring: Use SageMaker Model Monitor to track and manage model performance over time.
+***
+----
+
+41. Optimizing EC2 and Lambda Costs
+Problem: The company needs to optimize costs for an application using EC2, AWS Fargate, and AWS Lambda, with 
+sporadic and unpredictable EC2 usage.
+Solution: Spot Instances for the EC2 data ingestion layer, since they can be interrupted at any time and are cost-effective. 
+For predictable workloads (such as Fargate and Lambda), using Savings Plans provides long-term cost savings.
 Best Option: Use Spot Instances for EC2 and purchase a Compute Savings Plan for Fargate and Lambda.
 
+***
+Savings Plans in AWS are a flexible pricing model that helps you save money on your compute usage. Instead of reserving specific instances 
+(like in Reserved Instances), Savings Plans allow you to commit to a consistent amount of usage (measured in $/hour) over a 1- or 3-year period. 
+In return, AWS provides significant discounts compared to on-demand pricing.
 
 
-Scenario 6: Web-Based Application on AWS
+and
+
+The data ingestion layer is the first stage in a data pipeline where raw data is collected, processed, and moved into a storage or processing system. 
+It ensures that data from various sources (databases, APIs, IoT devices, logs, etc.) is efficiently and reliably 
+ingested into a data lake, data warehouse, or analytical system.
+
+Key Components of the Data Ingestion Layer
+Sources – The origins of the data, such as relational databases, cloud services, IoT devices, or logs.
+Ingestion Mechanisms – The methods used to bring data in, like batch processing, real-time streaming, or hybrid approaches.
+Transformation & Preprocessing – Cleaning, filtering, or enriching data before further processing.
+Storage & Processing – Data is sent to storage solutions like Amazon S3, Redshift, or Snowflake for further use.
+
+Types of Data Ingestion
+Batch Ingestion – Data is collected and processed at scheduled intervals. (e.g., AWS Glue, Apache Nifi)
+Real-time Streaming – Data is ingested continuously in real-time. (e.g., AWS Kinesis, Apache Kafka)
+Hybrid Ingestion – A mix of batch and streaming, depending on use cases.
+more: https://github.com/poramesh/Cloud/new/main/Solution_Architect/glossory
+*****
+
+
+----
+
+42. Web-Based Application on AWS
 Problem: The company needs to optimize a web-based application on AWS for cost, performance, and scalability.
-Solution: Given the specific details are missing, the general advice would be to use Elastic Load Balancing (ELB) for distributing traffic, EC2 Auto Scaling for scaling, and possibly CloudFront for global delivery of content. Savings Plans would also help optimize costs for predictable workloads.
+Solution: Given the specific details are missing, the general advice would be to use Elastic Load Balancing (ELB) for distributing traffic, 
+EC2 Auto Scaling for scaling, and possibly CloudFront for global delivery of content. Savings Plans would also help optimize costs for predictable workloads.
+
 Best Option: Leverage Auto Scaling with CloudFront for content delivery and use Savings Plans for predictable compute needs.
-
-
-
 
 ---
 43. Migrating a Monolithic Application to AWS
