@@ -461,25 +461,57 @@ Scenario 2: Containerized Stateless Applications on AWS
 Problem: The company wants to run stateless applications in containers that can tolerate infrastructure disruptions, while minimizing cost and operational overhead.
 Solution: Use Amazon EKS with spot instances for containerized applications. Spot instances are cost-effective and can be used in environments that can handle interruptions.
 Why not EC2 Auto Scaling Groups?: EC2 is not ideal here since the applications are stateless and the requirement is to minimize costs while still ensuring scalability. Spot instances are the more cost-effective solution.
-Scenario 3: Multi-Tier Web Application Migration
+
+
+----
+
+28. Multi-Tier Web Application Migration
 Problem: The company is migrating a multi-tier web application from on-premises infrastructure to AWS. The application uses PostgreSQL.
-Solution: Migrate to Amazon Aurora (PostgreSQL). Aurora provides scalability, high availability, and durability. Additionally, Amazon Aurora minimizes operational overhead compared to traditional PostgreSQL setups.
+
+Solution: Migrate to Amazon Aurora (PostgreSQL). Aurora provides scalability, high availability, and durability. Additionally, Amazon
+Aurora minimizes operational overhead compared to traditional PostgreSQL setups.
+
 Why not EC2 or Elastic Cache?: EC2 requires more manual management, and Elastic Cache is unnecessary here because there’s no mention of a caching layer in the requirements.
-Scenario 4: EC2 Auto Scaling for Consistent Performance
+
+
+----
+
+29. EC2 Auto Scaling for Consistent Performance
 Problem: EC2 instances behind an Auto Scaling group need to maintain a specific CPU utilization target (40%).
-Solution: Use target tracking scaling policy in the Auto Scaling group. This dynamically adjusts the number of instances to keep CPU utilization at or near 40%.
+
+Solution: Use target tracking scaling policy in the Auto Scaling group. This dynamically adjusts the number of
+instances to keep CPU utilization at or near 40%.
+
 Why not other policies?: Target tracking scaling is the simplest and most direct way to maintain a specific performance metric.
-Scenario 5: File Sharing with S3 and CloudFront
-Problem: The company wants to serve files stored in an S3 bucket through CloudFront, but without direct access to the S3 URL.
-Solution: Use Origin Access Identity (OAI) with CloudFront. This ensures that CloudFront is the only entity that can access the S3 bucket, preventing direct access via the S3 URL.
+
+
+---
+
+30. File Sharing with S3 and CloudFront
+Problem: The company wants to serve files stored in an S3 bucket through CloudFront, but without direct 
+access to the S3 URL.
+
+Solution: Use Origin Access Identity (OAI) with CloudFront. This ensures that CloudFront is the only entity that can access the S3 bucket, 
+preventing direct access via the S3 URL.
+
 Why not other policies?: Writing individual S3 bucket policies is not ideal because OAI provides a cleaner and more manageable solution for restricting access.
-Scenario 6: Scalable File Distribution Globally
+
+----
+
+31. Scalable File Distribution Globally
 Problem: A company needs to distribute downloadable historical reports globally with low cost and fast response times.
+
 Solution: Use Amazon CloudFront with S3. CloudFront is a content delivery network (CDN) that caches content closer to users, ensuring fast global access.
+
 Why not other solutions?: Other options, such as EC2 or Elastic Load Balancer, would be more costly and complex for file distribution purposes.
-Scenario 7: Oracle Database Migration and Disaster Recovery
+
+
+--
+32. Oracle Database Migration and Disaster Recovery
 Problem: A company is migrating an Oracle database to AWS and needs to ensure disaster recovery (DR) and minimal operational overhead.
+
 Solution: Use Amazon RDS Custom for Oracle. This allows for migration while maintaining the underlying operating system access (SSH access).
+
 Why not standard RDS?: Standard RDS does not allow access to the underlying operating system, which is required for this migration.
 
 
