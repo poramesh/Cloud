@@ -62,7 +62,29 @@ Destination bucket: backup-logs-bucket-us-east-1 (in the same US East region).
 
 ))))))))))
 
+{{{{{
 
+IF VERSIONING IS NOT ENABLED THEN THERES NO WAY IT WILL BE SYNCHRONISED HAHAHAHHA *EVEIL LAUGH*
+
+If S3 Versioning is enabled on both the source and destination buckets, updates to existing objects can be replicated,
+but not automatically by default. You need to configure Replication Rules properly.
+
+How Replication Works with Versioning Enabled:
+New Objects: ✅ Replicated asynchronously.
+Updated Objects: ✅ If versioning is enabled and replication is set to include existing versions, updates will be replicated as a new version in the destination bucket.
+Deleted Objects:
+❌ By default, deletions are NOT replicated.
+✅ If "delete marker replication" is enabled, the delete marker is copied to the destination bucket.
+❌ If you permanently delete an object (without a delete marker), it is NOT deleted in the destination bucket.
+
+
+Example Scenario with Versioning:
+Action in Source Bucket              Effect in Replicated Bucket (Versioning Enabled)
+New object added (file.txt)	✅       file.txt is replicated
+file.txt is updated	✅               A new version of file.txt is created in the destination
+file.txt is deleted	❌               Not deleted by default (unless delete marker replication is enabled)
+file.txt is permanently deleted	❌   No effect on the destination bucket
+}}}}}}
 
 
 Lifecycle Management
@@ -136,7 +158,7 @@ aws s3api create-bucket --bucket my-replication-test-destination --region us-eas
 The IAM role allows S3 to have permission to replicate objects. The role has a trust policy that defines which AWS 
 service (S3 in this case) can assume the role.
 
-(click on create role and then choose custom ttsut policy and there are other options like web idenity(federataed acc), awws account, aws service like lamda, ecs)
+(click on create role and then choose custom ttrsut policy and there are other options like web idenity(federataed acc), awws account, aws service like lamda, ecs)
 Trust Policy: Allows S3 to assume the role.
 The trust policy specifies the S3 service (s3.amazonaws.com) as the trusted entity that can assume this role.
 
