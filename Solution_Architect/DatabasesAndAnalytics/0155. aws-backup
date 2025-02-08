@@ -1,0 +1,36 @@
+AWS Backup
+AWS Backup is a fully managed backup service that helps you centralize, automate, and manage backups across AWS services.
+It allows you to create, schedule, and monitor backups for various AWS resources in a simple and cost-effective way.
+
+Key Features of AWS Backup
+✅ Centralized Backup Management – Manages backups across multiple AWS services in one place.
+✅ Automated Backup Policies – Define backup plans with schedules and retention rules.
+✅ Cross-Region & Cross-Account Backup – Improves disaster recovery by storing backups in different AWS regions/accounts.
+✅ Lifecycle Policies – Automatically move backups to cold storage to save costs.
+✅ Compliance & Auditing – Supports encryption, access control, and AWS Backup Audit Manager for regulatory compliance.
+
+
+AWS Services Supported by AWS Backup
+EC2 (Amazon Machine Images - AMIs)
+EBS (Elastic Block Store volumes)
+RDS (Relational Database Service)
+DynamoDB (NoSQL Database)
+EFS (Elastic File System)
+FSx (Windows File Server, Lustre)
+Aurora, Redshift, S3, VMWare backups (recently added support)
+
+How AWS Backup Works
+Create a Backup Plan
+Define backup frequency, retention period, and lifecycle rules.
+
+Assign AWS Resources
+Select services like EC2, RDS, S3, etc., that need backup.
+
+Monitor and Restore
+View backup status and restore data when needed.
+
+Example: Backup Plan for EC2 & RDS
+Daily Backup at 2 AM
+Retention Period: 30 Days
+Move to Cold Storage after 15 Days
+Delete Backup after 90 Days
