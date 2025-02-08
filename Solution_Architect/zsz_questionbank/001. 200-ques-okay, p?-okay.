@@ -348,137 +348,101 @@ Once the new instance is encrypted, all future snapshots will also be encrypted.
 
 
 23. Key Management for Developers
-Scenario:
-
-Developers need to encrypt data in their applications.
+Scenario: Developers need to encrypt data in their applications.
 The company wants to reduce operational overhead for key management.
-Correct Answer:
-✅ Use AWS Key Management Service (KMS) to manage encryption keys.
+Correct Answer:✅ Use AWS Key Management Service (KMS) to manage encryption keys.
 
 Why?
-
 AWS KMS provides centralized key management with minimal operational burden.
 It integrates seamlessly with AWS services like S3, RDS, and Lambda.
 The other options (IAM policies, MFA, ACM certificates) do not address key management.
-Question 23: SSL Termination & Load Balancing
-Scenario:
 
-A dynamic web application is hosted on two EC2 instances.
+
+--------
+
+24. SSL Termination & Load Balancing
+Scenario: A dynamic web application is hosted on two EC2 instances.
 SSL termination (HTTPS) is handled at each EC2 instance, which is causing high CPU utilization.
 The goal is to offload SSL processing and improve performance.
-Correct Answer:
-✅ Import the SSL certificate into AWS Certificate Manager (ACM) and use an Application Load Balancer (ALB) for SSL termination.
+
+Correct Answer: ✅ Import the SSL certificate into AWS Certificate Manager (ACM) and use an Application Load Balancer (ALB) for SSL termination.
 
 Why?
-
 ALB offloads SSL/TLS processing, reducing the CPU burden on EC2 instances.
 ACM manages SSL certificates centrally, removing the need to install them manually on instances.
-Question 24: Cost-Effective Batch Processing
-Scenario:
 
-A stateless batch processing job runs on multiple EC2 instances.
+
+---------
+
+25. Cost-Effective Batch Processing
+Scenario: A stateless batch processing job runs on multiple EC2 instances.
 The workload can start and stop at any time with no negative impact.
 The company wants a scalable and cost-effective solution.
-Correct Answer:
-✅ Use EC2 Spot Instances to run the batch processing job.
+
+Correct Answer: ✅ Use EC2 Spot Instances to run the batch processing job.
 
 Why?
-
 Spot Instances offer the lowest cost for workloads that can tolerate interruptions.
 Reserved Instances are for predictable workloads.
 On-Demand Instances are too expensive for batch jobs.
 AWS Lambda is not ideal because the job runs for over 60 minutes.
-Question 25: Private EC2 Instances with Internet Access
-Scenario:
 
-EC2 instances and RDS instances should not be exposed to the public internet.
+
+------
+
+26. Private EC2 Instances with Internet Access
+Scenario: EC2 instances and RDS instances should not be exposed to the public internet.
 EC2 instances need internet access to process payments via a third-party web service.
 The solution must be highly available.
-Correct Answer:
-✅ Deploy EC2 instances in a private subnet with a NAT Gateway in a public subnet. Use an Application Load Balancer (ALB) in the public subnet.
+
+Correct Answer: ✅ Deploy EC2 instances in a private subnet with a NAT Gateway in a public subnet. Use an Application Load Balancer (ALB) in the public subnet.
 
 Why?
-
 Private EC2 instances need a NAT Gateway for outbound internet access.
 The ALB is in a public subnet to allow external users to access the application.
 RDS remains private, ensuring it is not directly exposed to the internet.
-Question 26: Reducing S3 Storage Costs for Long-Term Data Retention
-Scenario:
 
-Data is stored in the S3 Standard storage class.
+---------
+
+27. Reducing S3 Storage Costs for Long-Term Data Retention
+Scenario: Data is stored in the S3 Standard storage class.
 Data must be retained for 25 years.
 The last 2 years of data must be highly available and immediately retrievable.
-Correct Answer:
-✅ Use an S3 Lifecycle Policy to transition objects to Glacier Deep Archive after 2 years.
+
+Correct Answer:✅ Use an S3 Lifecycle Policy to transition objects to Glacier Deep Archive after 2 years.
 
 Why?
-
 S3 Standard → Stores recent 2 years of data for high availability.
 Glacier Deep Archive → Cheapest storage for long-term retention.
 S3 Intelligent-Tiering is not cost-effective because the transition time is predictable.
-Question 27: Storage Architecture for a Media Company
-Scenario:
 
-10 TB of high-performance storage for video processing.
+
+-------
+
+28(a). Storage Architecture for a Media Company
+Scenario: 10 TB of high-performance storage for video processing.
 300 TB of highly durable storage for media content.
 900 TB of archival storage for old media.
-Correct Answer:
-✅ Use EC2 instance store for high-performance, S3 for durable storage, and S3 Glacier for archival storage.
+
+Correct Answer:✅ Use EC2 instance store for high-performance, S3 for durable storage, and S3 Glacier for archival storage.
 
 Why?
-
 EC2 Instance Store → Provides the fastest storage for temporary high-performance workloads like video processing.
 S3 Standard → Highly durable for frequently accessed media content.
 S3 Glacier → Cost-effective for archiving large amounts of unused media.
-General Takeaways for AWS Solutions Architect Exam
-Encryption Strategies
 
-RDS encryption cannot be added after creation → Must restore from an encrypted snapshot.
-Use AWS KMS for managing encryption keys instead of manually handling them.
-Networking Best Practices
+--------
 
-Keep RDS in a private subnet and use NAT Gateway for outbound internet access.
-ALB should be in a public subnet if external users need access.
-Storage Cost Optimization
-
-Use S3 Lifecycle Policies to move data from Standard → Glacier based on access patterns.
-Instance Store is temporary and should only be used for fast, short-term storage.
-Choosing the Right EC2 Instance Pricing Model
-
-Spot Instances → Best for fault-tolerant, batch processing workloads.
-Reserved Instances → Best for predictable, long-running applications.
-On-Demand Instances → Best for short-term or unpredictable workloads.
-SSL Termination & Performance Optimization
-
-Use AWS ACM with ALB to offload SSL processing from EC2 instances.
-
-
-
-
-
-
-Scenario 1: Archival Storage in AWS
+28(b). Archival Storage in AWS
 Problem: The company is looking for an archival storage solution.
-Solution: AWS S3 Glacier is suitable for archival storage due to its low-cost and long retrieval times. It ensures data is stored securely and cost-effectively over extended periods, making it ideal for storing infrequently accessed data.
-Why not EBS?: Elastic Block Store (EBS) is not considered a good option in this scenario because it's designed for high-performance storage and is not cost-effective for archival purposes.
-Scenario 2: Containerized Stateless Applications on AWS
-Problem: The company wants to run stateless applications in containers that can tolerate infrastructure disruptions, while minimizing cost and operational overhead.
-Solution: Use Amazon EKS with spot instances for containerized applications. Spot instances are cost-effective and can be used in environments that can handle interruptions.
-Why not EC2 Auto Scaling Groups?: EC2 is not ideal here since the applications are stateless and the requirement is to minimize costs while still ensuring scalability. Spot instances are the more cost-effective solution.
 
+Solution: AWS S3 Glacier is suitable for archival storage due to its low-cost and long retrieval times. It ensures data is stored securely 
+and cost-effectively over extended periods, making it ideal for storing infrequently accessed data.
 
-----
+Why not EBS?: Elastic Block Store (EBS) is not considered a good option in this scenario because it's designed for high-performance storage 
+and is not cost-effective for archival purposes.
 
-28. Multi-Tier Web Application Migration
-Problem: The company is migrating a multi-tier web application from on-premises infrastructure to AWS. The application uses PostgreSQL.
-
-Solution: Migrate to Amazon Aurora (PostgreSQL). Aurora provides scalability, high availability, and durability. Additionally, Amazon
-Aurora minimizes operational overhead compared to traditional PostgreSQL setups.
-
-Why not EC2 or Elastic Cache?: EC2 requires more manual management, and Elastic Cache is unnecessary here because there’s no mention of a caching layer in the requirements.
-
-
-----
+--------
 
 29. EC2 Auto Scaling for Consistent Performance
 Problem: EC2 instances behind an Auto Scaling group need to maintain a specific CPU utilization target (40%).
@@ -489,7 +453,7 @@ instances to keep CPU utilization at or near 40%.
 Why not other policies?: Target tracking scaling is the simplest and most direct way to maintain a specific performance metric.
 
 
----
+-------
 
 30. File Sharing with S3 and CloudFront
 Problem: The company wants to serve files stored in an S3 bucket through CloudFront, but without direct 
@@ -500,7 +464,8 @@ preventing direct access via the S3 URL.
 
 Why not other policies?: Writing individual S3 bucket policies is not ideal because OAI provides a cleaner and more manageable solution for restricting access.
 
-----
+
+-------
 
 31. Scalable File Distribution Globally
 Problem: A company needs to distribute downloadable historical reports globally with low cost and fast response times.
@@ -510,7 +475,8 @@ Solution: Use Amazon CloudFront with S3. CloudFront is a content delivery networ
 Why not other solutions?: Other options, such as EC2 or Elastic Load Balancer, would be more costly and complex for file distribution purposes.
 
 
---
+------
+
 32. Oracle Database Migration and Disaster Recovery
 Problem: A company is migrating an Oracle database to AWS and needs to ensure disaster recovery (DR) and minimal operational overhead.
 
@@ -518,8 +484,19 @@ Solution: Use Amazon RDS Custom for Oracle. This allows for migration while main
 
 Why not standard RDS?: Standard RDS does not allow access to the underlying operating system, which is required for this migration.
 
+------
 
-----
+32(b). Multi-Tier Web Application Migration
+Problem: The company is migrating a multi-tier web application from on-premises infrastructure to AWS. The application uses PostgreSQL.
+
+Solution: Migrate to Amazon Aurora (PostgreSQL). Aurora provides scalability, high availability, and durability. Additionally, Amazon
+Aurora minimizes operational overhead compared to traditional PostgreSQL setups.
+
+Why not EC2 or Elastic Cache?: EC2 requires more manual management, and Elastic Cache is unnecessary here because there’s 
+no mention of a caching layer in the requirements.
+
+
+-------
 
 33. Serverless Solution with S3 and Encryption
 Problem: The company needs a serverless solution to analyze data stored in S3 that requires encryption and cross-region replication.
@@ -529,7 +506,7 @@ Why not other solutions?: RDS is a database service and not appropriate for quer
 and minimizing operational overhead.
 
 
----
+-------
 
 34. Private Connectivity to External Service
 Problem: The company needs to connect to an external service hosted on a provider's VPC, with private access that restricts
@@ -541,7 +518,7 @@ another VPC without traversing the public internet.
 Why not other options?: Other solutions like Virtual Private Gateway or NAT Gateway are not designed for this scenario where 
 direct private access to an external service is needed.
 
-------
+----------
 
 35. Database Migration with AWS DMS
 Problem: The company is migrating its on-premises PostgreSQL database to Amazon Aurora PostgreSQL, while keeping the on-premises 
@@ -553,7 +530,7 @@ Why not other options?: Creating a backup or using AWS Schema Conversion Tool (S
 migration, and event bridge is unrelated to the migration process.
 
 
------
+-------
 
 36. Email Notifications for AWS Accounts
 Problem: A company uses AWS Organizations, and notifications sent to the root user email address are missed. Future notifications 
@@ -666,7 +643,7 @@ EC2 Auto Scaling for scaling, and possibly CloudFront for global delivery of con
 Best Option: Leverage Auto Scaling with CloudFront for content delivery and use Savings Plans for predictable compute needs.
 
 ---
-43. Migrating a Monolithic Application to AWS
+43(a). Migrating a Monolithic Application to AWS
 Problem Statement: A company wants to migrate its existing on-premises monolithic application to AWS while keeping as much of 
 the front-end and backend code intact. They want to break the application into smaller services, managed by different teams,
 with a highly scalable solution that minimizes operational overhead.
@@ -676,6 +653,18 @@ Solution: Host the application on Elastic Container Service (ECS), set up an app
 Explanation: The best solution here is to containerize the application using ECS. ECS is highly scalable and offers two options
 (EC2 and Fargate) for managing containers. Since the goal is to reduce operational overhead, ECS with Fargate is a great choice because
 it eliminates the need to manage EC2 instances manually. ECS also allows easy scaling, which is ideal for a microservices-based architecture.
+
+
+-----
+43(b). Containerized Stateless Applications on AWS
+Problem: The company wants to run stateless applications in containers that can tolerate infrastructure disruptions, 
+while minimizing cost and operational overhead.
+
+Solution: Use Amazon EKS with spot instances for containerized applications. Spot instances are cost-effective and can be used in
+environments that can handle interruptions.
+Why not EC2 Auto Scaling Groups?: EC2 is not ideal here since the applications are stateless and the requirement is to minimize costs while still
+ensuring scalability. Spot instances are the more cost-effective solution.
+
 
 
 ---
