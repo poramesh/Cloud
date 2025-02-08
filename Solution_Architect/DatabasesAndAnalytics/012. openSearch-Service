@@ -1,5 +1,22 @@
 Amazon OpenSearch Service (formerly Amazon Elasticsearch Service)
 
+************
+OpenSearch is an open-source search and analytics engine, originally derived from Elasticsearch after version 7.10.
+It was developed by Amazon Web Services (AWS) to provide a community-driven alternative to Elasticsearch and Kibana, which transitioned to a more restrictive license.
+
+Key Features:
+Full-Text Search: Supports powerful text search capabilities, including relevance ranking.
+Distributed Architecture: Designed for scalability and high availability.
+Analytics and Visualization: Includes OpenSearch Dashboards (similar to Kibana).
+Security Features: Offers encryption, role-based access control (RBAC), and authentication options.
+Compatibility: Works with Elasticsearch 7.10 APIs, making migration easier.
+
+Common Use Cases:
+Log and Event Analytics: Used for analyzing application logs and monitoring system performance.
+Search Applications: Powering search functionalities in applications and websites.
+Observability: Helps in monitoring infrastructure, security logs, and metrics.
+************
+
 Fully managed service for searching, visualizing, and analyzing text and unstructured data.
 Petabyte scale, secure, highly available, and scalable.
 Deploys nodes and replicas across Availability Zones (AZs).
