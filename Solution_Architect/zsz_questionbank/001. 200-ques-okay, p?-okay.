@@ -871,195 +871,161 @@ Files are at least 128 KB in size.
 Downloads are infrequent for files older than 90 days.
 The company wants to minimize storage costs.
 
-Correct Solution:
-✅ (B) Move files to S3 Intelligent-Tiering
-S3 Intelligent-Tiering automatically moves objects to lower-cost storage classes based on usage.
-If a file is not accessed for 90 days, it moves to a cheaper tier (including Glacier if needed).
-It is ideal for unpredictable access patterns.
+Answer:
+S3 Standard is ideal for frequently accessed data, but it's more expensive
+for infrequent access use cases.
+S3 Infrequent Access (IA) offers lower storage costs for data that is less frequently accessed, but still needs to be
+readily available when required. It has a retrieval cost, so it's ideal for your ringtones that are accessed infrequently after 90 days.
+S3 One Zone-IA is an even more cost-effective option for infrequent access data that doesn’t require the resilience of being stored 
+across multiple Availability Zones (AZs). It's cheaper but suitable only if the data can be recreated or doesn’t require high durability.
 
-Incorrect Solutions:
-❌ (D) Move files to S3 Infrequent Access (IA) after 90 days
-S3 IA is cheaper than S3 Standard but does not move objects to Glacier, which could save more cost.
-Final Answer: (B) S3 Intelligent-Tiering
+
+so, S3-IA is the right ans.
 
 ------
 
 54. Ensuring Data Integrity & Retention for Medical Trial Results
-Scenario:
-A company stores medical trial data in Amazon S3.
+Scenario: A company stores medical trial data in Amazon S3.
 Scientists can add files, but nobody can modify or delete them.
 Each file must be retained for 1 year (365 days).
-Correct Solution:
-✅ (A) Enable S3 Object Lock (Compliance Mode) with 365-day Retention
 
+Correct Solution: ✅ (A) Enable S3 Object Lock (Compliance Mode) with 365-day Retention
 Object Lock enforces WORM (Write Once, Read Many) storage.
 Compliance Mode ensures that even administrators cannot delete/modify objects before the retention period ends.
+
 Incorrect Solutions:
 ❌ (B) IAM Role Restrictions
-
 IAM cannot prevent S3 object deletions at the storage level.
 ❌ (C) Lambda Function to Restrict Deletes
-
 Adding Lambda increases complexity without enforcing immutability.
 Final Answer: (A) S3 Object Lock (Compliance Mode)
-5. Caching Confidential Media Files for Global Access
-Scenario:
-A media company wants to cache confidential media files for users worldwide.
+
+----------
+
+55. Caching Confidential Media Files for Global Access
+Scenario: A media company wants to cache confidential media files for users worldwide.
 The files are stored in Amazon S3.
 The goal is to deliver content quickly while ensuring security and availability.
-Correct Solution:
-✅ (A) Amazon CloudFront
+
+Correct Solution:✅ (A) Amazon CloudFront
 
 CloudFront is a Content Delivery Network (CDN) that caches content globally.
 Reduces latency and improves file access speed worldwide.
 Can restrict access using signed URLs and AWS WAF.
-Final Answer: (A) Amazon CloudFront
+
+------------
 
 
-
-
-6. Consolidating Data for Analytics & KPI Dashboards
-Scenario:
-A company receives data from multiple sources (databases, network sensors, APIs).
+56. Consolidating Data for Analytics & KPI Dashboards
+Scenario: A company receives data from multiple sources (databases, network sensors, APIs).
 The data is stored in Amazon S3.
 Teams need to run one-time queries and visualize KPIs.
-Correct Solution:
-✅ (A) Use Athena for Queries & QuickSight for Dashboards
-
+Correct Solution: ✅ (A) Use Athena for Queries & QuickSight for Dashboards
 Amazon Athena: Serverless SQL-based querying for S3 data.
 Amazon QuickSight: Creates interactive dashboards to visualize KPIs.
+
 Incorrect Solutions:
 ❌ (B) Kinesis Data Analytics
-
 Kinesis is for real-time, continuous queries, but the requirement is for one-time queries.
 Final Answer: (A) Athena & QuickSight
 
 
-
-
-
 ---
 
-### **Question 56:** Why would you create a Lambda function for a particular purpose? Would it increase overhead and complexity?
+57. Data Retention and Audit Logs for Amazon Aurora PostgreSQL DB
+Scenario: A company stores data in Amazon Aurora PostgreSQL DB. The company must store data for five years and delete it after that. 
+It must also retain audit logs indefinitely.
 
-**Answer:** Using AWS Glue Extract, Transform, and Load (ETL) jobs is more appropriate for converting data into JSON format. Lambda functions in this case would only add unnecessary overhead and complexity. The best solution is to use **AWS Lake Formation** and **Glue Blueprints** to identify and ingest data into a **Data Lake**, extract it using **Glue Crawlers**, store it in **S3 in Apache Parquet format**, and process it using **Athena**.
+Solution:
+Use AWS Backup for automated backups and set the retention to five years.
+Use Amazon CloudWatch Logs to capture audit logs, then export them to Amazon S3 for long-term storage.
+This setup ensures the retention of both data and audit logs according to the company’s requirements.
+Explanation: CloudWatch logs can be exported to S3 for indefinite retention. AWS Backup provides centralized management for backup operations.
 
----
+58. Streaming Videos for a Global Event
+Scenario: Videos of performances will be streamed in real time and available on-demand. The event expects a global audience.
 
-### **Question 57:** A company stores data in an Amazon Aurora PostgreSQL DB cluster and must store all data for five years while indefinitely keeping audit logs. Which steps should a Solutions Architect take?
+Solution:
 
-**Answer:** 
-- **Correct choices:** ✅ **D and E**
-  - **D:** Configure an **Amazon CloudWatch** log export for the DB cluster to retain audit logs indefinitely.
-  - **E:** Use **AWS Backup** to take backups and retain them for five years.
+Amazon CloudFront is the ideal solution for streaming content globally.
+CloudFront caches and delivers content from edge locations, reducing latency and improving performance for both real-time and on-demand streams.
+Explanation: CloudFront is a content delivery network (CDN) that optimizes content delivery to users across the world.
 
-**Incorrect choices:** ❌
-- Manual snapshots are not necessary.
-- Automated backups have a maximum retention of **35 days**.
-- Configuring automated backup retention for five years is not possible.
+59. Block Fraudulent Requests from API Gateway and Lambda
+Scenario: A serverless application using API Gateway and Lambda is experiencing traffic spikes from botnets and unauthorized users.
 
----
+Solution:
 
-### **Question 58:** How to improve performance for real-time and on-demand streaming of a global event?
+Use AWS WAF (Web Application Firewall) to filter out malicious requests.
+Implement a usage plan with an API key to allow only legitimate users to access the application.
+Explanation: AWS WAF helps block malicious traffic, while API keys help restrict access to authorized users.
 
-**Answer:** Use **Amazon CloudFront** as a **Content Delivery Network (CDN)** to distribute both real-time and on-demand streaming efficiently worldwide.
+60. E-Commerce Data Backup with Accessibility
+Scenario: An e-commerce company generates about 300 MB of data each month, stored in JSON format. The company needs a cost-effective solution for backing up data that must be accessible in milliseconds.
 
----
+Solution:
 
-### **Question 59:** A publicly accessible serverless application using API Gateway and AWS Lambda is experiencing botnet attacks. How should it be secured?
+Amazon S3 Standard is suitable for this requirement as it provides low-latency access and is cost-effective for storing JSON data.
+Explanation: S3 Standard is designed for frequently accessed data and is ideal for data with low retrieval latency.
 
-**Answer:** 
-- **Correct choices:** ✅ **A and C**
-  - **A:** Create a **usage plan** with an **API key** for genuine users only.
-  - **C:** Implement **AWS Web Application Firewall (WAF)** rules to filter out malicious requests.
+61. Scalable Python Application with Database
+Scenario: A Python application processes JSON documents and outputs the result to an on-premises SQL database. The application runs thousands of times each day and needs to be moved to AWS.
 
-**Incorrect choices:** ❌
-- Using Lambda to filter requests adds unnecessary complexity.
-- Converting the API to private API would make it inaccessible to public users.
-- Creating IAM roles for each user is impractical.
+Solution:
 
----
+Store the documents in Amazon S3 and process them using AWS Lambda functions.
+Store the results in Amazon Aurora DB cluster for better scalability and performance.
+Explanation: S3 and Lambda provide serverless, scalable solutions, and Aurora offers a highly available SQL database.
 
-### **Question 60:** An e-commerce company generates 300 MB of JSON data per month. Backups must be accessible in milliseconds for 30 days. What is the best storage solution?
+62. High-Performance Computing (HPC) for Financial Risk Modeling
+Scenario: The company requires a high-performance storage solution for thousands of output files generated by spot instances running HPC workloads.
 
-**Answer:** Use **Amazon S3 Standard** for immediate access, as it meets the performance and retention requirements cost-effectively.
+Solution:
 
----
+Amazon FSx for Lustre is the best option for HPC as it provides a high-performance file system integrated with Amazon S3.
+Explanation: FSx for Lustre is designed for compute-heavy workloads and integrates well with S3 for storing large amounts of data.
 
-### **Question 61:** A company runs a Python application that processes JSON documents and stores results in an on-premises SQL database. What AWS solution is best for scalability and minimal operational overhead?
+63. Containerized Application Deployment at Scale
+Scenario: A company wants to deploy a containerized application in a highly available architecture with minimal operational overhead.
 
-**Answer:** 
-- **Correct choice:** ✅ **B**
-  - Store JSON documents in **S3**.
-  - Use **AWS Lambda** to process them.
-  - Store the results in an **Amazon Aurora DB cluster**.
+Solution:
 
-**Incorrect choices:** ❌
-- Using EC2 instances adds unnecessary operational overhead.
-- Elastic Block Storage (EBS) and SQS solutions are inefficient for this use case.
+Use Amazon ECS (Elastic Container Service) with the AWS Fargate launch type to run containers without managing the underlying infrastructure.
+Explanation: Fargate abstracts the infrastructure management, making it a suitable choice for scalable, highly available containerized applications.
 
----
+64. Messaging between Sender and Processing Applications
+Scenario: A sender application sends messages with payloads to a processing application. The messages may take up to two days to process, and failed messages must be retained for later processing.
 
-### **Question 62:** A company runs high-performance computing (HPC) workloads on Spot instances. Which storage solution integrates with persistent storage and allows on-premises data copies?
+Solution:
 
-**Answer:** **Amazon FSx for Lustre** integrated with **Amazon S3** provides a high-performance, persistent file system for HPC workloads.
+Use Amazon SQS (Simple Queue Service) to manage message queuing between the sender and processing applications.
+Set up a dead-letter queue to handle failed messages.
+Explanation: SQS ensures asynchronous message processing and provides a dead-letter queue to handle message failures without impacting other messages.
 
----
+65. CloudFront with S3 for Static Website with Security
+Scenario: A company uses CloudFront with an S3 origin to store a static website. All traffic must be inspected by AWS WAF.
 
-### **Question 63:** A company is deploying a containerized application but is unsure how to manage container scaling. What AWS service meets these requirements?
+Solution:
 
-**Answer:** 
-- **Correct choice:** ✅ **A**
-  - Store container images in **Amazon ECR**.
-  - Deploy the application on **Amazon ECS** using the **Fargate** launch type.
-  - Use **Target Tracking** to scale based on demand.
+Configure CloudFront with AWS WAF to inspect incoming traffic.
+Use Origin Access Identity (OAI) to restrict access to the S3 bucket.
+Explanation: CloudFront provides content delivery, WAF protects against malicious traffic, and OAI restricts direct access to the S3 bucket.
 
-**Incorrect choices:** ❌
-- Using EC2 launch type increases operational overhead.
-- Manually managing EC2 instances for containers is inefficient.
+66. Global Event Reports with Static HTML Pages
+Scenario: A company needs to distribute static HTML reports for a global audience with millions of views.
 
----
+Solution:
 
-### **Question 64:** A company wants to send messages between a sender and processor application, ensuring failed messages do not impact processing. What AWS service is best?
+Use Amazon CloudFront to distribute the static HTML pages stored in S3.
+Explanation: CloudFront caches content at edge locations, providing low-latency access to users globally.
 
-**Answer:** **Amazon SQS with a Dead Letter Queue (DLQ)** ensures messages are queued asynchronously and failed messages are isolated for debugging.
+67. Cost-Effective EC2 Message Processing
+Scenario: A production application with unpredictable message volume requires a cost-effective solution for processing messages.
 
----
+Solution:
 
-### **Question 65:** A static website stored in S3 must inspect all traffic using AWS WAF. What is the best solution?
-
-**Answer:** 
-- **Correct choice:** ✅ **D**
-  - Configure **Amazon CloudFront** to use **Origin Access Identity (OAI)** to restrict S3 access.
-  - Enable **AWS WAF** on the CloudFront distribution.
-
-**Incorrect choices:** ❌
-- Security Groups do not apply to S3.
-- OAI alone does not meet WAF requirements.
-
----
-
-### **Question 66:** Organizers of a global event store daily reports as static HTML pages in S3. How should they serve millions of global users efficiently?
-
-**Answer:** Use **Amazon CloudFront** to distribute static content efficiently worldwide.
-
----
-
-### **Question 67:** A company processes unpredictable message volumes from an SQS queue on EC2 instances. What is the most cost-effective way to ensure continuous processing?
-
-**Answer:** 
-- **Correct choice:** ✅ **C**
-  - Use **Reserved Instances** for baseline capacity.
-  - Use **Spot Instances** to handle traffic spikes cost-effectively.
-
-**Incorrect choices:** ❌
-- Using Spot instances exclusively risks availability issues.
-- Reserved instances alone are not cost-efficient for fluctuating traffic.
-
----
-
-This document provides **practice questions** and **detailed explanations** to help AWS certification aspirants understand key concepts. Regular practice and concept clarity are key to success!
-
+Use spot instances for handling unpredictable workloads and reserved instances for baseline capacity.
+Explanation: Spot instances are cost-effective for handling variable traffic, and reserved instances provide stable, lower-cost capacity for predictable workloads.
 
 
 
