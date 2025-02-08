@@ -152,7 +152,7 @@ The browser uploads the image directly to S3 using that URL.
 Your backend just stores the file reference instead of handling the upload itself
 ---
 
-High Availability for a Message Processing System
+12. High Availability for a Message Processing System
 Question:
 A company runs a message processing system using ActiveMQ on EC2. How can the architecture be made highly available with low operational complexity?
 
@@ -168,7 +168,7 @@ Explanation:
 ---
 
 
-Moving a Containerized Web Application to AWS
+13. Moving a Containerized Web Application to AWS
 Problem: A company runs a containerized web application on on-premises servers, but these servers cannot handle the increasing traffic.
 The company wants to migrate the application to AWS with minimal code changes and operational overhead.
 
@@ -186,7 +186,7 @@ HPC (High-Performance Computing): Not relevant for web applications.
 ---
 
 
-Transferring 50 TB of Data to AWS Without Internet
+14. Transferring 50 TB of Data to AWS Without Internet
 Problem:
 A company needs to transfer 50TB of data to AWS. The on-premises network has no available bandwidth for additional workloads. The company
 must also run a transformation job on AWS.
@@ -206,7 +206,7 @@ EC2 for transformation: Increases operational complexity.
 ---
 
 
-Scalable Image Processing Application
+15. Scalable Image Processing Application
 Problem:
 A company has an image analysis application that allows users to upload photos and add frames. It currently runs on a single
 EC2 instance with DynamoDB, but the user base is increasing.
@@ -227,7 +227,7 @@ Provisioned IOPS EBS: Unnecessary cost.
 
 ---
 
-Securing EC2 to S3 Traffic Using Private Network
+16. Securing EC2 to S3 Traffic Using Private Network
 Problem:
 EC2 instances are in a public subnet and access S3 over the internet. A new requirement mandates that all file transfers must use a private route.
 
@@ -245,7 +245,7 @@ Direct Connect: Overkill for this case.
 
 ----
 
-Hosting a Static CMS Website
+17. Hosting a Static CMS Website
 Problem:
 A company wants to replace its CMS-based website with a scalable, secure, and low-maintenance solution. The site is updated only 4 times a year and does not need dynamic content.
 
@@ -263,7 +263,7 @@ WebACL without CloudFront: Doesn't optimize content delivery.
 
 ----
 
-Sending CloudWatch Logs to OpenSearch
+18. Sending CloudWatch Logs to OpenSearch
 Problem:
 A company needs to store CloudWatch Logs in OpenSearch (formerly Elasticsearch) in near real-time.
 
@@ -281,7 +281,7 @@ Kinesis Firehose: Suitable but not required if native integration exists.
 ----
 
 
-Storing 900TB of Text Documents with Scalability
+19. Storing 900TB of Text Documents with Scalability
 Problem:
 A company runs a web application needing 900TB of text documents storage, with unpredictable demand.
 
@@ -299,7 +299,7 @@ EBS: Not scalable for large datasets.
 
 
 
-Protecting Multi-Account API Gateway from Attacks
+20. Protecting Multi-Account API Gateway from Attacks
 Problem:
 A company needs to protect API Gateway from SQL Injection & XSS across multiple AWS accounts.
 
@@ -315,7 +315,7 @@ Shield Advanced: Focuses on DDoS, not injection attacks.
 
 -----
 
-Routing Traffic to EC2 DNS Instances in Multiple Regions
+21. Routing Traffic to EC2 DNS Instances in Multiple Regions
 Problem:
 A company runs DNS services on EC2 behind an NLB (Network Load Balancer) in two regions. It needs a way to distribute traffic efficiently.
 
@@ -331,7 +331,7 @@ Route 53 Geolocation Routing: Doesn't handle performance-based routing.
 
 -----
 
-Encrypting an Existing RDS Database and Snapshots
+22. Encrypting an Existing RDS Database and Snapshots
 Scenario:
 An online transaction workload is running on an unencrypted RDS DB instance (Multi-AZ).
 Daily database snapshots are taken.
@@ -343,7 +343,11 @@ Why?
 RDS instances cannot be encrypted after creation.
 The workaround is to take a snapshot, create an encrypted copy, and restore a new RDS instance from it.
 Once the new instance is encrypted, all future snapshots will also be encrypted.
-Question 22: Key Management for Developers
+
+----
+
+
+23. Key Management for Developers
 Scenario:
 
 Developers need to encrypt data in their applications.
