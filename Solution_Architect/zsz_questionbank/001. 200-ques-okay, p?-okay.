@@ -1,5 +1,5 @@
 
-Internet Access for Private Subnets
+1. Internet Access for Private Subnets
 Scenario: A VPC with public and private subnets across three Availability Zones needs to allow EC2 instances in private subnets 
 to access the internet for software updates.
 
@@ -12,7 +12,7 @@ Explanation:
 
 ---
 
-Migrating On-Premises SFTP Server to AWS
+2. Migrating On-Premises SFTP Server to AWS
 Scenario: A company needs to migrate a 200GB NFS-based file system to an Amazon EC2 instance using Amazon EFS.
 
 Correct Answers:
@@ -26,7 +26,7 @@ Explanation:
 
 ---
 
-Optimizing AWS Glue Job Execution
+4. Optimizing AWS Glue Job Execution
 Scenario: An AWS Glue ETL job processes XML data in S3 daily, but it is reprocessing all data on each run.
 
 Correct Answer: Enable AWS Glue job bookmarking.
@@ -37,7 +37,7 @@ Explanation:
 
 ---
 
-Protecting a Website from DDoS Attacks
+5. Protecting a Website from DDoS Attacks
 Scenario: A Windows-based website running on EC2 needs protection against large-scale DDoS attacks with zero downtime.
 
 Correct Answers:
@@ -53,7 +53,7 @@ Explanation:
 
 ---
 
-Lambda Invocation and Least Privilege
+6. Lambda Invocation and Least Privilege
 A Lambda function needs to be invoked by an EventBridge rule. Which policy should be applied to follow the principle of least privilege?
 
 Answer: Add a resource-based policy to the function with `lambda:InvokeFunction` as the action and `events.amazonaws.com` as the principal.
@@ -65,7 +65,7 @@ Explanation:
 
 ---
 
-Storing Confidential Data in S3 with Encryption and Key Rotation
+7. Storing Confidential Data in S3 with Encryption and Key Rotation
 Question:
 A company needs to store confidential data in Amazon S3. The data must be encrypted at rest, key usage must be logged for auditing,
 and keys must be rotated annually. Which solution is the most operationally efficient?
@@ -81,7 +81,7 @@ Explanation:
 
 ---
 
-Multi-Tier Architecture for Tracking Bicycle Locations
+8. Multi-Tier Architecture for Tracking Bicycle Locations
 Question:
 A bicycle-sharing company needs to track bicycle locations using a REST API. What is the best architecture?
 
@@ -95,7 +95,7 @@ Explanation:
 
 ---
 
-Handling Sold Automobile Listings in RDS
+9. Handling Sold Automobile Listings in RDS
 Question:
 An automobile sales website needs to remove sold listings from the website and send data to multiple target systems. Which solution should the solutions architect recommend?
 
@@ -109,7 +109,7 @@ Explanation:
 
 ---
 
-Preventing Object Modifications in S3
+10. Preventing Object Modifications in S3
 Question:
 A company needs to store data in Amazon S3 and prevent unauthorized modifications. Some users should be able to delete objects when necessary. What should be done?
 
@@ -123,7 +123,7 @@ Explanation:
 
 ---
 
-Optimizing Image Uploads in a Social Media Application
+11. Optimizing Image Uploads in a Social Media Application
 Question:
 A social media company wants to improve image upload performance. Which two actions should be taken?
 
