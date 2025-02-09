@@ -865,22 +865,16 @@ Data Tier: Amazon RDS (Relational Database Service) or DynamoDB
 ---------
 
 
-53. Optimizing S3 Storage for Infrequent Ringtone Downloads
-Scenario: A company stores millions of ringtones in Amazon S3 Standard.
-Files are at least 128 KB in size.
-Downloads are infrequent for files older than 90 days.
-The company wants to minimize storage costs.
+53. A company sells ringtones created from clips of popular songs. The files containing the ringtones are stored in Amazon S3 Standard 
+and are at least 128 KB in size. The company has millions of files, but downloads are infrequent for ringtones older than 90 days. The company needs to save money on storage while keeping the most accessed files readily available for its users.
+Which action should the company take to meet these requirements MOST cost-effectively?
 
-Answer:
-S3 Standard is ideal for frequently accessed data, but it's more expensive
-for infrequent access use cases.
-S3 Infrequent Access (IA) offers lower storage costs for data that is less frequently accessed, but still needs to be
-readily available when required. It has a retrieval cost, so it's ideal for your ringtones that are accessed infrequently after 90 days.
-S3 One Zone-IA is an even more cost-effective option for infrequent access data that doesn’t require the resilience of being stored 
-across multiple Availability Zones (AZs). It's cheaper but suitable only if the data can be recreated or doesn’t require high durability.
+A. Configure S3 Standard-Infrequent Access (S3 Standard-IA) storage for the initial storage tier of the objects.
+B. Move the files to S3 Intelligent-Tiering and configure it to move objects to a less expensive storage tier after 90 days.
+C. Configure S3 inventory to manage objects and move them to S3 Standard-Infrequent Access (S3 Standard-1A) after 90 days.
+D. Implement an S3 Lifecycle policy that moves the objects from S3 Standard to S3 Standard-Infrequent Access (S3 Standard-1A) after 90 days
 
-
-so, S3-IA is the right ans.
+correct answer is A.
 
 ------
 
@@ -1342,289 +1336,353 @@ to the internet or use an Elastic IP.
 ------------
 
 83. Application using Amazon ECS needs permission to store resized images in Amazon S3
-Correct Answer: B
 Explanation:
-Create an IAM role with permissions to access S3 and attach it to the ECS task definition. This role will allow the ECS task to perform S3 operations, such as storing resized images.
+Create an IAM role with permissions to access S3 and attach it to the ECS task definition. This role will allow the ECS task 
+to perform S3 operations, such as storing resized images.
 
 Wrong Options:
 
 A: Updating the S3 role in IAM is unnecessary since permissions for ECS tasks should be managed by assigning an IAM role to the task itself.
-C: Creating a security group for ECS to access S3 is not the correct approach. Security groups control network traffic but do not define access to AWS services like S3.
+C: Creating a security group for ECS to access S3 is not the correct approach. Security groups control network traffic
+but do not define access to AWS services like S3.
 D: Creating an IAM user for S3 permissions is overcomplicated. You only need to assign a role to the ECS task, not a separate IAM user.
 
 
 
 84. Migrating a Windows-based application to AWS with shared file system across multiple Availability Zones
-Correct Answer: B
 Explanation:
-Amazon FSx for Windows File Server provides a managed, shared Windows file system that supports multi-AZ deployments and can be accessed by EC2 instances in multiple Availability Zones.
+Amazon FSx for Windows File Server provides a managed, shared Windows file system that supports multi-AZ deployments and can be
+accessed by EC2 instances in multiple Availability Zones.
 
 Wrong Options:
-
 A: EC2 instances with Windows File Server would require manual configuration of a file server, which is not optimal when a managed solution like FSx exists.
 C: Amazon EFS is not designed for Windows environments, so it's not a suitable option here.
 D: Amazon S3 is an object storage service, not a file system, so it does not work for applications requiring a traditional file system.
-Question 4: Highly available solution for e-commerce application with load balanced front-end, container-based application, and relational database
-Correct Answer: D
+
+
+---------
+
+85. Highly available solution for e-commerce application with load balanced front-end, container-based application, and relational database
 Explanation:
-ECS with Fargate provides a highly available, fully managed container orchestration service with automatic scaling and minimal operational overhead. It's ideal for containerized applications.
+ECS with Fargate provides a highly available, fully managed container orchestration service with automatic scaling and minimal 
+operational overhead. It's ideal for containerized applications.
 
 Wrong Options:
-
 A: RDS Multi-AZ provides high availability for databases but does not handle the application or the containerized front-end.
 B: RDS with read replicas is useful for read-heavy workloads but does not ensure overall high availability for the entire application.
 C: EC2-based Docker cluster requires managing EC2 instances and scaling, which increases complexity.
-Question 5: Highly available SFTP solution for uploading files to S3 data lake
-Correct Answer: A
-Explanation:
-AWS Transfer Family provides a managed SFTP service that can be used to directly upload files to an S3 data lake, minimizing operational overhead.
 
-Wrong Options:
+--------------
 
-B: S3 File Gateway is not an ideal solution for SFTP as it’s designed for file-based access to S3 from on-premises storage, not for managing SFTP servers.
-C: EC2 instance with SFTP setup involves much more manual configuration and does not reduce operational overhead.
-D: Setting up an EC2 instance with a custom SFTP listener is complex and requires more management than using a managed service like AWS Transfer Family.
-Question 6: Storing and encrypting contract documents, ensuring no deletion or overwriting for five years
-Correct Answer: D
-Explanation:
-Using S3 Object Lock in Compliance Mode ensures that the documents cannot be deleted or modified. Additionally, with customer-managed keys (CMKs), you have full control over the key rotation policy.
+85. A company uses Amazon S3 as its data lake. The company has a new partner that must use SFTP to upload data files. A solutions 
+architect needs to implement a highly available SFTP solution that minimizes operational overhead.
 
-Wrong Options:
+Which solution will meet these requirements?
+A. Use AWS Transfer Family to configure an SFTP-enabled server with a publicly accessible endpoint. Choose the S3 data
+lake as the destination. Most Voted
+B. Use Amazon S3 File Gateway as an SFTP server. Expose the S3 File Gateway endpoint URL to the new partner. Share the S3 
+File Gateway endpoint with the new partner.
+C. Launch an Amazon EC2 instance in a private subnet in a VPInstruct the new partner to upload files to the EC2 instance
+by using a VPN. Run a cron job script, on the EC2 instance to upload files to the S3 data lake.
+D. Launch Amazon EC2 instances in a private subnet in a VPC. Place a Network Load Balancer (NLB) in front of the EC2 instances.
+Create an SFTP listener port for the NLB. Share the NLB hostname with the new partner. Run a cron job script on the EC2 instances to upload files to the S3 data lake.
 
-A: SSE-S3 (Server-Side Encryption with S3-Managed Keys) automatically handles encryption but does not allow manual control over key rotation.
-B: While SSE-KMS (Key Management Service) allows for key management, SSE-KMS by default does not rotate keys automatically every year unless configured, and it does not lock the object from deletion.
-C: SSE-S3 doesn't support automatic key rotation or management at the level required in this case.
-Question 7: Web application with Java and PHP needs a highly available solution with minimal operational overhead
-Correct Answer: B
-Explanation:
-AWS Elastic Beanstalk is a managed PaaS that automates the deployment, scaling, and monitoring of applications. It allows for quick deployment without the need to manage infrastructure.
 
-Wrong Options:
 
-A: S3 bucket is not suitable for hosting a web application, as it is primarily for static website hosting and not dynamic web apps.
-C: EC2 instances require manual configuration and management, which contradicts the requirement of minimal operational overhead.
-D: Containerizing the web application adds unnecessary complexity when Elastic Beanstalk already offers a simpler, managed solution.
-Question 8: RDS MySQL database causing timeouts due to long-running queries for reporting during order processing
-Correct Answer: A
-Explanation:
-Read replicas of the RDS MySQL database can offload read-heavy workloads, such as reporting queries, from the primary database, allowing it to focus on write operations and improving performance.
+why ans a? AWS Transfer Family securely scales your recurring business-to-business file transfers to AWS Storage services using SFTP, FTPS, FTP, and AS2 protocols.
+The key advantages of AWS Transfer Family are:
+It provides a fully managed file transfer service that eliminates the need to manage your own file transfer infrastructure. This reduces operational overhead.
+It supports multiple protocols like SFTP, FTPS, FTP and AS2, allowing easy and secure exchange of data with business partners and customers.
+File transfers happen directly into Amazon S3 buckets or Amazon EFS file systems, so the transferred data can be easily accessed by other AWS services for analytics, processing etc.
+AWS Transfer Family maintains existing client-side configurations, so file transfer workflows remain unchanged for end users and partners.
+It provides high availability and auto-scaling capabilities to handle varying transfer workloads.
+--------
 
-Wrong Options:
+86. A company needs to store contract documents. A contract lasts for 5 years. During the 5-year period, the company must ensure that the documents 
+cannot be overwritten or deleted. The company needs to encrypt the documents at rest and rotate the encryption keys automatically every year.
 
-B: Using Amazon ElastiCache (Memcached or Redis) is not a direct solution for offloading read queries from a database.
-C: Route 53 manages DNS, not database load balancing, and is not a solution for handling database read queries.
-D: DynamoDB is a NoSQL database and would require a complete application redesign to switch from MySQL.
-Question 9: Hospital scanning documents and analyzing them with medical information extraction
-Correct Answer: E
-Explanation:
-The solution involves S3 for storing the documents, AWS Lambda for processing, Amazon Textract for extracting text, and Amazon Comprehend Medical to extract relevant medical information. This combines all the necessary services for a complete workflow.
+Which combination of steps should a solutions architect take to meet these requirements with the LEAST operational overhead? (Choose two.)
+A. Store the documents in Amazon S3. Use S3 Object Lock in governance mode.
+B. Store the documents in Amazon S3. Use S3 Object Lock in compliance mode. Most Voted
+C. Use server-side encryption with Amazon S3 managed encryption keys (SSE-S3). Configure key rotation.
+D. Use server-side encryption with AWS Key Management Service (AWS KMS) customer managed keys. Configure key rotation. Most Voted
+E. Use server-side encryption with AWS Key Management Service (AWS KMS) customer provided (imported) keys. Configure key rotation.
 
-Wrong Options:
 
-A: Simply storing information in S3 and using Athena does not address the need for medical information extraction.
-B: A custom application to extract medical information would be complex and unnecessary. AWS services like Textract and Comprehend Medical are better suited.
-C: Using recognition for this task is inappropriate, as it focuses on image-based text extraction and is not suitable for structured document analysis in the medical context.
-Question 10: Application with high read traffic needs to reduce load on RDS databases
-Correct Answer: A
-Explanation:
-Using read replicas in Amazon RDS is the best way to offload read traffic from the primary database instance. This reduces the load on the primary instance and ensures better performance.
+Two Retention Modes in S3 Object Lock
+Governance Mode (Flexible, but restricted)
 
-Wrong Options:
+Objects cannot be deleted or overwritten by normal users.
+Only users with special permissions (s3:BypassGovernanceRetention) can modify or delete locked objects.
+Used when organizations need protection with some flexibility (e.g., internal data retention policies).
+Compliance Mode (Strict, Immutable)
 
-B: ElastiCache is useful for caching but does not directly address high read traffic to RDS databases.
-C: Route 53 is used for DNS management, not for handling database read traffic.
-D: Using read replicas is simpler than using ElastiCache to manage reads, as the database itself can handle the read scaling.
-Question 11: Critical application with EC2 and RDS, requires high availability and automatic failover
-Correct Answer: B
-Explanation:
-RDS Multi-AZ deployments ensure that the database is highly available and can failover automatically in the event of a failure in one Availability Zone. This solution minimizes downtime and ensures that the critical application remains available.
+Objects cannot be deleted by anyone, including root users until the retention period expires.
+No bypass permission exists—the object is truly locked.
+Used for strict regulatory requirements like SEC Rule 17a-4(f), FINRA, GDPR, and HIPAA.
 
-Wrong Options:
+SSE-S3 - is free and uses AWS owned CMKs (CMK = Customer Master Key). The encryption key is owned and managed by AWS, and is shared among 
+many accounts. Its rotation is automatic with time that varies as shown in the table here. The time is not explicitly defined." .
+So SSE-S3 does have key rotation, but user cannot configure rotation frequency. It vaires and managed by AWS, NOT by user.
 
-A: EC2 instances with a manual failover process would require more management and complexity than RDS Multi-AZ.
-C: Read replicas are for scaling read-heavy workloads and do not provide automatic failover for high availability.
-D: Elastic Load Balancer (ELB) does not provide automatic failover for databases; it’s for distributing traffic to EC2 instances.
+--------
 
+87. A company has a web application that is based on Java and PHP. The company plans to move the application from on premises to AWS.
+The company needs the ability to test new site features frequently. The company also needs a highly available and managed solution that requires minimum operational overhead.
 
+Which solution will meet these requirements?
 
+A. Create an Amazon S3 bucket. Enable static web hosting on the S3 bucket. Upload the static content to the S3 bucket. Use AWS 
+Lambda to process all dynamic content.
+B. Deploy the web application to an AWS Elastic Beanstalk environment. Use URL swapping to switch between multiple Elastic Beanstalk
+environments for feature testing. Most Voted
+C. Deploy the web application to Amazon EC2 instances that are configured with Java and PHP. Use Auto Scaling groups and an Application 
+Load Balancer to manage the website’s availability.
+D. Containerize the web application. Deploy the web application to Amazon EC2 instances. Use the AWS Load Balancer Controller to
+dynamically route traffic between containers that contain the new site features for testing.
 
 
 
+B. Provides a highly available and managed solution with minimum operational overhead. By deploying the web application to EBS, the infrastructure 
+and platform management are abstracted, allowing easy deployment and scalability. With URL swapping, different environments can be created for testing new site features, and traffic can be routed between these environments without any downtime.
 
+A. Suggests using S3 for static content hosting and Lambda for dynamic content. While it offers simplicity for static content, it does not provide 
+the necessary flexibility and dynamic functionality required by a Java and PHP-based web application.
 
-Question 1: Launch EC2 for the Application Database
-Detailed Question Explanation:
-The company needs to deploy a database on Amazon EC2 instances for high availability. The question asks for the best option to achieve this while ensuring the application database remains highly available and resilient to failures.
+C. Involves manual management of EC2, ASG, and ELB, which requires more operational overhead and may not provide the desired level
+of availability and ease of testing.
 
-Options:
-A. Launch two EC2 instances in different availability zones in the same AWS region. Install the database on both EC2 instances and configure these two instances as a cluster set for database replication.
+D. Introduces containerization, which adds complexity and operational overhead for managing containers and infrastructure, making it
+less suitable for a requirement of minimum operational overhead.
 
-Explanation:
-This option is the most appropriate for high availability. By launching EC2 instances in different availability zones, you ensure that if one availability zone fails, the database replication between the two instances allows the application to continue without disruption. This setup provides automatic failover since if one instance becomes unavailable, the other can serve the application without issues.
+------
 
-B. Launch an EC2 instance in an availability zone, install the database on the EC2 instance, and use AMI to backup the data.
+88. A company has an ordering application that stores customer information in Amazon RDS for MySQL. During regular business hours, 
+employees run one-time queries for reporting purposes. Timeouts are occurring during order processing because the reporting queries 
+are taking a long time to run. The company needs to eliminate the timeouts without preventing employees from performing queries.
+What should a solutions architect do to meet these requirements?
 
-Explanation:
-While using an AMI (Amazon Machine Image) to back up the database is a good practice, this does not address high availability. The database in a single EC2 instance can fail, and there is no automatic failover. Hence, this setup isn't suitable for high-availability requirements.
+A. Create a read replica. Move reporting queries to the read replica.
+B. Create a read replica. Distribute the ordering application to the primary DB instance and the read replica.
+C. Migrate the ordering application to Amazon DynamoDB with on-demand capacity.
+D. Schedule the reporting queries for non-peak hours.
 
-C. Launch two EC2 instances, each in different AWS regions. Install the database on both EC2 instances, set up data application failover to a database in a second region.
 
-Explanation:
-This option is focused on disaster recovery by setting up a multi-region replication. While this ensures the database can be restored from another region in case of failure, it doesn't provide automatic failover like the multi-AZ setup. Multi-region setups are complex and typically used for disaster recovery rather than high availability. The failover process in this case may take longer and is not automatic.
+IT IS AAAA!
 
-Question 2: Resilient Solution for Reprocessing Orders
-Detailed Question Explanation:
-The application processes orders, but if the system fails, orders need to be reprocessed automatically. The goal is to ensure that the system can handle outages and resume processing without manual intervention.
+------
 
-Options:
-A. Move the instances into an Auto Scaling group, create an EventBridge rule to target an ECS task.
+89. A hospital wants to create digital copies for its large collection of historical written records. The hospital will continue to
+add hundreds of new documents each day.
+The hospital's data team will scan the documents and will upload the documents to the AWS Cloud.
+A solutions architect must implement a solution to analyze the documents, extract the medical information, and store the documents so that an application can run
+SQL queries on the data. The solution must maximize scalability and operational efficiency.
+Which combination of steps should the solutions architect take to meet these requirements? (Choose two.)
 
-Explanation:
-This approach is too complex for the given requirement. It involves creating an EventBridge rule and integrating ECS tasks, which isn't necessary for automatic order reprocessing. The solution here is much simpler than this.
+A. Write the document information to an Amazon EC2 instance that runs a MySQL database.
+B. Write the document information to an Amazon S3 bucket. Use Amazon Athena to query the data.
+C. Create an Auto Scaling group of Amazon EC2 instances to run a custom application that processes the scanned files and 
+extracts the medical information.
+D. Create an AWS Lambda function that runs when new documents are uploaded. Use Amazon Rekognition to convert the documents to raw text. Use Amazon 
+Transcribe Medical to detect and extract relevant medical information from the text.
+E. Create an AWS Lambda function that runs when new documents are uploaded. Use Amazon Textract to convert the documents to raw text. Use Amazon 
+Comprehend Medical to detect and extract relevant medical information from the text.
 
-B. Move the EC2 instances into an Auto Scaling group behind an ELB. Update the order system to send its data.
 
-Explanation:
-This option sets up auto-scaling and load balancing, but it does not address automatic reprocessing of orders. The system might handle more traffic, but it doesn't resolve the need for automatic reprocessing after a failure.
 
-C. Move the EC2 instances into an Auto Scaling group, configure the order system to send messages to an SQS queue, and configure the EC2 instances to consume messages from the queue.
+B AND E IS THE ANSWER
 
-Explanation:
-This is the correct solution. SQS (Simple Queue Service) ensures that if the order system fails, messages (orders) are not lost. The EC2 instances can then process the messages from the queue once they are back online. This approach provides automatic reprocessing and ensures the application is resilient to outages.
 
-Question 3: Data Management for a DynamoDB Table
-Detailed Question Explanation:
-The company needs to manage data in DynamoDB efficiently, particularly when it only needs the data from the past 30 days. The goal is to minimize cost and effort while ensuring that outdated data is deleted automatically.
+--------
 
-Options:
-A. Use a CloudFormation template to deploy the complete solution.
+90. A company needs to run a critical application on AWS. The company needs to use Amazon EC2 for the application’s database. The database must
+be highly available and must fail over automatically if a disruptive event occurs.
 
-Explanation:
-CloudFormation is used for infrastructure as code to deploy AWS resources. While it’s useful for provisioning resources, it’s not the solution needed here. We need a solution to manage data retention in DynamoDB, which CloudFormation alone doesn’t address.
+Which solution will meet these requirements?
 
-B. Use EC2 instances to run a monitoring application.
+A. Launch two EC2 instances, each in a different Availability Zone in the same AWS Region. Install the database on both EC2 instances. Configure
+the EC2 instances as a cluster. Set up database replication.
+B. Launch an EC2 instance in an Availability Zone. Install the database on the EC2 instance. Use an Amazon Machine Image (AMI) to back up the data. 
+Use AWS CloudFormation to automate provisioning of the EC2 instance if a disruptive event occurs.
+C. Launch two EC2 instances, each in a different AWS Region. Install the database on both EC2 instances. Set up database replication. Fail
+over the database to a second Region.
+D. Launch an EC2 instance in an Availability Zone. Install the database on the EC2 instance. Use an Amazon Machine Image (AMI) to back up
+the data. Use EC2 automatic recovery to recover the instance if a disruptive event occurs.
 
-Explanation:
-This option involves using EC2 instances for monitoring the table, which is an over-complicated solution. DynamoDB has built-in features like TTL (Time to Live) that automatically handle outdated data.
 
-C. Use DynamoDB streams to invoke an AWS Lambda function when a new item is created and configure the Lambda function to delete items older than 30 days.
+Option B uses an AMI for backup and CloudFormation for automation, but doesn't provide high availability or automatic failover.
+Option C launches instances in different regions, which may not be necessary and may increase costs.
+Option D uses EC2 automatic recovery, which can recover an instance, but doesn't provide high availability or automatic failover.
 
-Explanation:
-This option involves using DynamoDB Streams and Lambda to manually manage data deletion. While this could work, it is more complex than necessary. It requires extra configuration and introduces more potential points of failure.
 
-D. Extend the application to add an attribute for the current time plus 30 days for each item, and configure DynamoDB to use this attribute as a TTL (Time to Live).
 
-Explanation:
-TTL (Time to Live) in DynamoDB is the most efficient and cost-effective solution. By adding an attribute that tracks the expiration time (30 days from the current time), DynamoDB will automatically delete items once they reach their TTL, without requiring additional infrastructure or manual intervention. This minimizes both cost and development effort.
 
-Question 4: Migrating .NET Application to AWS with Minimal Changes
-Detailed Question Explanation:
-The company wants to migrate a .NET application to AWS with minimal changes to the existing infrastructure. The solution must ensure high availability while keeping the changes to a minimum.
+What Does "EC2 Instances as a Cluster" Mean?
+In this scenario, setting up EC2 instances as a cluster means:
+Multiple EC2 instances work together to run a distributed application (in this case, a database).
+The EC2 instances share workloads, provide high availability, and ensure fault tolerance.
+Data is replicated between instances to prevent data loss if one instance fails.
 
-Options:
-A. Refactor the application as serverless with AWS Lambda running .NET Core.
 
-Explanation:
-This is a serverless solution, but it requires significant changes to the application code and architecture. The question specifies minimizing changes, so this option is not ideal.
+-------
 
-B. Rehost the application on AWS Elastic Beanstalk with the .NET platform as a deployment.
 
-Explanation:
-Elastic Beanstalk allows for a lift and shift deployment, which means you can move the .NET application to AWS with minimal changes. Elastic Beanstalk handles the underlying infrastructure, so the application remains unchanged. This is the simplest and most effective solution.
+91. A company's order system sends requests from clients to Amazon EC2 instances. The EC2 instances process the orders and then store the orders in 
+a database on Amazon RDS. Users report that they must reprocess orders when the system fails. The company wants a resilient solution that can
+process orders automatically if a system outage occurs.
 
-C. Leave the platform as is and run the application on Amazon EC2 using a custom AMI.
+What should a solutions architect do to meet these requirements?
+A. Move the EC2 instances into an Auto Scaling group. Create an Amazon EventBridge (Amazon CloudWatch Events) rule to target an 
+Amazon Elastic Container Service (Amazon ECS) task.
+B. Move the EC2 instances into an Auto Scaling group behind an Application Load Balancer (ALB). Update the order system to 
+send messages to the ALB endpoint.
+C. Move the EC2 instances into an Auto Scaling group. Configure the order system to send messages to an Amazon Simple Queue Service (Amazon SQS)
+queue. Configure the EC2 instances to consume messages from the queue.
+D. Create an Amazon Simple Notification Service (Amazon SNS) topic. Create an AWS Lambda function, and subscribe the function to the SNS topic. 
+Configure the order system to send messages to the SNS topic. Send a command to the EC2 instances to process the messages by using AWS Systems Manager Run Command.
 
-Explanation:
-While this option works for a lift-and-shift migration, it requires more manual configuration and management compared to Elastic Beanstalk. EC2 instances do not offer the same level of automation as Elastic Beanstalk.
 
-D. Use Database Migration Service (DMS) to migrate from Oracle to DynamoDB.
 
-Explanation:
-This is incorrect because the application uses Oracle, not DynamoDB. Changing the database would require significant modifications to the application code.
+IT IS CCC
 
-E. Use Database Migration Service (DMS) to migrate from Oracle to Oracle on Amazon RDS in a multi-AZ deployment.
+------
 
-Explanation:
-This is a good solution for the database migration. By migrating the Oracle database to Amazon RDS in a multi-AZ deployment, you can ensure high availability with minimal changes to the database.
+92. A company runs an application on a large fleet of Amazon EC2 instances. The application reads and write entries into an Amazon DynamoDB table.
+The size of the DynamoDB table continuously grows, but the application needs only data from the last 30 days. The company needs a
+solution that minimizes cost and development effort.
 
-Question 5: Migrating a Kubernetes Application to AWS
-Detailed Question Explanation:
-The company runs a containerized application using Kubernetes and wants to migrate to AWS without making code changes. They currently use MongoDB, and the goal is to migrate the application to AWS while minimizing operational overhead.
+Which solution meets these requirements?
+A. Use an AWS CloudFormation template to deploy the complete solution. Redeploy the CloudFormation stack every 30 days, and delete the
+original stack.
+B. Use an EC2 instance that runs a monitoring application from AWS Marketplace. Configure the monitoring application to use Amazon DynamoDB 
+Streams to store the timestamp when a new item is created in the table. Use a script that runs on the EC2 instance to delete items that have
+a timestamp that is older than 30 days.
+C. Configure Amazon DynamoDB Streams to invoke an AWS Lambda function when a new item is created in the table. Configure the Lambda function
+to delete items in the table that are older than 30 days.
+D. Extend the application to add an attribute that has a value of the current timestamp plus 30 days to each new item that is created in the 
+table. Configure DynamoDB to use the attribute as the TTL attribute.
 
-Options:
-A. Use EKS with EC2 worker nodes for compute and DynamoDB for data storage.
 
-Explanation:
-This option is not suitable because the application uses MongoDB, not DynamoDB. DynamoDB is not compatible with MongoDB, so this option wouldn’t work for the database storage.
 
-B. Use ECS with EC2 instances for compute and DocumentDB for data storage.
+Amazon DynamoDB Time to Live (TTL) allows you to define a per-item timestamp to determine when an item is no longer needed. 
+Shortly after the date and time of the specified timestamp, DynamoDB deletes the item from your table without consuming any write throughput.
+TTL is provided at no extra cost as a means to reduce stored data volumes by retaining only the items that remain current for your workload’s needs.
+TTL is useful if you store items that lose relevance after a specific time. The following are example TTL use cases:
+Remove user or sensor data after one year of inactivity in an application.
+Archive expired items to an Amazon S3 data lake via Amazon DynamoDB Streams and AWS Lambda.
+Retain sensitive data for a certain amount of time according to contractual or regulatory obligations.
 
-Explanation:
-ECS requires significant changes to the application, as it’s different from Kubernetes. Additionally, DocumentDB is the right database (it is AWS’s MongoDB-compatible service), but the application is already using Kubernetes, so ECS would not be the best option.
 
-C. Use EKS with Fargate for compute and DynamoDB for data storage.
+--------
+93. A company has a Microsoft .NET application that runs on an on-premises Windows Server. The application stores data by using an Oracle Database Standard
+Edition server. The company is planning a migration to AWS and wants to minimize development changes while moving the application. The AWS application environment 
+should be highly available.
+Which combination of actions should the company take to meet these requirements? (Choose two.)
 
-Explanation:
-Similar to option A, using DynamoDB here doesn’t meet the requirement since the application uses MongoDB. While EKS with Fargate is a good choice for Kubernetes workloads, DynamoDB is not suitable for MongoDB workloads.
+A. Refactor the application as serverless with AWS Lambda functions running .NET Core.
+B. Rehost the application in AWS Elastic Beanstalk with the .NET platform in a Multi-AZ deployment.
+C. Replatform the application to run on Amazon EC2 with the Amazon Linux Amazon Machine Image (AMI).
+D. Use AWS Database Migration Service (AWS DMS) to migrate from the Oracle database to Amazon DynamoDB in a Multi-AZ deployment.
+E. Use AWS Database Migration Service (AWS DMS) to migrate from the Oracle database to Oracle on Amazon RDS in a Multi-AZ deployment.
 
-D. Use EKS with Fargate for compute and DocumentDB for data storage.
 
-Explanation:
-This option is ideal because it keeps the Kubernetes setup (EKS) intact and uses DocumentDB, which is MongoDB-compatible. Fargate removes the need to manage the underlying EC2 instances, thus minimizing operational overhead.
 
+AWS Elastic Beanstalk in a multi-AZ configuration is an ideal platform for running the application. This is a PaaS service, and the developers
+only need to add the code. The deployment also provides the required high availability as a multi-AZ deployment will include Auto Scaling and Load Balancing.
 
 
+For the database tier, AWS DMS can be used to migrate the database to an Amazon RDS managed database service using the Oracle DB engine. This 
+requires a minimum of changes and provides high availability.
 
+-------
 
-Question 6: Transcription and Analysis of Customer Calls
-Detailed Question Explanation:
-The company needs a solution to transcribe and analyze customer calls. The goal is to convert speech to text, store the transcriptions, and then analyze them efficiently.
 
-Options:
-A. Use Amazon Transcribe with Amazon S3 to store files and Amazon Athena to analyze them.
+94. A company runs a container application on a Kubernetes cluster in the company's data center. The application uses Advanced Message
+Queuing Protocol (AMQP) to communicate with a message queue. The data center cannot scale fast enough to meet the company’s expanding business needs.
+The company wants to migrate the workloads to AWS.
 
-Explanation:
-Amazon Transcribe is a speech-to-text service that can transcribe audio files, such as customer calls, into text. Amazon S3 can be used to store these transcriptions in a highly durable, scalable manner. After storing the transcriptions in S3, Amazon Athena can be used to query the data directly from S3 using SQL, which is perfect for analyzing the transcriptions. This combination offers a fully managed solution that minimizes operational overhead and supports both transcription and analysis in an efficient, cost-effective manner.
+Which solution will meet these requirements with the LEAST operational overhead?
 
-B. Use Amazon Transcribe with Amazon S3 for storage and use Amazon Recognition to analyze the files.
+A. Migrate the container application to Amazon Elastic Container Service (Amazon ECS). Use Amazon Simple Queue Service (Amazon SQS) to retrieve the messages.
+B. Migrate the container application to Amazon Elastic Kubernetes Service (Amazon EKS). Use Amazon MQ to retrieve the messages. Most Voted
+C. Use highly available Amazon EC2 instances to run the application. Use Amazon MQ to retrieve the messages.
+D. Use AWS Lambda functions to run the application. Use Amazon Simple Queue Service (Amazon SQS) to retrieve the messages.
 
-Explanation:
-While Amazon Transcribe is the correct service for transcription and Amazon S3 is ideal for storage, Amazon Rekognition is designed for image and video analysis, not speech-to-text or text analysis. Thus, it is not appropriate for analyzing transcribed text. This option doesn’t meet the transcription and analysis requirements.
+This question is a trap because A is definitely the answer for a Least overhead (ECS + SQS) and in a real life scenario could be good in 99% of cases.
+However SQS do not implement AMQP (SQS is only a simple queueing system very basic) so we have to use Amazon MQ.
+In terms of containers EKS will always be a better solution than a manual setup of Docker.
+Good solution would have been ECS+AmazonMQ not given here
+Lambda can work with containers, but since there are limitations like 15 minutes limit we can't really consider it as a good solution.
+So B is the least bad solution.
 
-C. Use Amazon Translate to transcribe the audio files.
+----------------
 
-Explanation:
-Amazon Translate is designed for language translation, not for transcribing audio to text. Therefore, this option is incorrect because Amazon Translate cannot perform the transcription function.
+95. A company runs a containerized application on a Kubernetes cluster in an on-premises data center. The company is using a MongoDB database for data storage.
+The company wants to migrate some of these environments to AWS, but no code changes or deployment method changes are possible at this time.
+The company needs a solution that minimizes operational overhead.
 
-D. Use Amazon Lex to transcribe and analyze the audio files.
+Which solution meets these requirements?
+A. Use Amazon Elastic Container Service (Amazon ECS) with Amazon EC2 worker nodes for compute and MongoDB on EC2 for data storage.
+B. Use Amazon Elastic Container Service (Amazon ECS) with AWS Fargate for compute and Amazon DynamoDB for data storage
+C. Use Amazon Elastic Kubernetes Service (Amazon EKS) with Amazon EC2 worker nodes for compute and Amazon DynamoDB for data storage.
+D. Use Amazon Elastic Kubernetes Service (Amazon EKS) with AWS Fargate for compute and Amazon DocumentDB (with MongoDB compatibility) for data storage.
 
-Explanation:
-Amazon Lex is a service designed to build conversational interfaces (like chatbots) and is not built for transcribing audio files. While Lex can analyze conversations, it doesn’t provide transcription capabilities or the necessary storage and analysis features.
 
-Correct Answer: A
-Question 7: Access Control for REST API in AWS
-Detailed Question Explanation:
-The company needs to set up access control for a REST API hosted in AWS. The goal is to authenticate and authorize users to securely access the API.
 
-Options:
-A. Send the user’s email address in the header with every request.
 
-Explanation:
-While this approach can identify the user, it is not secure. Sending sensitive information like an email address in the header could be intercepted by malicious users, and it does not provide proper authentication or authorization. This is not a scalable or recommended solution.
+Option D is the correct solution that meets all the requirements:
+º Use Amazon Elastic Kubernetes Service (Amazon EKS) with AWS Fargate for compute and Amazon DocumentDB (with MongoDB compatibility) for data storage.
+The key reasons are:
+º EKS allows running the Kubernetes environment on AWS without changes.
+º Using Fargate removes the need to provision and manage EC2 instances.
+º DocumentDB provides MongoDB compatibility so the data layer is unchanged.
 
-B. Use API Gateway and Lambda to manage access for each user.
+---------------
 
-Explanation:
-API Gateway and Lambda can be used to build serverless APIs, but this solution would require custom code and complex configuration to handle user authentication and authorization. Although you could manage access this way, it adds unnecessary complexity compared to using a specialized service like Amazon Cognito.
 
-C. Use Amazon Cognito user pool and identity pool to manage user authentication and access.
 
-Explanation:
-Amazon Cognito is a fully managed service designed to handle user authentication and access control. It provides a user pool for managing user sign-up and sign-in, and an identity pool for federated authentication, allowing access to AWS resources. This is a serverless solution that minimizes the development effort and integrates well with API Gateway to provide secure access to the REST API. This is the most efficient and secure option for managing API access.
+96. A telemarketing company is designing its customer call center functionality on AWS. The company needs a solution that provides multiple 
+speaker recognition and generates transcript files. The company wants to query the transcript files to analyze the business patterns. 
+The transcript files must be stored for 7 years for auditing purposes.
 
-D. Use an API key for each user that must be sent with every request.
+Which solution will meet these requirements?
+A. Use Amazon Rekognition for multiple speaker recognition. Store the transcript files in Amazon S3. Use machine learning models for transcript file analysis.
+B. Use Amazon Transcribe for multiple speaker recognition. Use Amazon Athena for transcript file analysis. Most Voted
+C. Use Amazon Translate for multiple speaker recognition. Store the transcript files in Amazon Redshift. Use SQL queries for transcript file analysis.
+D. Use Amazon Rekognition for multiple speaker recognition. Store the transcript files in Amazon S3. Use Amazon Textract for transcript file analysis.
 
-Explanation:
-Using an API key for each user is a common approach for identifying users, but it is not a secure or scalable solution for authentication and authorization. API keys are easily shared or exposed, making them vulnerable to misuse. This option doesn't provide robust authentication, and managing keys for each user can become cumbersome.
 
-Correct Answer: C
+
+The correct answer is B: Use Amazon Transcribe for multiple speaker recognition. Use Amazon Athena for transcript file analysis.
+
+Amazon Transcribe is a service that automatically transcribes spoken language into written text. It can handle multiple speakers and
+can generate transcript files in real-time or asynchronously. These transcript files can be stored in Amazon S3 for long-term storage.
+Amazon Athena is a query service that allows you to analyze data stored in Amazon S3 using SQL. You can use it to analyze the transcript files and identify patterns in the data.
+
+Option A is incorrect because Amazon Rekognition is a service for analyzing images and videos, not transcribing spoken language.
+Option C is incorrect because Amazon Translate is a service for translating text from one language to another, not transcribing spoken language.
+Option D is incorrect because Amazon Textract is a service for extracting text and data from documents and images, not transcribing spoken language.
+
+
+
+----------
+
+97. A company hosts its application on AWS. The company uses Amazon Cognito to manage users. When users log in to the application,
+the application fetches required data from Amazon DynamoDB by using a REST API that is hosted in Amazon API Gateway. The company wants an 
+AWS managed solution that will control access to the REST API to reduce development efforts.
+
+Which solution will meet these requirements with the LEAST operational overhead?
+
+A. Configure an AWS Lambda function to be an authorizer in API Gateway to validate which user made the request.
+B. For each user, create and assign an API key that must be sent with each request. Validate the key by using an AWS Lambda function.
+C. Send the user’s email address in the header with every request. Invoke an AWS Lambda function to validate that the user with that email address has proper access.
+D. Configure an Amazon Cognito user pool authorizer in API Gateway to allow Amazon Cognito to validate each request.
+
+
+
+Configure an Amazon Cognito user pool authorizer in API Gateway to allow Amazon Cognito to validate each request.
+
+The key reasons are:
+º Cognito user pool authorizers allow seamless integration between Cognito and API Gateway for access control.
+º API Gateway handles validating the access tokens from Cognito automatically without any custom code.
+º This is a fully managed solution with minimal ops overhead
