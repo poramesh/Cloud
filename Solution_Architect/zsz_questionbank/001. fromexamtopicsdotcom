@@ -1581,6 +1581,10 @@ C. Migrate the application to Amazon EC2 instances in a Multi-AZ Auto Scaling gr
 D. Migrate the application to Amazon EC2 instances in a Multi-AZ Auto Scaling group. Use Amazon Elastic Block Store (Amazon EBS) for storage.
 
 ans: C
+EFS as It is built to scale on demand to petabytes without disrupting applications, growing and shrinking automatically as you add and remove files.
+Multiple compute instances, including Amazon EC2, Amazon ECS, and AWS Lambda,
+can access an Amazon EFS file system at the same time, providing a common data source
+for workloads.
 
 #autoscalin
 #efs
@@ -1603,66 +1607,288 @@ D. Use an S3 Lifecycle policy to transition the records from S3 Standard to S3 O
 Use S3 Object Lock in governance mode for a period of 10 years.
 
 ans: C
- 
-Question #54Topic 1
-A company runs multiple Windows workloads on AWS. The company's employees use Windows file shares that are hosted on two Amazon EC2 instances. The file shares synchronize data between themselves and maintain duplicate copies. The company wants a highly available and durable storage solution that preserves how users currently access the files.
+
+Only CD provides Object Lock options which is required for stopping admin/root users from deleting.
+D is governance mode which is like government, pay enough money and you can do anything. This is not what we want so compliance is the option.
+C is right choice.
+
+For future, remember
+S3 Lock Governance = corrupt government official
+S3 Lock Compliance = honest solution architect!
+
+
+---------------------
+54. A company runs multiple Windows workloads on AWS. The company's employees use Windows file shares that are hosted
+on two Amazon EC2 instances. The file shares synchronize data between themselves and maintain duplicate copies. 
+The company wants a highly available and durable storage solution that preserves how users currently access the files.
 What should a solutions architect do to meet these requirements?
 
 A. Migrate all the data to Amazon S3. Set up IAM authentication for users to access files.
 B. Set up an Amazon S3 File Gateway. Mount the S3 File Gateway on the existing EC2 instances.
-C. Extend the file share environment to Amazon FSx for Windows File Server with a Multi-AZ configuration. Migrate all the data to FSx for Windows File Server.
-D. Extend the file share environment to Amazon Elastic File System (Amazon EFS) with a Multi-AZ configuration. Migrate all the data to Amazon EFS.
- 
-Question #55Topic 1
-A solutions architect is developing a VPC architecture that includes multiple subnets. The architecture will host applications that use Amazon EC2 instances and Amazon RDS DB instances. The architecture consists of six subnets in two Availability Zones. Each Availability Zone includes a public subnet, a private subnet, and a dedicated subnet for databases. Only EC2 instances that run in the private subnets can have access to the RDS databases.
+C. Extend the file share environment to Amazon FSx for Windows File Server with a Multi-AZ configuration. Migrate 
+all the data to FSx for Windows File Server.
+D. Extend the file share environment to Amazon Elastic File System (Amazon EFS) with a Multi-AZ configuration. Migrate
+all the data to Amazon EFS.
+
+ans: c
+
+Migrating all the data to FSx for Windows File Server allows you to preserve existing user access method and maintain
+compatibility with Windows file shares. Users can continue accessing files using the same method as before, without any disruptions.
+
+A: S3 is a highly durable object storage service, it is not designed to directly host Windows file shares. Implementing
+IAM authentication for file access would require significant changes to existing user access method.
+
+B: S3 File Gateway can provide access to Amazon S3 objects through standard file protocols, it may not be ideal
+solution for preserving existing user access method and maintaining Windows file shares.
+
+D: Although Amazon EFS provides highly available and durable file storage, it may not directly support
+the existing Windows file shares and their access method.
+
+
+
+#fsx
+
+
+-----------------
+55. A solutions architect is developing a VPC architecture that includes multiple subnets. The architecture will host
+applications that use Amazon EC2 instances and Amazon RDS DB instances. The architecture consists of six subnets in 
+two Availability Zones. Each Availability Zone includes a public subnet, a private subnet, and a dedicated subnet for databases.
+Only EC2 instances that run in the private subnets can have access to the RDS databases.
 Which solution will meet these requirements?
 
-A. Create a new route table that excludes the route to the public subnets' CIDR blocks. Associate the route table with the database subnets.
-B. Create a security group that denies inbound traffic from the security group that is assigned to instances in the public subnets. Attach the security group to the DB instances.
-C. Create a security group that allows inbound traffic from the security group that is assigned to instances in the private subnets. Attach the security group to the DB instances.
-D. Create a new peering connection between the public subnets and the private subnets. Create a different peering connection between the private subnets and the database subnets.
- 
-Question #56Topic 1
-A company has registered its domain name with Amazon Route 53. The company uses Amazon API Gateway in the ca-central-1 Region as a public interface for its backend microservice APIs. Third-party services consume the APIs securely. The company wants to design its API Gateway URL with the company's domain name and corresponding certificate so that the third-party services can use HTTPS.
+A. Create a new route table that excludes the route to the public subnets' CIDR blocks. Associate the 
+route table with the database subnets.
+B. Create a security group that denies inbound traffic from the security group that is assigned to instances
+in the public subnets. Attach the security group to the DB instances.
+C. Create a security group that allows inbound traffic from the security group that is assigned to instances in
+the private subnets. Attach the security group to the DB instances.
+D. Create a new peering connection between the public subnets and the private subnets. Create a different peering 
+connection between the private subnets and the database subnets.
+
+ans: C
+A: doesn't fully configure the traffic flow
+B: security groups don't have deny rules
+D: peering is mostly between VPCs, doesn't really help here
+
+
+
+Feature	Route Table	                            Security Group
+Purpose	Controls network traffic                routing	Controls access to instances
+Works    at	Subnet level (VPC networking)	       Instance level (Firewall)
+Type	   Stateless (No automatic response)	    Stateful (Response is allowed if request is allowed)
+Rules    Apply To	Traffic flow (where it goes)	 Allow/Deny traffic (who can access)
+
+
+#vpc
+#subnet
+#securitygroups
+#routetable
+
+-------------------------
+56. A company has registered its domain name with Amazon Route 53. The company uses Amazon API Gateway in the 
+ca-central-1 Region as a public interface for its backend microservice APIs. Third-party services consume the
+APIs securely. The company wants to design its API Gateway URL with the company's domain name and corresponding
+certificate so that the third-party services can use HTTPS.
 Which solution will meet these requirements?
 
-A. Create stage variables in API Gateway with Name="Endpoint-URL" and Value="Company Domain Name" to overwrite the default URL. Import the public certificate associated with the company's domain name into AWS Certificate Manager (ACM).
-B. Create Route 53 DNS records with the company's domain name. Point the alias record to the Regional API Gateway stage endpoint. Import the public certificate associated with the company's domain name into AWS Certificate Manager (ACM) in the us-east-1 Region.
-C. Create a Regional API Gateway endpoint. Associate the API Gateway endpoint with the company's domain name. Import the public certificate associated with the company's domain name into AWS Certificate Manager (ACM) in the same Region. Attach the certificate to the API Gateway endpoint. Configure Route 53 to route traffic to the API Gateway endpoint.
-D. Create a Regional API Gateway endpoint. Associate the API Gateway endpoint with the company's domain name. Import the public certificate associated with the company's domain name into AWS Certificate Manager (ACM) in the us-east-1 Region. Attach the certificate to the API Gateway APIs. Create Route 53 DNS records with the company's domain name. Point an A record to the company's domain name.
- 
-Question #57Topic 1
-A company is running a popular social media website. The website gives users the ability to upload images to share with other users. The company wants to make sure that the images do not contain inappropriate content. The company needs a solution that minimizes development effort.
+A. Create stage variables in API Gateway with Name="Endpoint-URL" and Value="Company Domain Name" to overwrite the default URL.
+Import the public certificate associated with the company's domain
+name into AWS Certificate Manager (ACM).
+B. Create Route 53 DNS records with the company's domain name. Point the alias record to the
+Regional API Gateway stage endpoint.
+Import the public certificate associated with the company's domain 
+name into AWS Certificate Manager (ACM) in the us-east-1 Region.
+C. Create a Regional API Gateway endpoint. Associate the API Gateway endpoint with the company's domain name. Import 
+the public certificate associated with the company's domain name into AWS Certificate Manager (ACM) in the same Region.
+Attach the certificate to the API Gateway endpoint. Configure
+Route 53 to route traffic to the API Gateway endpoint.
+D. Create a Regional API Gateway endpoint. Associate the API Gateway endpoint with the company's domain name. Import the 
+public certificate associated with the company's domain name into AWS Certificate Manager (ACM) in the us-east-1 Region. 
+Attach the certificate to the API Gateway APIs. Create Route 53 DNS records with the company's domain name.
+Point an A record to the company's domain name.
+
+
+ans:
+
+Option C includes all the necessary steps to meet the requirements, hence it is the correct solution.
+
+Options A and D do not include the necessary steps to associate the API Gateway 
+endpoint with the company's domain name and attach the certificate to the endpoint.
+
+Option B includes the necessary steps to associate the API Gateway endpoint with the company's domain name
+and attach the certificate, but it imports the certificate into the us-east-1 Region
+instead of the ca-central-1 Region where the API Gateway is located.
+
+To design the API Gateway URL with the company's domain name and corresponding certificate, the company needs to do the following:
+1. Create a Regional API Gateway endpoint: This will allow the company to create an endpoint that is specific to a region.
+2. Associate the API Gateway endpoint with the company's domain name: This will allow the company to use
+its own domain name for the API Gateway URL.
+3. Import the public certificate associated with the company's domain name into AWS Certificate Manager (ACM) in the 
+same Region: This will allow the company to use HTTPS for secure communication with its APIs.
+4. Attach the certificate to the API Gateway endpoint: This will allow the company to use the certificate
+for securing the API Gateway URL.
+5. Configure Route 53 to route traffic to the API Gateway endpoint: This will allow the company to use Route 53 to route traffic
+to the API Gateway URL using the company's domain name.
+
+#apigateway
+---------------
+
+
+57. A company is running a popular social media website. The website gives users the ability to upload images to share with
+other users. The company wants to make sure that the images do not contain inappropriate content. 
+The company needs a solution that minimizes development effort.
 What should a solutions architect do to meet these requirements?
 
 A. Use Amazon Comprehend to detect inappropriate content. Use human review for low-confidence predictions.
 B. Use Amazon Rekognition to detect inappropriate content. Use human review for low-confidence predictions.
 C. Use Amazon SageMaker to detect inappropriate content. Use ground truth to label low-confidence predictions.
 D. Use AWS Fargate to deploy a custom machine learning model to detect inappropriate content. Use ground truth to label low-confidence predictions.
- 
-Question #58Topic 1
-A company wants to run its critical applications in containers to meet requirements for scalability and availability. The company prefers to focus on maintenance of the critical applications. The company does not want to be responsible for provisioning and managing the underlying infrastructure that runs the containerized workload.
+
+ans: B
+The best solution to meet these requirements would be option B: Use Amazon Rekognition to detect inappropriate content, 
+and use human review for low-confidence predictions.
+
+Amazon Rekognition is a cloud-based image and video analysis service that can detect inappropriate content in images 
+using its pre-trained label detection model. It can identify a wide range of inappropriate content,
+including explicit or suggestive adult content, violent content, and offensive language. The
+service provides high accuracy and low latency, making it a good choice for this use case.
+
+Option A, using Amazon Comprehend, is not a good fit for this use case because Amazon Comprehend is 
+a natural language processing service that is designed to analyze text, not images.
+
+Option C, using Amazon SageMaker to detect inappropriate content, would require significant development 
+effort to build and train a custom machine learning model. It would also require a large dataset of labeled 
+images to train the model, which may be time-consuming and expensive to obtain.
+
+Option D, using AWS Fargate to deploy a custom machine learning model, would also require significant development
+effort and a large dataset of labeled images. It may not be the most efficient or cost-effective solution for this use case.
+
+In summary, the best solution is to use Amazon Rekognition to detect inappropriate content in images, and use human
+review for low-confidence predictions to ensure that all inappropriate content is detected.
+
+
+--------------
+
+58. A company wants to run its critical applications in containers to meet requirements for scalability and availability. 
+The company prefers to focus on maintenance of the critical applications. The company does not want to be responsible 
+for provisioning and managing the underlying infrastructure that runs the containerized workload.
 What should a solutions architect do to meet these requirements?
 
 A. Use Amazon EC2 instances, and install Docker on the instances.
 B. Use Amazon Elastic Container Service (Amazon ECS) on Amazon EC2 worker nodes.
 C. Use Amazon Elastic Container Service (Amazon ECS) on AWS Fargate.
 D. Use Amazon EC2 instances from an Amazon Elastic Container Service (Amazon ECS)-optimized Amazon Machine Image (AMI).
- 
-Question #59Topic 1
-A company hosts more than 300 global websites and applications. The company requires a platform to analyze more than 30 TB of clickstream data each day.
+
+ans: C
+Using ECS on Fargate allows you to run containers without the need to manage the underlying infrastructure. Fargate 
+abstracts away the underlying EC2 and provides serverless compute for containers.
+
+A. This option would require manual provisioning and management of EC2, as well as installing and configuring Docker 
+on those instances. It would introduce additional overhead and responsibilities for maintaining the underlying infrastructure.
+
+B. While this option leverages ECS to manage containers, it still requires provisioning and managing EC2 to serve 
+as worker nodes. It adds complexity and maintenance overhead compared to the serverless nature of Fargate.
+
+D. This option still involves managing and provisioning EC2, even though an ECS-optimized AMI simplifies the process
+of setting up EC2 for running ECS. It does not provide the level of serverless abstraction and ease of management offered by Fargate.
+
+
+#ecs
+
+
+-------------
+
+59. A company hosts more than 300 global websites and applications. The company requires a platform to analyze more than 30 TB of clickstream data each day.
 What should a solutions architect do to transmit and process the clickstream data?
 
-A. Design an AWS Data Pipeline to archive the data to an Amazon S3 bucket and run an Amazon EMR cluster with the data to generate analytics.
-B. Create an Auto Scaling group of Amazon EC2 instances to process the data and send it to an Amazon S3 data lake for Amazon Redshift to use for analysis.
-C. Cache the data to Amazon CloudFront. Store the data in an Amazon S3 bucket. When an object is added to the S3 bucket. run an AWS Lambda function to process the data for analysis.
-D. Collect the data from Amazon Kinesis Data Streams. Use Amazon Kinesis Data Firehose to transmit the data to an Amazon S3 data lake. Load the data in Amazon Redshift for analysis.
- 
-Question #60Topic 1
-A company has a website hosted on AWS. The website is behind an Application Load Balancer (ALB) that is configured to handle HTTP and HTTPS separately. The company wants to forward all requests to the website so that the requests will use HTTPS.
+A. Design an AWS Data Pipeline to archive the data to an Amazon S3 bucket and run an Amazon EMR
+cluster with the data to generate analytics.
+B. Create an Auto Scaling group of Amazon EC2 instances to process the data and send it to an Amazon
+S3 data lake for Amazon Redshift to use for analysis.
+C. Cache the data to Amazon CloudFront. Store the data in an Amazon S3 bucket. When an object is added
+to the S3 bucket. run an AWS Lambda function to process the data for analysis.
+D. Collect the data from Amazon Kinesis Data Streams. Use Amazon Kinesis Data Firehose to transmit the
+data to an Amazon S3 data lake. Load the data in Amazon Redshift for analysis.
+
+ans:
+Option D is the most appropriate solution for transmitting and processing the clickstream data in this scenario.
+Amazon Kinesis Data Streams is a highly scalable and durable service that enables real-time processing of streaming 
+data at a high volume and high rate. You can use Kinesis Data Streams to collect and process the clickstream data in real-time.
+
+Amazon Kinesis Data Firehose is a fully managed service that loads streaming data into data stores and analytics tools
+You can use Kinesis Data Firehose to transmit the data from Kinesis Data Streams to an Amazon S3 data lake.
+
+Once the data is in the data lake, you can use Amazon Redshift to load the data and perform analysis on it. Amazon 
+Redshift is a fully managed, petabyte-scale data warehouse service that allows you to quickly and efficiently analyze 
+data using SQL and your existing business intelligence tools.
+
+**Kinesis Data Streams can continuously capture and ingest high volumes of clickstream data in real-time. This handles the large 30TB daily data intake.
+Kinesis Firehose can automatically load the streaming data into S3. This creates a data lake for further analysis.
+Firehose can transform and analyze the data in flight before loading to S3 using Lambda. This enables real-time processing.
+The data in S3 can be easily loaded into Amazon Redshift for interactive analysis at scale.
+Kinesis auto scales to handle the high data volumes. Minimal effort is needed for infrastructure management.**
+
+Option A, which involves using AWS Data Pipeline to archive the data to an Amazon S3 bucket and running an Amazon
+EMR cluster with the data to generate analytics, is not the most appropriate solution 
+because it does not involve real-time processing of the data.
+
+Option B, which involves creating an Auto Scaling group of Amazon EC2 instances to process the data and 
+sending it to an Amazon S3 data lake for Amazon Redshift to use for analysis, is not the most appropriate solution because 
+it does not involve a fully managed service for transmitting the data from the processing layer to the data lake.
+
+Option C, which involves caching the data to Amazon CloudFront, storing the data in an Amazon S3 bucket, and running an
+AWS Lambda function to process the data for analysis when an object is added to the S3 bucket, is not the most appropriate
+solution because it does not involve a scalable and durable service for collecting and processing the data in real-time.
+
+
+#datalake
+#analytics
+-----------
+
+
+60. A company has a website hosted on AWS. The website is behind an Application Load Balancer (ALB) that is configured to handle HTTP and HTTPS separately.
+The company wants to forward all requests to the website so that the requests will use HTTPS.
 What should a solutions architect do to meet this requirement?
 
 A. Update the ALB's network ACL to accept only HTTPS traffic.
 B. Create a rule that replaces the HTTP in the URL with HTTPS.
 C. Create a listener rule on the ALB to redirect HTTP traffic to HTTPS.
 D. Replace the ALB with a Network Load Balancer configured to use Server Name Indication (SNI).
+
+ans: c
+
+A. Network ACLs operate at subnet level and control inbound and outbound traffic. Updating the
+network ACL alone will not enforce the redirection of HTTP to HTTPS.
+B. This approach would require modifying application code or server configuration to perform URL rewrite. It is
+not an optimal solution as it adds complexity and potential maintenance overhead. Moreover, it does not leverage the ALB's 
+capabilities for handling HTTP-to-HTTPS redirection.
+D. While NLB can handle SSL/TLS termination using SNI for routing requests to different services, replacing th ALB solely to
+enforce HTTP-to-HTTPS redirection would be an unnecessary and more complex solution.
+
+Therefore, the recommended approach is to create a listener rule on the ALB to redirect HTTP traffic to HTTPS. By configuring a listener rule, 
+you can define a redirect action that automatically directs HTTP requests to their corresponding HTTPS versions.
+
+
+****
+select ur load balanacer and do this 
+
+Modify the HTTP Listener
+Scroll down to the Listeners tab.
+Find the HTTP (port 80) listener.
+Click on View/Edit rules.
+
+Add a Redirect Rule
+Click on Add rule.
+Click Insert Rule.
+Click Add Action, then select Redirect to.
+Configure the redirection settings:
+Protocol: HTTPS
+Port: 443
+Host, Path, and Query: Keep them as #{host}, #{path}, and #{query} (to retain the original request).
+Status code: 301 - Moved Permanently
+Click Save.
+***
+
+#alb
+
+-------
