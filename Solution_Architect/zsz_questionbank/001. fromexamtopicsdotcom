@@ -1441,6 +1441,8 @@ analyze and automatically remove the bad file
 
 This is a horrible question, and the real answer would be to break down the data into smaller chunks and use Macie on that
 
+#macie
+
 ------
 47. A company needs guaranteed Amazon EC2 capacity in three specific Availability Zones in a specific AWS Region for an upcoming event that will last 1 week.
 What should the company do to guarantee the EC2 capacity?
