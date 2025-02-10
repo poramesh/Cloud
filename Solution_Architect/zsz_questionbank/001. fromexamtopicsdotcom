@@ -53,7 +53,8 @@ Which solution meets these requirements with the LEAST amount of operational ove
 
 A. Add the aws PrincipalOrgID global condition key with a reference to the organization ID to the S3 bucket policy.
 B. Create an organizational unit (OU) for each department. Add the aws:PrincipalOrgPaths global condition key to the S3 bucket policy.
-C. Use AWS CloudTrail to monitor the CreateAccount, InviteAccountToOrganization, LeaveOrganization, and RemoveAccountFromOrganization events. Update the S3 bucket policy accordingly.
+C. Use AWS CloudTrail to monitor the CreateAccount, InviteAccountToOrganization, LeaveOrganization, and RemoveAccountFromOrganization 
+events. Update the S3 bucket policy accordingly.
 D. Tag each user that needs access to the S3 bucket. Add the aws:PrincipalTag global condition key to the S3 bucket policy.
 
 
@@ -1165,4 +1166,103 @@ Manager Session Manager, with minimal operational overhead.
 #iam
 #ssm
 -------------
+38. A company is hosting a static website on Amazon S3 and is using Amazon Route 53 for DNS. The website is experiencing increased 
+demand from around the world. The company must decrease latency for users who access the website.
+Which solution meets these requirements MOST cost-effectively?
 
+A. Replicate the S3 bucket that contains the website to all AWS Regions. Add Route 53 geolocation routing entries.
+B. Provision accelerators in AWS Global Accelerator. Associate the supplied IP addresses with the S3 bucket. Edit the Route
+53 entries to point to the IP addresses of the accelerators.
+C. Add an Amazon CloudFront distribution in front of the S3 bucket. Edit the Route 53 entries to point to the CloudFront distribution. Most Voted
+D. Enable S3 Transfer Acceleration on the bucket. Edit the Route 53 entries to point to the new endpoint.
+
+
+ans: 
+Keywords:
+Global, Reduce latency, S3, Static Website, Cost effective = Amazon CloudFront
+
+Option A (replicating the S3 bucket to all AWS Regions) can be costly and complex, requiring replication of data 
+across multiple Regions and managing synchronization. It may not provide a significant latency 
+improvement compared to the CloudFront solution.
+
+Option B (provisioning accelerators in AWS Global Accelerator) can be more expensive as it adds
+an extra layer of infrastructure (accelerators) and requires associating IP addresses with the S3 bucket. 
+CloudFront already includes global edge locations and provides similar acceleration capabilities.
+
+Option D (enabling S3 Transfer Acceleration) can help improve upload speed to the S3 bucket but may not
+have a significant impact on reducing latency for website visitors.
+
+Therefore, option C is the most cost-effective solution as it leverages CloudFront's caching and global
+distribution capabilities to decrease latency and improve website performance.
+
+
+---------------
+39. A company maintains a searchable repository of items on its website. The data is stored in an Amazon RDS for MySQL database table
+that contains more than 10 million rows. The database has 2 TB of General Purpose SSD storage. There are millions of updates against
+this data every day through the company's website.
+The company has noticed that some insert operations are taking 10 seconds or longer. The company has determined that the database storage performance is the problem.
+Which solution addresses this performance issue?
+
+A. Change the storage type to Provisioned IOPS SSD.
+B. Change the DB instance to a memory optimized instance class.
+C. Change the DB instance to a burstable performance instance class.
+D. Enable Multi-AZ RDS read replicas with MySQL native asynchronous replication.
+
+
+ans:
+A: Made for high levels of I/O opps for consistent, predictable performance.
+B: Can improve performance of insert opps, but it's a storage performance rather than processing power problem
+C: for moderate CPU usage
+D: for scale read-only replicas and doesn't improve performance of insert opps on the primary DB instance
+
+#iops
+#db
+------------------
+
+40. A company has thousands of edge devices that collectively generate 1 TB of status alerts each day. Each alert
+is approximately 2 KB in size. A solutions architect needs to implement a solution to ingest and store the alerts for future analysis.
+The company wants a highly available solution. However, the company needs to minimize costs and does not want 
+to manage additional infrastructure. Additionally, the company wants to keep 14 days of data available for immediate analysis and archive any data older than 14 days.
+What is the MOST operationally efficient solution that meets these requirements?
+
+A. Create an Amazon Kinesis Data Firehose delivery stream to ingest the alerts. Configure the Kinesis Data Firehose 
+stream to deliver the alerts to an Amazon S3 bucket. Set up an S3 Lifecycle configuration 
+to transition data to Amazon S3 Glacier after 14 days. Most Voted
+B. Launch Amazon EC2 instances across two Availability Zones and place them behind an Elastic Load Balancer to ingest the alerts. 
+Create a script on the EC2 instances that will store the alerts in an Amazon S3 bucket. Set up an S3 Lifecycle 
+configuration to transition data to Amazon S3 Glacier after 14 days.
+C. Create an Amazon Kinesis Data Firehose delivery stream to ingest the alerts. Configure the Kinesis Data Firehose 
+stream to deliver the alerts to an Amazon OpenSearch Service (Amazon Elasticsearch Service) cluster. Set up the Amazon 
+OpenSearch Service (Amazon Elasticsearch Service) cluster to take manual snapshots every day
+and delete data from the cluster that is older than 14 days.
+D. Create an Amazon Simple Queue Service (Amazon SQS) standard queue to ingest the alerts, and set the message 
+retention period to 14 days. Configure consumers to poll the SQS queue, check the age of the message, and analyze 
+the message data as needed. If the message is 14 days old, the consumer should copy the message to
+an Amazon S3 bucket and delete the message from the SQS queue.
+
+
+ans:
+B suggests launching EC2 instances to ingest and store the alerts, which introduces additional infrastructure
+management overhead and may not be as cost-effective and scalable as using 
+managed services like Kinesis Data Firehose and S3.
+C involves delivering the alerts to an Amazon OpenSearch Service cluster and manually managing snapshots and data deletion. This introduces
+additional complexity and manual overhead compared to the simpler solution of using Kinesis Data Firehose and S3.
+D suggests using SQS to ingest the alerts, but it does not provide the same level of data persistence and durability as storing 
+the alerts directly in S3. Additionally, it requires manual processing and 
+copying of messages to S3, which adds operational complexity.
+
+Therefore, A provides the most operationally efficient solution that meets the company's requirements by leveraging Kinesis Data 
+Firehose to ingest the alerts, storing them in an S3 bucket, and using an S3 Lifecycle configuration to transition data to S3 
+Glacier for long-term archival, all without the need for managing additional infrastructure.
+Only A makes sense operationally, as Amazon Kinesis Data Firehose is a fully managed service that can capture, transform, and deliver
+streaming data into storage systems or analytics tools, making it an ideal solution for ingesting and 
+storing status alerts. In this solution, the Kinesis Data Firehose delivery stream ingests the alerts 
+and delivers them to an S3 bucket, which is a cost-effective storage solution. An S3 Lifecycle configuration 
+is set up to transition the data to Amazon S3 Glacier after 14 days to minimize storage costs.
+
+If you think D, just consider what is needed to move the message from SQS to S3... you are polling daily 14 TB to take out 1 TB...
+that's no operationally efficient at all.
+"A" is simply correct because kinesis firehouse is made for this, SQS standard is not going to support 500 million alerts 2KB each (1 TB) this service is made for requests that are lighter.
+
+#kinesis
+#sqs
