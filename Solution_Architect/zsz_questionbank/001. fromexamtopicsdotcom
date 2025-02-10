@@ -461,3 +461,505 @@ across your accounts. It is not a service that performs traffic inspection or fi
 -------
 
 
+16. A company hosts a data lake on AWS. The data lake consists of data in Amazon S3 and Amazon RDS for PostgreSQL. The company needs a reporting 
+solution that provides data visualization and includes all the data sources within the data lake. Only the company's management team should
+have full access to all the visualizations. The rest of the company should have only limited access.
+Which solution will meet these requirements?
+
+A. Create an analysis in Amazon QuickSight. Connect all the data sources and create new datasets. Publish dashboards to visualize the data. 
+Share the dashboards with the appropriate IAM roles.
+B. Create an analysis in Amazon QuickSight. Connect all the data sources and create new datasets. Publish dashboards to visualize the data. 
+Share the dashboards with the appropriate users and groups.
+C. Create an AWS Glue table and crawler for the data in Amazon S3. Create an AWS Glue extract, transform, and load (ETL) job to produce reports.
+Publish the reports to Amazon S3. Use S3 bucket policies to limit access to the reports.
+D. Create an AWS Glue table and crawler for the data in Amazon S3. Use Amazon Athena Federated Query to access data within Amazon RDS for PostgreSQL. 
+Generate reports by using Amazon Athena. Publish the reports to Amazon S3. Use S3 bucket policies to limit access to the reports.
+
+
+ans:
+The question requires a solution for data visualization, which means it focuses solely on downstream consumption. Therefore, any solution that
+includes upstream processing is off the table (C & D). This leaves us with two options: A and B. Essentially, they are the same with one 
+key difference: A manages access through IAM Roles, while B manages it through an IAM group. Since only the management team is granted 
+permission, using a group will be more efficient, as it scales better with changes in personnel and provides a centralized point for managing permissions.
+
+Keyword: data visualization = QuickSight
+QuickSight defines Users (standard versions) and Groups (enterprise version)
+These users & groups only exist within QuickSight, not IAM
+So the correct answer is B.
+
+A - Incorrect: Amazon QuickSight only support users(standard version) and groups (enterprise version). users and groups 
+only exists without QuickSight. QuickSight don't support IAM. We use users and groups to view the QuickSight dashboard
+B - Correct: as explained in answer A and QuickSight is used to created dashboard from S3, RDS, Redshift,
+Aurora, Athena, OpenSearch, Timestream
+C - Incorrect: This way don't support visulization and don't mention how to process RDS data
+D - Incorrect: This way don't support visulization and don't mention how to combine data RDS and S3
+
+#analytics
+-----------
+
+17. A company is implementing a new business application. The application runs on two Amazon EC2 instances and uses an
+Amazon S3 bucket for document storage. A solutions architect needs to ensure that the EC2 instances can access the S3 bucket.
+What should the solutions architect do to meet this requirement?
+
+A. Create an IAM role that grants access to the S3 bucket. Attach the role to the EC2 instances.
+B. Create an IAM policy that grants access to the S3 bucket. Attach the policy to the EC2 instances.
+C. Create an IAM group that grants access to the S3 bucket. Attach the group to the EC2 instances.
+D. Create an IAM user that grants access to the S3 bucket. Attach the user account to the EC2 instances.
+
+ans:
+The correct option to meet this requirement is A: Create an IAM role that grants access to the S3 bucket and attach the role to the EC2 instances.
+An IAM role is an AWS resource that allows you to delegate access to AWS resources and services. You can create an IAM role
+that grants access to the S3 bucket and then attach the role to the EC2 instances. This will allow the EC2 instances to access the
+S3 bucket and the documents stored within it.
+
+Option B is incorrect because an IAM policy is used to define permissions for an IAM user or group, not for an EC2 instance.
+Option C is incorrect because an IAM group is used to group together IAM users and policies, not to grant access to resources.
+Option D is incorrect because an IAM user is used to represent a person or service that interacts with AWS resources, not to grant access to resources.
+
+Always remember that you should associate IAM roles to EC2 instances
+
+#iam
+
+
+---------
+
+18. An application development team is designing a microservice that will convert large images to smaller, compressed images.
+When a user uploads an image through the web interface, the microservice should store the image in an Amazon S3 bucket, process and 
+compress the image with an AWS Lambda function, and store the image in its compressed form in a different S3 bucket.
+A solutions architect needs to design a solution that uses durable, stateless components to process the images automatically.
+Which combination of actions will meet these requirements? (Choose two.)
+
+A. Create an Amazon Simple Queue Service (Amazon SQS) queue. Configure the S3 bucket to send a notification to the SQS queue 
+when an image is uploaded to the S3 bucket.
+B. Configure the Lambda function to use the Amazon Simple Queue Service (Amazon SQS) queue as the invocation source.
+When the SQS message is successfully processed, delete the message in the queue.
+C. Configure the Lambda function to monitor the S3 bucket for new uploads. When an uploaded image is detected, write the file name
+to a text file in memory and use the text file to keep track of the images that were processed.
+D. Launch an Amazon EC2 instance to monitor an Amazon Simple Queue Service (Amazon SQS) queue. When items are added to the queue, 
+log the file name in a text file on the EC2 instance and invoke the Lambda function.
+E. Configure an Amazon EventBridge (Amazon CloudWatch Events) event to monitor the S3 bucket. When an image is uploaded, send an alert to an 
+Amazon ample Notification Service (Amazon SNS) topic with the application owner's email address for further processing.
+
+
+ans:
+To design a solution that uses durable, stateless components to process images automatically, a solutions architect could consider the following actions:
+Option A involves creating an SQS queue and configuring the S3 bucket to send a notification to the queue when an image is uploaded. 
+This allows the application to decouple the image upload process from the image processing process and ensures that the image processing
+process is triggered automatically when a new image is uploaded.
+Option B involves configuring the Lambda function to use the SQS queue as the invocation source. When the SQS message is successfully processed,
+the message is deleted from the queue. This ensures that the Lambda function is invoked only once per image and that the image is not processed multiple times.
+Option C is incorrect because it involves storing state (the file name) in memory, which is not a durable or scalable solution.
+Option D is incorrect because it involves launching an EC2 instance to monitor the SQS queue, which is not a stateless solution.
+Option E is incorrect because it involves using Amazon EventBridge (formerly Amazon CloudWatch Events) to send an alert to an Amazon Simple
+Notification Service (Amazon SNS) topic, which is not related to the image processing process.
+
+
+#sqs
+#lambda
+
+
+----------
+
+19. A company has a three-tier web application that is deployed on AWS. The web servers are deployed in a public subnet in a VPC. 
+The application servers and database servers are deployed in private subnets in the same VPC. The company has deployed a third-party 
+virtual firewall appliance from AWS Marketplace in an inspection VPC. The appliance is configured with an IP interface that can accept IP packets.
+A solutions architect needs to integrate the web application with the appliance to inspect all traffic to the application before the traffic reaches the web server.
+Which solution will meet these requirements with the LEAST operational overhead?
+
+A. Create a Network Load Balancer in the public subnet of the application's VPC to route the traffic to the appliance for packet inspection.
+B. Create an Application Load Balancer in the public subnet of the application's VPC to route the traffic to the appliance for packet inspection.
+C. Deploy a transit gateway in the inspection VPConfigure route tables to route the incoming packets through the transit gateway.
+D. Deploy a Gateway Load Balancer in the inspection VPC. Create a Gateway Load Balancer endpoint to receive the incoming 
+packets and forward the packets to the appliance.
+
+
+ans:
+D. Deploy a Gateway Load Balancer in the inspection VPC. Create a Gateway Load Balancer endpoint to receive 
+the incoming packets and forward the packets to the appliance.
+
+A Gateway Load Balancer can inspect traffic before forwarding it to a virtual appliance for additional processing. 
+The solution will not require changing the existing architecture and will have the least amount of operational overhead.
+The appliance can be configured with a specific IP interface to accept IP packets. The Gateway Load Balancer can be configured
+with an endpoint to route incoming packets to the appliance. The solution ensures all traffic to the web application is inspected before it reaches the web server.
+
+
+Keywords:Third-party virtual firewall appliance from AWS Marketplace in an inspection VPC -> only Gateway Load Balancer support it
+
+A: Incorrect - Network Load Balancer don't support to route traffic to third-party virtual firewall appliance.
+B: Incorrect - Application Load Balancer don't support to route traffic to third-party virtual firewall appliance.
+C: Incorrect - Transit Gateway is use as connect center to connect all VPC, Direct Connect Gateway and VPN Connection. Routes Tables 
+in Trasit Gateway only limit which VPC can talk to other VPCs.
+D: Correct - Gateway Load Balancer support route traffic to third-party virtual firewall appliance in layer 3 that make it different from ALB and NLB.
+
+
+
+#glb
+
+------
+
+20. A company wants to improve its ability to clone large amounts of production data into a test environment in the same AWS Region. The data is 
+stored in Amazon EC2 instances on Amazon Elastic Block Store (Amazon EBS) volumes. Modifications to the cloned data must not 
+affect the production environment. The software that accesses this data requires consistently high I/O performance.
+A solutions architect needs to minimize the time that is required to clone the production data into the test environment.
+Which solution will meet these requirements?
+
+A. Take EBS snapshots of the production EBS volumes. Restore the snapshots onto EC2 instance store volumes in the test environment.
+B. Configure the production EBS volumes to use the EBS Multi-Attach feature. Take EBS snapshots of the production EBS volumes. 
+Attach the production EBS volumes to the EC2 instances in the test environment.
+C. Take EBS snapshots of the production EBS volumes. Create and initialize new EBS volumes. Attach the new EBS volumes to EC2 
+instances in the test environment before restoring the volumes from the production EBS snapshots.
+D. Take EBS snapshots of the production EBS volumes. Turn on the EBS fast snapshot restore feature on the EBS snapshots. 
+Restore the snapshots into new EBS volumes. Attach the new EBS volumes to EC2 instances in the test environment.
+
+
+ans: 
+Keywords:
+- Modifications to the cloned data must not affect the production environment.
+- Minimize the time that is required to clone the production data into the test environment.
+
+A: Incorrect - we can do this But it is not minimize the time as requirement.
+B: Incorrect - This approach use same EBS volumes for produciton and test. If we modify test then it
+will be affected prodution environment.
+C: Incorrect - EBS snapshot will create new EBS volumes. It can not restore from existing volumes.
+D: Correct - Turn on the EBS fast snapshot restore feature on the EBS snapshots -> no latency on first use
+
+
+#ebs
+
+
+---------
+
+21. An ecommerce company wants to launch a one-deal-a-day website on AWS. Each day will feature exactly one product on sale for a period of 24 hours. 
+The company wants to be able to handle millions of requests each hour with millisecond latency during peak hours.
+Which solution will meet these requirements with the LEAST operational overhead?
+
+A. Use Amazon S3 to host the full website in different S3 buckets. Add Amazon CloudFront distributions. Set the S3 buckets as origins 
+for the distributions. Store the order data in Amazon S3.
+B. Deploy the full website on Amazon EC2 instances that run in Auto Scaling groups across multiple Availability Zones. Add an Application
+Load Balancer (ALB) to distribute the website traffic. Add another ALB for the backend APIs. Store the data in Amazon RDS for MySQL.
+C. Migrate the full application to run in containers. Host the containers on Amazon Elastic Kubernetes Service (Amazon EKS). Use the
+Kubernetes Cluster Autoscaler to increase and decrease the number of pods to process bursts in traffic. Store the data in Amazon RDS for MySQL.
+D. Use an Amazon S3 bucket to host the website's static content. Deploy an Amazon CloudFront distribution. Set the S3 bucket as the origin. 
+Use Amazon API Gateway and AWS Lambda functions for the backend APIs. Store the data in Amazon DynamoDB.
+
+
+ans: DynamoDB is only suitable because of its really fast milliseconds speed.
+the solution that will meet these requirements with the least operational overhead is D: Use an Amazon S3 bucket to host the website's 
+static content, deploy an Amazon CloudFront distribution, set the S3 bucket as the origin, and use Amazon API Gateway and AWS 
+Lambda functions for the backend APIs. Store the data in Amazon DynamoDB.
+
+Using Amazon S3 to host static content and Amazon CloudFront to distribute the content can provide high performance and scale for websites with millions of 
+requests each hour. Amazon API Gateway and AWS Lambda can be used to build scalable and highly available backend APIs to support the website, and Amazon
+DynamoDB can be used to store the data. This solution requires minimal operational overhead as it leverages fully managed services that automatically scale to meet demand.
+
+Option A is incorrect because using multiple S3 buckets to host the full website would not provide the required performance and 
+scale for millions of requests each hour with millisecond latency.
+Option B is incorrect because deploying the full website on EC2 instances and using an Application Load Balancer (ALB) and an RDS
+database would require more operational overhead to maintain and scale the infrastructure.
+Option C is incorrect because while deploying the application in containers and hosting them on Amazon Elastic Kubernetes 
+Service (EKS) can provide high performance and scale, it would require more operational overhead to maintain and scale the
+infrastructure compared to using fully managed services like S3 and CloudFront.
+
+
+#dynamodb
+#cloudfront
+#s3
+
+---------
+22. A solutions architect is using Amazon S3 to design the storage architecture of a new digital media application. The media files must be 
+resilient to the loss of an Availability Zone. Some files are accessed frequently while other files are rarely accessed in an unpredictable pattern. 
+The solutions architect must minimize the costs of storing and retrieving the media files.
+Which storage option meets these requirements?
+
+A. S3 Standard
+B. S3 Intelligent-Tiering
+C. S3 Standard-Infrequent Access (S3 Standard-IA)
+D. S3 One Zone-Infrequent Access (S3 One Zone-IA)
+
+
+ans:
+The storage option that meets these requirements is B: S3 Intelligent-Tiering.
+Amazon S3 Intelligent Tiering is a storage class that automatically moves data to the most cost-effective storage tier based 
+on access patterns. It can store objects in two access tiers: the frequent access tier and the infrequent access tier. The frequent
+access tier is optimized for frequently accessed objects and is charged at the same rate as S3 Standard. The infrequent access tier is
+optimized for objects that are not accessed frequently and are charged at a lower rate than S3 Standard.
+
+S3 Intelligent Tiering is a good choice for storing media files that are accessed frequently and infrequently in an unpredictable 
+pattern because it automatically moves data to the most cost-effective storage tier based on access patterns, minimizing storage and 
+retrieval costs. It is also resilient to the loss of an Availability Zone because it stores objects in multiple Availability Zones within a region.
+
+#s3storage
+#s3
+
+-------
+23. A company observes an increase in Amazon EC2 costs in its most recent bill. The billing team notices unwanted vertical scaling of instance 
+types for a couple of EC2 instances. A solutions architect needs to create a graph comparing the last 2 months of EC2 costs and perform an
+in-depth analysis to identify the root cause of the vertical scaling.
+How should the solutions architect generate the information with the LEAST operational overhead?
+
+A. Use AWS Budgets to create a budget report and compare EC2 costs based on instance types.
+B. Use Cost Explorer's granular filtering feature to perform an in-depth analysis of EC2 costs based on instance types.
+C. Use graphs from the AWS Billing and Cost Management dashboard to compare EC2 costs based on instance types for the last 2 months.
+D. Use AWS Cost and Usage Reports to create a report and send it to an Amazon S3 bucket. Use Amazon QuickSight with Amazon S3 as a source to generate an
+interactive graph based on instance types.
+
+
+ans:
+Cost Explorer, AWS prepares the data about your costs for the current month and the last 12 months, and then calculates the forecast 
+for the next 12 months. The current month's data is available for viewing in about 24 hours. The rest of your data takes a few days 
+longer. Cost Explorer updates your cost data at least once every 24 hour.
+
+#cost
+
+-----
+
+24. A company is storing backup files by using Amazon S3 Standard storage. The files are accessed frequently for 1 month. However,
+the files are not accessed after 1 month. The company must keep the files indefinitely.
+Which storage solution will meet these requirements MOST cost-effectively?
+
+A. Configure S3 Intelligent-Tiering to automatically migrate objects.
+B. Create an S3 Lifecycle configuration to transition objects from S3 Standard to S3 Glacier Deep Archive after 1 month.
+C. Create an S3 Lifecycle configuration to transition objects from S3 Standard to S3 Standard-Infrequent Access (S3 Standard-IA) after 1 month.
+D. Create an S3 Lifecycle configuration to transition objects from S3 Standard to S3 One Zone-Infrequent Access (S3 One Zone-IA) after 1 month.
+
+
+ans:
+The storage solution that will meet these requirements most cost-effectively is B: Create an S3 Lifecycle configuration to transition objects 
+from S3 Standard to S3 Glacier Deep Archive after 1 month.
+
+Amazon S3 Glacier Deep Archive is a secure, durable, and extremely low-cost Amazon S3 storage class for long-term retention of data that
+is rarely accessed and for which retrieval times of several hours are acceptable. It is the lowest-cost storage option in Amazon S3, making 
+it a cost-effective choice for storing backup files that are not accessed after 1 month.
+You can use an S3 Lifecycle configuration to automatically transition objects from S3 Standard to S3 Glacier Deep Archive after 1 month. 
+This will minimize the storage costs for the backup files that are not accessed frequently.
+
+Option A, configuring S3 Intelligent-Tiering to automatically migrate objects, is not a good choice because it is not designed
+for long-term storage and does not offer the cost benefits of S3 Glacier Deep Archive.
+
+Option C, transitioning objects from S3 Standard to S3 Standard-Infrequent Access (S3 Standard-IA) after 1 month, is not a good 
+choice because it is not the lowest-cost storage option and would not provide the cost benefits of S3 Glacier Deep Archive.
+
+Option D, transitioning objects from S3 Standard to S3 One Zone-Infrequent Access (S3 One Zone-IA) after 1 month, is not a good 
+choice because it is not the lowest-cost storage option and would not provide the cost benefits of S3 Glacier Deep Archive.
+
+
+
+
+Storage Class                      	Examples of Data Stored
+S3 Standard	                        Website files, app data, real-time analytics datasets.
+S3 Intelligent-Tiering	            E-commerce catalogs, dynamic user content, app logs.
+S3 Standard-IA	                    Backup files, media for rare use, historical records.
+S3 One Zone-IA	                    Non-critical backups, replaceable logs, temp data.
+S3 Glacier Instant Retrieval	      Legal documents, medical imaging, historical sales.
+S3 Glacier Flexible Retrieval	      Surveillance footage, research data, archived reports.
+S3 Glacier Deep Archive	            Compliance records, film reels, tax records.
+
+
+#s3storage
+
+------
+
+25. A company is designing an application. The application uses an AWS Lambda function to receive information through Amazon API Gateway and 
+to store the information in an Amazon Aurora PostgreSQL database.
+During the proof-of-concept stage, the company has to increase the Lambda quotas significantly to handle the high volumes 
+of data that the company needs to load into the database. A solutions architect must recommend a new design to improve 
+scalability and minimize the configuration effort.
+Which solution will meet these requirements?
+
+A. Refactor the Lambda function code to Apache Tomcat code that runs on Amazon EC2 instances. Connect the database 
+by using native Java Database Connectivity (JDBC) drivers.
+B. Change the platform from Aurora to Amazon DynamoDProvision a DynamoDB Accelerator (DAX) cluster. Use the DAX client
+SDK to point the existing DynamoDB API calls at the DAX cluster.
+C. Set up two Lambda functions. Configure one function to receive the information. Configure the other function to load the information 
+into the database. Integrate the Lambda functions by using Amazon Simple Notification Service (Amazon SNS).
+D. Set up two Lambda functions. Configure one function to receive the information. Configure the other function to load the information into
+the database. Integrate the Lambda functions by using an Amazon Simple Queue Service (Amazon SQS) queue.
+
+Current Flow:
+Users send data → API Gateway receives it → Lambda processes it → Data is stored in Aurora.
+
+During the proof-of-concept (PoC) phase, the company realizes that:
+High volumes of data are being received.
+AWS Lambda quotas (memory, execution time, concurrency limits) are not enough to handle the load.
+Direct writes from Lambda to Aurora are inefficient, causing scalability issues (e.g., too many connections to the database).
+The company now needs a better design that:
+✔ Improves scalability (handles large amounts of data).
+✔ Minimizes configuration effort (automates as much as possible).
+
+Current Problem:
+The single Lambda function is overloaded due to high-volume data ingestion and direct writes to Amazon Aurora PostgreSQL.
+AWS Lambda has concurrency limits, and too many database connections can slow down Aurora.
+
+New Proposed Solution (Option D)
+Lambda Function 1 (Data Receiver)
+This function receives data from API Gateway.
+Instead of directly inserting data into Aurora, it places the data in an Amazon SQS queue.
+
+Amazon SQS (Buffer Layer)
+Stores incoming messages temporarily.
+Decouples the receiving process from database writing.
+Handles traffic spikes and prevents database overload.
+
+Lambda Function 2 (Data Loader)
+Reads messages from Amazon SQS in batches.
+Processes and loads the data into Aurora PostgreSQL efficiently.
+
+ans:
+It could be C or D, but Ans D wins because
+–SNS is Push Mechanism - ‘Other Lambda’ function is forced to take message when it might not be ready (or refuse it)
+–SQS is Pull Mechanism – ‘Other Lambda’ function can take next message when its ready to do so
+SQS is simple and allows better de-coupling.
+
+#sqs
+#lamba
+
+------
+
+
+26. A company needs to review its AWS Cloud deployment to ensure that its Amazon S3 buckets do not have unauthorized configuration changes.
+What should a solutions architect do to accomplish this goal?
+
+A. Turn on AWS Config with the appropriate rules.
+B. Turn on AWS Trusted Advisor with the appropriate checks.
+C. Turn on Amazon Inspector with the appropriate assessment template.
+D. Turn on Amazon S3 server access logging. Configure Amazon EventBridge (Amazon Cloud Watch Events).
+
+
+sol: The solution that will accomplish this goal is A: Turn on AWS Config with the appropriate rules.
+AWS Config is a service that enables you to assess, audit, and evaluate the configurations of your AWS resources.
+You can use AWS Config to monitor and record changes to the configuration of your Amazon S3 buckets. By turning on
+AWS Config and enabling the appropriate rules, you can ensure that your S3 buckets do not have unauthorized configuration changes.
+   
+AWS Trusted Advisor (Option B) is a service that provides best practice recommendations for your AWS resources, but it does not 
+monitor or record changes to the configuration of your S3 buckets.
+Amazon Inspector (Option C) is a service that helps you assess the security and compliance of your applications. While it 
+can be used to assess the security of your S3 buckets, it does not monitor or record changes to the configuration of your S3 buckets.
+Amazon S3 server access logging (Option D) enables you to log requests made to your S3 bucket. While it can help you identify changes to your S3 bucket,
+it does not monitor or record changes to the configuration of your S3 bucket.
+
+
+#security
+
+--------
+
+
+27. A company is launching a new application and will display application metrics on an Amazon CloudWatch dashboard. The company's product 
+manager needs to access this dashboard periodically. The product manager does not have an AWS account. A solutions architect must provide access 
+to the product manager by following the principle of least privilege.
+Which solution will meet these requirements?
+
+A. Share the dashboard from the CloudWatch console. Enter the product manager's email address, and complete the sharing steps. Provide a shareable
+link for the dashboard to the product manager.
+B. Create an IAM user specifically for the product manager. Attach the CloudWatchReadOnlyAccess AWS managed policy to the user. Share the new
+login credentials with the product manager. Share the browser URL of the correct dashboard with the product manager.
+C. Create an IAM user for the company's employees. Attach the ViewOnlyAccess AWS managed policy to the IAM user. Share the new login credentials with 
+the product manager. Ask the product manager to navigate to the CloudWatch console and locate the dashboard by name in the Dashboards section.
+D. Deploy a bastion server in a public subnet. When the product manager requires access to the dashboard, start the server and share the RDP credentials.
+On the bastion server, ensure that the browser is configured to open the dashboard URL with cached AWS credentials that have appropriate permissions to view the dashboard.
+
+
+sol:
+option b has a problem for cloudwatchreadonlyacess policy, it’s not only grant read access to dashboard, but other read permission
+for logs, insights, etc. so it does not follows the principle of least privilege. Option A only grants access to dashboard.
+ans is a, Share a single dashboard and designate specific email addresses of the people who can view the dashboard. Each of these users creates 
+their own password that they must enter to view the dashboard.
+
+
+
+#cloudwatch
+
+--------
+
+28. A company is migrating applications to AWS. The applications are deployed in different accounts. The company manages the accounts
+centrally by using AWS Organizations. The company's security team needs a single sign-on (SSO) solution across all the company's accounts.
+The company must continue managing the users and groups in its on-premises self-managed Microsoft Active Directory.
+Which solution will meet these requirements?
+
+A. Enable AWS Single Sign-On (AWS SSO) from the AWS SSO console. Create a one-way forest trust or a one-way domain trust to connect the 
+company's self-managed Microsoft Active Directory with AWS SSO by using AWS Directory Service for Microsoft Active Directory.
+B. Enable AWS Single Sign-On (AWS SSO) from the AWS SSO console. Create a two-way forest trust to connect the company's self-managed Microsoft
+Active Directory with AWS SSO by using AWS Directory Service for Microsoft Active Directory.
+C. Use AWS Directory Service. Create a two-way trust relationship with the company's self-managed Microsoft Active Directory.
+D. Deploy an identity provider (IdP) on premises. Enable AWS Single Sign-On (AWS SSO) from the AWS SSO console.
+
+
+
+sol: Tricky question!!! forget one-way or two-way. In this scenario, AWS applications (Amazon Chime, Amazon Connect, Amazon QuickSight, 
+AWS Single Sign-On, Amazon WorkDocs, Amazon WorkMail, Amazon WorkSpaces, AWS Client VPN, AWS Management Console, and AWS Transfer Family) need to 
+be able to look up objects from the on-premises domain in order for them to function. This tells you that authentication needs to
+flow both ways. This scenario requires a two-way trust between the on-premises and AWS Managed Microsoft AD domains.
+It is a requirement of the application
+Amazon EC2, Amazon RDS, and Amazon FSx will work with either a one-way or two-way trust.
+
+AWS IAM Identity Center requires a two-way trust so that it has permissions to read user and group information from your domain 
+to synchronize user and group metadata. IAM Identity Center uses this metadata when assigning access to permission sets or applications. 
+User and group metadata is also used by applications for collaboration, like when you share a dashboard with another user or group. 
+The trust from AWS Directory Service for Microsoft Active Directory to your domain permits IAM Identity Center to trust your domain for authentication.
+The trust in the opposite direction grants AWS permissions to read user and group metadata.
+
+
+#security
+#iam
+
+---
+
+29. A company provides a Voice over Internet Protocol (VoIP) service that uses UDP connections. The service consists of Amazon EC2 instances 
+that run in an Auto Scaling group. The company has deployments across multiple AWS Regions.
+The company needs to route users to the Region with the lowest latency. The company also needs automated failover between Regions.
+Which solution will meet these requirements?
+
+A. Deploy a Network Load Balancer (NLB) and an associated target group. Associate the target group with the Auto Scaling group.
+Use the NLB as an AWS Global Accelerator endpoint in each Region.
+B. Deploy an Application Load Balancer (ALB) and an associated target group. Associate the target group with the Auto Scaling 
+group. Use the ALB as an AWS Global Accelerator endpoint in each Region.
+C. Deploy a Network Load Balancer (NLB) and an associated target group. Associate the target group with the Auto Scaling group. 
+Create an Amazon Route 53 latency record that points to aliases for each NLB. Create an Amazon CloudFront 
+distribution that uses the latency record as an origin.
+D. Deploy an Application Load Balancer (ALB) and an associated target group. Associate the target group with the Auto Scaling group. 
+Create an Amazon Route 53 weighted record that points to aliases for each ALB. Deploy an Amazon CloudFront 
+distribution that uses the weighted record as an origin.
+
+
+sol: A - Global Accelerator is a good fit for non-HTTP use cases, such as gaming (UDP), IoT (MQTT), or Voice over IP, as
+well as for HTTP use cases that specifically require static IP addresses or deterministic, fast regional failover.
+Both services integrate with AWS Shield for DDoS protection.
+CloudFront uses Edge Locations to cache content while Global Accelerator uses Edge Locations to find an optimal pathway to the
+nearest regional endpoint. CloudFront is designed to handle HTTP protocol meanwhile Global Accelerator is best used for both HTTP
+and non-HTTP protocols such as TCP and UDP. so i think A is a better answer
+
+
+#nlb
+#globalaccelerator
+----
+
+
+30. A development team runs monthly resource-intensive tests on its general purpose Amazon RDS for MySQL DB instance with Performance Insights enabled. 
+The testing lasts for 48 hours once a month and is the only process that uses the database. The team wants to reduce the cost of 
+running the tests without reducing the compute and memory attributes of the DB instance.
+Which solution meets these requirements MOST cost-effectively?
+
+A. Stop the DB instance when tests are completed. Restart the DB instance when required.
+B. Use an Auto Scaling policy with the DB instance to automatically scale when tests are completed.
+C. Create a snapshot when tests are completed. Terminate the DB instance and restore the snapshot when required.
+D. Modify the DB instance to a low-capacity instance when tests are completed. Modify the DB instance again when required.
+
+
+real world ex: Imagine a software testing company that runs load tests on a MySQL database once a month to:
+Simulate high user traffic on a new application.
+Analyze database performance under stress.
+Ensure the application can handle peak loads.
+
+and 🔹 Without a snapshot? They would lose all database configurations and data, forcing them to manually recreate the database each time, which is inefficient.
+
+
+
+sol: The correct answer is: C. Create a snapshot when tests are completed. Terminate the DB instance and restore the snapshot when required.
+Explanation:
+This solution is the most cost-effective because it allows the development team to:
+Save Costs by Terminating the Instance:
+When the DB instance is not in use (28 out of 30 days), terminating it eliminates the costs associated with running a live instance.
+You only pay for storage costs associated with the snapshot, which is significantly lower than the cost of keeping a running instance.
+
+Restoring a Snapshot:
+Restoring from a snapshot is straightforward and brings the database back with the same data and configuration as before.
+It’s a good practice when dealing with periodic, resource-intensive tasks like the monthly tests.
