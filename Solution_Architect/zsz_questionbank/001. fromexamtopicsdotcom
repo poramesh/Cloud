@@ -963,3 +963,206 @@ You only pay for storage costs associated with the snapshot, which is significan
 Restoring a Snapshot:
 Restoring from a snapshot is straightforward and brings the database back with the same data and configuration as before.
 It’s a good practice when dealing with periodic, resource-intensive tasks like the monthly tests.
+
+
+
+-------
+31. A company that hosts its web application on AWS wants to ensure all Amazon EC2 instances. Amazon RDS DB instances. and Amazon Redshift clusters
+are configured with tags. The company wants to minimize the effort of configuring and operating this check.
+What should a solutions architect do to accomplish this?
+
+A. Use AWS Config rules to define and detect resources that are not properly tagged. Most Voted
+B. Use Cost Explorer to display resources that are not properly tagged. Tag those resources manually.
+C. Write API calls to check all resources for proper tag allocation. Periodically run the code on an EC2 instance.
+D. Write API calls to check all resources for proper tag allocation. Schedule an AWS Lambda function through Amazon CloudWatch to periodically run the code.
+
+
+
+ans: Yes, you can use AWS Config to create tags for your resources. AWS Config is a service that enables you to assess,
+audit, and evaluate the configurations of your AWS resources. You can use AWS Config to create rules that automatically tag
+resources when they are created or when their configurations change.
+
+To create tags for your resources using AWS Config, you will need to create an AWS Config rule that specifies the tag key 
+and value you want to use and the resources you want to apply the tag to. You can then enable the rule and AWS Config will
+automatically apply the tag to the specified resources when they are created or when their configurations change.
+
+Option B (using Cost Explorer) primarily focuses on cost analysis and does not provide direct enforcement of proper tagging. 
+Option C and D (writing API calls and running them manually or through scheduled Lambda) require more manual effort and
+maintenance compared to using AWS Config rules.
+
+#awsconfig
+
+
+------
+32. A development team needs to host a website that will be accessed by other teams. The website contents consist of HTML, CSS, client-side JavaScript, and images.
+Which method is the MOST cost-effective for hosting the website?
+
+A. Containerize the website and host it in AWS Fargate.
+B. Create an Amazon S3 bucket and host the website there.
+C. Deploy a web server on an Amazon EC2 instance to host the website.
+D. Configure an Application Load Balancer with an AWS Lambda target that uses the Express.js framework.
+
+
+ans:
+Good answer is B: client-side JavaScript. the website is static, so it must be S3.
+
+I had initially thought Ans A... but its Ans C -- "cookieMr" makes it clear:
+Ans A "Containerising the website and hosting with AWS Fargate involves additional complexity and costs associated with managing 
+the container environment and scaling resources."
+So it has to be...
+Ans B: "...Amazon S3 to host the website, take advantage of its durability, scalability, and low-cost pricing model. Only pay
+for the storage and data transfer associated with your website, without the need for managing and maintaining web servers or containers.
+This reduces the operational overhead and infrastructure costs."
+
+#s3
+#ec2
+#eks
+#s3webhosting
+
+------
+33. A company runs an online marketplace web application on AWS. The application serves hundreds of thousands of users during peak hours. 
+The company needs a scalable, near-real-time solution to share the details of millions of financial transactions with several other
+internal applications. Transactions also need to be processed to remove sensitive data before being stored in a document database for low-latency retrieval.
+What should a solutions architect recommend to meet these requirements?
+
+A. Store the transactions data into Amazon DynamoDB. Set up a rule in DynamoDB to remove sensitive data from every transaction 
+upon write. Use DynamoDB Streams to share the transactions data with other applications.
+B. Stream the transactions data into Amazon Kinesis Data Firehose to store data in Amazon DynamoDB and Amazon S3. Use AWS Lambda
+integration with Kinesis Data Firehose to remove sensitive data. Other applications can consume the data stored in Amazon S3.
+C. Stream the transactions data into Amazon Kinesis Data Streams. Use AWS Lambda integration to remove sensitive data from every 
+transaction and then store the transactions data in Amazon DynamoDB. Other applications can 
+consume the transactions data off the Kinesis data stream.
+D. Store the batched transactions data in Amazon S3 as files. Use AWS Lambda to process every file and remove sensitive
+data before updating the files in Amazon S3. The Lambda function then stores the data in Amazon DynamoDB.
+Other applications can consume transaction files stored in Amazon S3.
+
+ans: I would go for C. The tricky phrase is "near-real-time solution", pointing to Firehouse, 
+but it can't send data to DynamoDB, so it leaves us with C as best option.
+
+Kinesis Data Firehose currently supports Amazon S3, Amazon Redshift, Amazon OpenSearch Service, 
+Splunk, Datadog, NewRelic, Dynatrace, Sumologic, LogicMonitor, MongoDB, and HTTP End Point as destinations.
+
+(((((Stream is used if you want real time results , but with firehose , you generally use the data at a later point of time by storing it 
+somewhere. Hence if you see "REAL TIME" the answer is most probably Kinesis Data Streams.)))))
+
+#kinesis
+#db
+
+
+-----
+34. A company hosts its multi-tier applications on AWS. For compliance, governance, auditing, and security, the company must track configuration
+changes on its AWS resources and record a history of API calls made to these resources.
+What should a solutions architect do to meet these requirements?
+
+A. Use AWS CloudTrail to track configuration changes and AWS Config to record API calls.
+B. Use AWS Config to track configuration changes and AWS CloudTrail to record API calls.
+C. Use AWS Config to track configuration changes and Amazon CloudWatch to record API calls.
+D. Use AWS CloudTrail to track configuration changes and Amazon CloudWatch to record API calls.
+
+
+ans: CloudTrail - Track user activity and API call history.
+Config - Assess, audits, and evaluates the configuration and relationships of tag resources.
+
+Therefore, the answer is B
+
+#awsconfig
+#cloudtrail
+
+-----
+
+35. A company is preparing to launch a public-facing web application in the AWS Cloud. The architecture consists of Amazon EC2
+instances within a VPC behind an Elastic Load Balancer (ELB). A third-party service is used for the DNS. The company's solutions 
+architect must recommend a solution to detect and protect against large-scale DDoS attacks.
+Which solution meets these requirements?
+
+A. Enable Amazon GuardDuty on the account.
+B. Enable Amazon Inspector on the EC2 instances.
+C. Enable AWS Shield and assign Amazon Route 53 to it.
+D. Enable AWS Shield Advanced and assign the ELB to it.
+
+ans: AWS Shield Advanced provides expanded DDoS attack protection for your Amazon EC2 instances, Elastic Load Balancing load balancers,
+CloudFront distributions, Route 53 hosted zones, and AWS Global Accelerator standard accelerators.
+The solution also offers a direct response mechanism (via the AWS DDoS Response Team) for further assistance during attacks.
+
+
+A: GuardDuty is not for this, mostly for account monitoring for suspicious activity
+B: Inspector is for OS vulnerabilities
+C: Shield with R53 is not going to protect against DDoS
+D: Shield Advanced is build for DDoS protection
+
+#security
+#awsshield
+#ec2
+#alb
+-----
+
+
+36. A company is building an application in the AWS Cloud. The application will store data in Amazon S3 buckets in two AWS Regions. 
+The company must use an AWS Key Management Service (AWS KMS) customer managed key to encrypt all data that is stored in the S3 buckets. 
+The data in both S3 buckets must be encrypted and decrypted with the same KMS key. The data and the key must be stored in each of the two Regions.
+Which solution will meet these requirements with the LEAST operational overhead?
+
+A. Create an S3 bucket in each Region. Configure the S3 buckets to use server-side encryption with Amazon S3 managed
+encryption keys (SSE-S3). Configure replication between the S3 buckets.
+B. Create a customer managed multi-Region KMS key. Create an S3 bucket in each Region. Configure replication between
+the S3 buckets. Configure the application to use the KMS key with client-side encryption.
+C. Create a customer managed KMS key and an S3 bucket in each Region. Configure the S3 buckets to use server-side encryption 
+with Amazon S3 managed encryption keys (SSE-S3). Configure replication between the S3 buckets.
+D. Create a customer managed KMS key and an S3 bucket in each Region. Configure the S3 buckets to use server-side encryption with AWS
+KMS keys (SSE-KMS). Configure replication between the S3 buckets.
+
+ans:
+B. Create a customer managed multi-Region KMS key. Create an S3 bucket in each Region. Configure replication between the S3 buckets.
+Configure the application to use the KMS key with client-side encryption.
+
+Explanation:
+The requirement is to use the same KMS key in both AWS Regions.
+AWS multi-Region KMS keys allow encryption and decryption across multiple Regions using the same key.
+Client-side encryption ensures that the application encrypts the data before storing it in S3, so the same KMS key can be used across both Regions.
+Replication is necessary to keep data synchronized between the two S3 buckets.
+
+Why not the other options?
+A: Uses Amazon S3 managed keys (SSE-S3), but the requirement is to use a customer managed KMS key.
+C: Uses a customer managed KMS key but does not support using the same key across Regions.
+D: Uses SSE-KMS, but each Region will have a different KMS key because single-Region KMS keys cannot be used across Regions.
+
+
+#kms
+
+-----------
+
+37. A company recently launched a variety of new workloads on Amazon EC2 instances in its AWS account. The company needs to create a 
+strategy to access and administer the instances remotely and securely. The company needs to implement a repeatable process that works
+with native AWS services and follows the AWS Well-Architected Framework.
+Which solution will meet these requirements with the LEAST operational overhead?
+
+A. Use the EC2 serial console to directly access the terminal interface of each instance for administration.
+B. Attach the appropriate IAM role to each existing instance and new instance. Use AWS Systems Manager Session Manager to
+establish a remote SSH session. Most Voted
+C. Create an administrative SSH key pair. Load the public key into each EC2 instance. Deploy a bastion host in a public 
+subnet to provide a tunnel for administration of each instance.
+D. Establish an AWS Site-to-Site VPN connection. Instruct administrators to use their local on-premises machines to connect
+directly to the instances by using SSH keys across the VPN tunnel.
+
+
+
+ans:
+Option A provides direct access to the terminal interface of each instance, but it may not be practical for administration 
+purposes and can be cumbersome to manage, especially for multiple instances.
+
+Option C adds operational overhead and introduces additional infrastructure that needs to be managed, monitored,
+and secured. It also requires SSH key management and maintenance.
+
+Option D is complex and may not be necessary for remote administration. It also requires administrators to connect from 
+their local on-premises machines, which adds complexity and potential security risks.
+
+Therefore, option B is the recommended solution as it provides secure, auditable, and repeatable remote access using IAM roles and AWS Systems
+Manager Session Manager, with minimal operational overhead.
+
+
+
+#ec2
+#iam
+#ssm
+-------------
+
