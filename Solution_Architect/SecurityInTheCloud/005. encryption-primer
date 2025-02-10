@@ -46,3 +46,81 @@ Encryption in Transit: Protects data during transmission (e.g., HTTPS).
 Encryption at Rest: Protects stored data (e.g., Amazon S3).
 Asymmetric Encryption: Two keys (public for encryption, private for decryption). Best for secure data exchange.
 Symmetric Encryption: Single key used for both encryption and decryption. Best for fast encryption of large datasets.
+
+
+
+
+
+
+
+
+
+
+
+--------
+
+
+CSE (Client-Side Encryption) vs. SSE (Server-Side Encryption) in General
+Encryption is used to protect data by converting it into a format that cannot be read without a decryption key. CSE (Client-Side Encryption) 
+and SSE (Server-Side Encryption) are two main encryption models used for securing data, especially in cloud storage.
+
+
+cse:
+🔹 How it works:
+The client encrypts the data locally using an encryption algorithm.
+The encrypted data is uploaded to cloud storage.
+When downloading the data, the client must decrypt it using the same key before use.
+
+🔹 Example:
+Encrypting a file locally using AES-256 before uploading it to Amazon S3 or Google Drive.
+Using tools like OpenSSL, AWS SDK, or GPG to encrypt files before cloud storage.
+
+Pros:
+✔️ Maximum security (data is encrypted before leaving your system).
+✔️ Even cloud providers cannot see your data.
+✔️ Works across different cloud platforms.
+
+🔹 Cons:
+❌ More complexity (you must manage encryption/decryption).
+❌ If you lose the key, you lose access to your data.
+❌ Harder to integrate with cloud-based services (like S3 replication).
+
+
+
+
+sse:
+🔹 How it works:
+The user uploads unencrypted data to the cloud.
+The cloud provider automatically encrypts the data before storing it.
+When the user retrieves the data, the provider decrypts it automatically.
+
+🔹 Example:
+Amazon S3 SSE-S3, SSE-KMS, SSE-C (AWS automatically encrypts stored data).
+Google Cloud Storage with Customer Managed Encryption Keys (CMEK).
+
+🔹 Types of SSE in AWS S3:
+SSE-S3 → AWS fully manages encryption using Amazon S3 keys.
+SSE-KMS → AWS uses AWS KMS for key management (customer has control over keys).
+SSE-C → Customer provides their own key; AWS does not store it.
+
+🔹 Pros:
+✔️ Easy to use (no need to manually encrypt/decrypt).
+✔️ Fully managed by the cloud provider.
+✔️ Works seamlessly with cloud services (replication, backups).
+
+🔹 Cons:
+❌ Cloud provider has some level of control over the encryption process.
+❌ If the cloud provider is compromised, encryption could be at risk.
+❌ Not all providers allow you to bring your own encryption keys.
+
+
+Key Differences Between CSE and SSE
+
+Feature	                            Client-Side Encryption (CSE)	                       Server-Side Encryption (SSE)
+Who Encrypts?	                      The client (user or app).	                           the cloud provider.
+When is Data Encrypted?	            Before sending to the cloud.	                       After uploading to the cloud.
+Who Manages Keys?	                  The client (full control).	                         The cloud provider or customer (depends on SSE type).
+Complexity	                        Higher (client must manage keys and encryption).	   Lower (encryption happens automatically).
+Integration with Cloud Services	    Harder (since data is already encrypted).	           Easier (cloud services handle encryption seamlessly).
+Security Control	                  More control, but risk if keys are lost.	           Less control, but easier to manage.
+
