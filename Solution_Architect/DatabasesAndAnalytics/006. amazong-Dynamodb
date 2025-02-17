@@ -208,7 +208,6 @@ aws dynamodb query --table-name estore --key-conditions '{ "clientid":{ "Compari
 Output returns only the matching item, with a count of 1.
 
 6. DynamoDB Query vs. Scan
-Scan:
 Reads the entire table.
 Returns all items, regardless of filters (can be slower and costlier for large tables).
 Query:
@@ -223,3 +222,27 @@ Scalable & Efficient:
 Handles both scans (broad) and queries (specific) effectively.
 Integration:
 CLI and SDK support for automation and programmatic interaction.
+
+_________________________________
+
+A company is designing a new web application that will run on Amazon EC2 Instances. The application will use Amazon DynamoDB for backend data storage.
+The application traffic will be unpredictable. The company expects that the application read and write throughput to the database will be moderate
+to high. The company needs to scale in response to application traffic.
+
+Which DynamoDB table configuration will meet these requirements MOST cost-effectively?
+
+A. Configure DynamoDB with provisioned read and write by using the DynamoDB Standard table class. Set DynamoDB auto scaling to a maximum defined capacity.
+B. Configure DynamoDB in on-demand mode by using the DynamoDB Standard table class. Most Voted
+C. Configure DynamoDB with provisioned read and write by using the DynamoDB Standard Infrequent Access (DynamoDB Standard-IA) table class. Set DynamoDB auto 
+scaling to a maximum defined capacity.
+D. Configure DynamoDB in on-demand mode by using the DynamoDB Standard Infrequent Access (DynamoDB Standard-IA) table class.
+
+
+
+
+B is the ans cause Provisioned if we know how much traffic will come, but its unpredictable, so we have to go for on-demand
+
+This option allows DynamoDB to automatically adjust to varying traffic patterns, which is ideal for unpredictable workloads. The Standard table
+class is suitable for applications with moderate to high read and write throughput, and on-demand mode ensures that you are billed based on the actual
+usage, providing cost efficiency for variable traffic patterns.
+
