@@ -1,0 +1,107 @@
+AWS Backup
+AWS Backup is a fully managed backup service that helps you centralize, automate, and manage backups across AWS services.
+It allows you to create, schedule, and monitor backups for various AWS resources in a simple and cost-effective way.
+
+Key Features of AWS Backup
+✅ Centralized Backup Management – Manages backups across multiple AWS services in one place.
+✅ Automated Backup Policies – Define backup plans with schedules and retention rules.
+✅ Cross-Region & Cross-Account Backup – Improves disaster recovery by storing backups in different AWS regions/accounts.
+✅ Lifecycle Policies – Automatically move backups to cold storage to save costs.
+✅ Compliance & Auditing – Supports encryption, access control, and AWS Backup Audit Manager for regulatory compliance.
+
+
+AWS Services Supported by AWS Backup
+EC2 (Amazon Machine Images - AMIs)
+EBS (Elastic Block Store volumes)
+RDS (Relational Database Service)
+DynamoDB (NoSQL Database)
+EFS (Elastic File System)
+FSx (Windows File Server, Lustre)
+Aurora, Redshift, S3, VMWare backups (recently added support)
+
+How AWS Backup Works
+Create a Backup Plan
+Define backup frequency, retention period, and lifecycle rules.
+
+Assign AWS Resources
+Select services like EC2, RDS, S3, etc., that need backup.
+
+Monitor and Restore
+View backup status and restore data when needed.
+
+Example: Backup Plan for EC2 & RDS
+Daily Backup at 2 AM
+Retention Period: 30 Days
+Move to Cold Storage after 15 Days
+Delete Backup after 90 Days
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+AppSynch
+
+
+AWS AppSync is a fully managed GraphQL API service that helps applications securely access, modify, and combine data from multiple sources in a flexible and efficient way.
+
+Key Features of AWS AppSync:
+
+GraphQL API Management:
+Allows applications to request exactly the data they need from multiple sources with a single query.
+Unlike REST APIs, where multiple endpoints are required, GraphQL allows a client to specify only the needed fields from multiple sources in one request.
+
+Data Source Integration:
+Can connect to and aggregate data from:
+Amazon DynamoDB (NoSQL database)
+Amazon RDS or Aurora (SQL databases)
+AWS Lambda (for custom business logic)
+Elasticsearch/OpenSearch (for search functionality)
+HTTP Endpoints (third-party APIs)
+
+Real-Time Data Synchronization:
+Supports WebSockets for real-time updates, making it ideal for live dashboards, chat applications, and collaborative applications.
+
+Offline Support:
+Automatically syncs data when a device is offline and re-syncs when the connection is restored, making it great for mobile apps.
+
+Security & Access Control:
+Supports AWS Identity and Access Management (IAM), Amazon Cognito, and API key-based authentication for secure access control.
+
+Why Use AWS AppSync?
+✅ Simplifies API development – No need to manage backend API logic manually.
+✅ Reduces network overhead – GraphQL queries return only the requested data, minimizing bandwidth use.
+✅ Supports multiple data sources – You can fetch and merge data from multiple databases or APIs in a single request.
+✅ Scales automatically – Fully managed by AWS, so you don’t have to worry about infrastructure scaling.
+
+Real-World Example:
+Imagine you are building a social media app where a user profile page needs to show:
+1. User details (from DynamoDB)
+2. User posts (from RDS)
+3. Friend suggestions (from a third-party API)
+With a traditional REST API, you would need three separate API calls.
+With AppSync (GraphQL), a single query can fetch all this data in one request, improving performance and efficiency.
+
+Summary:
+AWS AppSync = A managed GraphQL API service
+Connects to multiple data sources
+Provides real-time data sync
+Optimizes mobile and web applications
+Improves efficiency and performance
