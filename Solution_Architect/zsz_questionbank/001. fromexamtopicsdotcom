@@ -2003,3 +2003,25 @@ Does not support routing between entire VPC networks.
 #transitgateway
 #directconnect
 #vpcpeering
+
+
+
+---------------------
+63. A company is building an ecommerce application and needs to store sensitive customer information. The company needs to give customers the ability to complete
+purchase transactions on the website. The company also needs to ensure that sensitive customer data is protected, even from database administrators.
+
+Which solution meets these requirements?
+
+A. Store sensitive data in an Amazon Elastic Block Store (Amazon EBS) volume. Use EBS encryption to encrypt the data. Use an IAM instance role to restrict access.
+B. Store sensitive data in Amazon RDS for MySQL. Use AWS Key Management Service (AWS KMS) client-side encryption to encrypt the data. Most Voted
+C. Store sensitive data in Amazon S3. Use AWS Key Management Service (AWS KMS) server-side encryption to encrypt the data. Use S3 bucket policies to restrict access.
+D. Store sensitive data in Amazon FSx for Windows Server. Mount the file share on application servers. Use Windows file permissions to restrict access.
+
+
+sol: 
+RDS MySQL provides a fully managed database service well suited for an ecommerce application.
+AWS KMS client-side encryption allows encrypting sensitive data before it hits the database. The data remains encrypted at rest.
+This protects sensitive customer data from database admins and privileged users.
+EBS encryption (Option A) protects data at rest but not in use. IAM roles don't prevent admin access.
+>>>S3 (Option C) encrypts data at rest on the server side. Bucket policies don't restrict admin access.
+FSx file permissions (Option D) don't prevent admin access to unencrypted data.
