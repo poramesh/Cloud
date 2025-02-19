@@ -163,7 +163,7 @@ Capacities and Scales of snowball:
 Snowball: 50-80 TB (petabyte scale).
 Snowball Edge: 100 TB (petabyte scale).
 Snowmobile: Up to 100 petabytes (exabyte scale).
-snowcone: less than 8 TN
+snowcone: less than 8 TB
 
 #s3
 #nfs
@@ -1914,3 +1914,92 @@ sol: A and D
 
 
 B, C and E would copy the files to S3 first where permissions would be lost
+
+
+
+
+
+
+
+------------------
+62. A company has multiple VPCs across AWS Regions to support and run workloads that are isolated from workloads in other Regions. Because of a recent application 
+launch requirement, the company’s VPCs must communicate with all other VPCs across all Regions.
+
+Which solution will meet these requirements with the LEAST amount of administrative effort?
+
+A. Use VPC peering to manage VPC communication in a single Region. Use VPC peering across Regions to manage VPC communications.
+B. Use AWS Direct Connect gateways across all Regions to connect VPCs across regions and manage VPC communications.
+C. Use AWS Transit Gateway to manage VPC communication in a single Region and Transit Gateway peering across Regions to manage VPC communications. Most Voted
+D. Use AWS PrivateLink across all Regions to connect VPCs across Regions and manage VPC communications
+
+
+ans: C (multiple regions + multiple VPCs --> Transit Gateway)
+ Use AWS Transit Gateway to manage VPC communication in a single Region and Transit Gateway peering across Regions to manage VPC communications.
+AWS Transit Gateway is a network hub that you can use to connect your VPCs and on-premises networks. It provides a single point of 
+control for managing your network traffic, and it can help you to reduce the number of connections that you need to manage.
+
+Transit Gateway peering allows you to connect two Transit Gateways in different Regions. This can help you to 
+create a global network that spans multiple Regions.
+
+To use Transit Gateway to manage VPC communication in a single Region, you would create a Transit Gateway in each Region.
+You would then attach your VPCs to the Transit Gateway.
+
+To use Transit Gateway peering to manage VPC communication across Regions, you would create a Transit Gateway
+peering connection between the Transit Gateways in each Region.
+
+
+
+
+(((((
+Option A: VPC Peering (Single Region + Cross-Region)
+What it means: VPC Peering is a direct, point-to-point network connection between two VPCs.
+How it works:
+Inside a single AWS Region, you establish multiple VPC peering connections.
+For cross-region communication, you set up VPC peering between VPCs in different Regions.
+Challenges:
+It requires manual setup and management of multiple peering connections.
+As the number of VPCs increases, the complexity grows exponentially due to the need for a full mesh network (i.e., every VPC needs a connection to every other VPC).
+No centralized routing or management.
+👉 Not the best option because it requires a lot of administrative effort.
+
+Option B: AWS Direct Connect Gateways Across Regions
+What it means: AWS Direct Connect (DX) is a dedicated private connection from an on-premises data center to AWS. A Direct Connect Gateway enables
+multiple VPCs in different AWS Regions to connect via a single Direct Connect link.
+How it works:
+Typically used for hybrid cloud scenarios where an on-premises data center is connected to AWS.
+Allows VPCs to communicate via an external on-premises network using Direct Connect.
+Challenges:
+Not designed for VPC-to-VPC communication. It primarily facilitates connectivity between on-premises networks and AWS, not for direct VPC interconnectivity.
+Requires additional physical infrastructure (Direct Connect links), which increases cost and complexity.
+👉 Not the right choice because Direct Connect is not optimized for VPC-to-VPC communication.
+
+Option C: AWS Transit Gateway with Peering Across Regions (Best Option)
+What it means: AWS Transit Gateway (TGW) is a scalable, centralized hub that simplifies VPC-to-VPC communication.
+How it works:
+Inside a single Region, Transit Gateway allows multiple VPCs to connect via a single hub rather than requiring multiple VPC peering connections.
+For cross-region communication, Transit Gateway supports peering between Transit Gateways in different AWS Regions.
+It provides a centralized routing mechanism, reducing the complexity of managing multiple peer connections.
+Advantages:
+Scalability – Can handle thousands of VPCs without requiring individual peering connections.
+Simplifies management – No need to configure numerous VPC peering connections manually.
+Better performance and security – Uses AWS backbone instead of public internet.
+👉 This is the best solution because it minimizes administrative effort and scales efficiently. ✅
+
+Option D: AWS PrivateLink Across Regions
+What it means: AWS PrivateLink enables secure access to AWS services and internal applications without exposing traffic to the public internet.
+How it works:
+PrivateLink does not connect VPCs directly; instead, it allows specific services (like internal applications or AWS services) to be accessed privately from another VPC.
+It is typically used when one VPC provides a service that needs to be consumed by another VPC.
+Challenges:
+Not designed for full VPC-to-VPC communication. It is service-specific, meaning you can only expose certain applications but not enable general networking between VPCs.
+Does not support routing between entire VPC networks.
+👉 Not suitable for full VPC interconnectivity across Regions.
+
+
+
+
+)))))
+
+#transitgateway
+#directconnect
+#vpcpeering
