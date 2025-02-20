@@ -2025,3 +2025,45 @@ This protects sensitive customer data from database admins and privileged users.
 EBS encryption (Option A) protects data at rest but not in use. IAM roles don't prevent admin access.
 >>>S3 (Option C) encrypts data at rest on the server side. Bucket policies don't restrict admin access.
 FSx file permissions (Option D) don't prevent admin access to unencrypted data.
+
+
+
+----------
+64. A company wants to securely exchange data between its software as a service (SaaS) application Salesforce account and Amazon S3. The company must encrypt 
+the data at rest by using AWS Key Management Service (AWS KMS) customer managed keys (CMKs). The company must also encrypt the data in transit. 
+The company has enabled API access for the Salesforce account.
+
+A. Create AWS Lambda functions to transfer the data securely from Salesforce to Amazon S3.
+B. Create an AWS Step Functions workflow. Define the task to transfer the data securely from Salesforce to Amazon S3.
+C. Create Amazon AppFlow flows to transfer the data securely from Salesforce to Amazon S3. Most Voted
+D. Create a custom connector for Salesforce to transfer the data securely from Salesforce to Amazon S3.
+
+ans: Amazon AppFlow is a fully managed integration service that allows you to securely transfer data between different SaaS applications and AWS services.
+It provides built-in encryption options and supports encryption in transit using SSL/TLS protocols. With AppFlow, you can configure the data transfer flow 
+from Salesforce to Amazon S3, ensuring data encryption at rest by utilizing AWS KMS CMKs.
+
+
+
+------
+
+65. A company runs a web application on Amazon EC2 instances in an Auto Scaling group behind an Application Load Balancer that has sticky sessions enabled.
+The web server currently hosts the user session state. The company wants to ensure high availability and avoid user session state loss in the event of a web server outage.
+
+Which solution will meet these requirements?
+
+A. Use an Amazon ElastiCache for Memcached instance to store the session data. Update the application to use ElastiCache for Memcached to store the session state.
+B. Use Amazon ElastiCache for Redis to store the session state. Update the application to use ElastiCache for Redis to store the session state. Most Voted
+C. Use an AWS Storage Gateway cached volume to store session data. Update the application to use AWS Storage Gateway cached volume to store the session state.
+D. Use Amazon RDS to store the session state. Update the application to use Amazon RDS to store the session state.
+
+
+sol: 
+The key points are:
+
+ElastiCache Redis provides in-memory caching that can deliver microsecond latency for session data.
+Redis supports replication and multi-AZ which can provide high availability for the cache.
+The application can be updated to store session data in ElastiCache Redis rather than locally on the web servers.
+If a web server fails, the user can be routed via the load balancer to another web server which can retrieve their session data 
+from the highly available ElastiCache Redis cluster.
+
+-------
