@@ -1,0 +1,44 @@
+Unit	            Equivalent in Bits
+1 Byte (B)   	    8 bits
+1 Kilobyte (kB)	  8,000 bits (1,000 Bytes × 8)
+1 Kibibyte (KiB)	8,192 bits (1,024 Bytes × 8)
+1 Megabyte (MB)	  8,000,000 bits (1,000,000 Bytes × 8)
+
+
+Unit	            Bytes         	 MB Equivalent
+1 kB (Kilobyte)	  1,000 bytes	     0.001 MB
+1 KiB (Kibibyte)	1,024 bytes	     0.001024 MB
+1 MB (Megabyte)	  1,000,000 bytes	 1 MB
+1 MiB (Mebibyte)	1,048,576 bytes	 1.048 MB
+
+
+
+Unit	         Bytes	               Equivalent in GB
+1 GB	         1,000,000,000	       1.0 GB
+1 GiB	         1,073,741,824	       1.074 GB
+500 GB	       500,000,000,000	     465 GiB
+1 TB (1000 GB)	1,000,000,000,000	   931 GiB
+
+Example in Text Storage
+"A" in ASCII = 1 Byte = 8 bits → Stored as 01000001 in binary.
+"Hello" = 5 Bytes = 40 bits → Because each letter is stored as 8 bits.
+
+
+Bits vs. Bytes in Internet Speeds
+Internet speeds are in bits per second (Mbps, Kbps).
+Storage sizes are in Bytes (MB, GB, TB).
+
+What is a Bit?
+A bit (b) is the smallest unit of data in computing.
+It can have only two values: 0 or 1 (binary system).
+
+What is a Byte?
+A byte (B) is a group of 8 bits.
+It is the standard unit of measuring data storage and memory in computers.
+
+Why 8 Bits in a Byte?
+Computers use binary (base-2) system, and early computers used groups of 8 bits to store a single character.
+This became the standard size for a byte because:
+
+1 byte can store 256 different values (2⁸ = 256).
+This is enough to represent letters, numbers, and symbols (like "A", "B", "1", "@", etc.).
