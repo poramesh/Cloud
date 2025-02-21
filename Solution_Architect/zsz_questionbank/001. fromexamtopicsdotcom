@@ -2087,3 +2087,28 @@ And AWS Lambda can be used to authenticate users with the company's IdP.
 
 Applicability Statement 2 (AS2) is a business-to-business (B2B) messaging protocol used to exchange Electronic Data Interchange (EDI) documents. 
 With AWS Transfer Family’s AS2 capabilities, you can securely exchange AS2 messages at scale while maintaining compliance and interoperability with your trading partners.
+
+
+
+------------------
+
+
+A company runs applications on Amazon EC2 instances in one AWS Region. The company wants to back up the EC2 instances to a second Region. The company
+also wants to provision EC2 resources in the second Region and manage the EC2 instances centrally from one AWS account.
+
+Which solution will meet these requirements MOST cost-effectively?
+
+A. Create a disaster recovery (DR) plan that has a similar number of EC2 instances in the second Region. Configure data replication.
+B. Create point-in-time Amazon Elastic Block Store (Amazon EBS) snapshots of the EC2 instances. Copy the snapshots to the second Region periodically.
+C. Create a backup plan by using AWS Backup. Configure cross-Region backup to the second Region for the EC2 instances. Most Voted
+D. Deploy a similar number of EC2 instances in the second Region. Use AWS DataSync to transfer the data from the source Region to the second Region.
+
+
+ans:
+
+C is the most cost-effective solution that meets all the requirements.
+AWS Backup provides automated backups across Regions for EC2 instances. This handles the backup requirement.
+AWS Backup is more cost-effective for cross-Region EC2 backups than using EBS snapshots manually or DataSync.
+
+Well Datasync is to transfer data from on-prem to AWS rather than AWS R1 to R2, and it is use for a one-time migration rather
+than repetitive data migration activities like backups hence its out(on so many levels)
