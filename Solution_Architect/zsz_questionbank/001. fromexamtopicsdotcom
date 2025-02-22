@@ -2373,3 +2373,389 @@ Amazon S3 supports both gateway endpoints and interface endpoints. With a gatewa
 requiring an internet gateway or NAT device for your VPC, and with no additional cost. 
 However, gateway endpoints do not allow access from on-premises networks, from peered VPCs in other AWS Regions, or through a transit gateway.
 For those scenarios, you must use an interface endpoint, which is available for an additional cost.
+
+
+
+------------------------
+
+
+A company created a new organization in AWS Organizations. The organization has multiple accounts for the company's development teams. The development team
+members use AWS IAM Identity Center (AWS Single Sign-On) to access the accounts. For each of the company's applications, the development teams must use 
+a predefined application name to tag resources that are created.
+
+A solutions architect needs to design a solution that gives the development team the ability to create resources only if the application name tag has an approved value.
+
+Which solution will meet these requirements?
+
+A. Create an IAM group that has a conditional Allow policy that requires the application name tag to be specified for resources to be created.
+B. Create a cross-account role that has a Deny policy for any resource that has the application name tag.
+C. Create a resource group in AWS Resource Groups to validate that the tags are applied to all resources in all accounts.
+D. Create a tag policy in Organizations that has a list of allowed application names. Most Voted
+
+A: Don't think this is possible.
+B: Cross account role with deny policy? Never seen anything like this
+C: Resource groups have nothing to do with allowed tags
+
+A tag policy can also specify that noncompliant tagging operations on specified resource types are enforced. In other words, noncompliant 
+tagging requests on specified resource types are prevented from completing.
+
+
+
+-------------------------------
+
+
+A company performs tests on an application that uses an Amazon DynamoDB table. The tests run for 4 hours once a week. The company knows how many 
+read and write operations the application performs to the table each second during the tests. The company does not currently use DynamoDB for any
+other use case. A solutions architect needs to optimize the costs for the table.
+
+Which solution will meet these requirements?
+
+A. Choose on-demand mode. Update the read and write capacity units appropriately.
+B. Choose provisioned mode. Update the read and write capacity units appropriately. Most Voted
+C. Purchase DynamoDB reserved capacity for a 1-year term.
+D. Purchase DynamoDB reserved capacity for a 3-year term.
+
+
+With provisioned capacity mode, you specify the number of reads and writes per second that you expect your application to require,
+and you are billed based on that. Furthermore if you can forecast your capacity requirements you can also reserve a portion of DynamoDB provisioned 
+capacity and optimize your costs even further.
+
+DynamoDB On-Demand pricing is about 6.94x the cost of provisioned capacity. If your applications have predictable traffic
+patterns and you don't mind spending the time to understand those patterns, using DynamoDB's provisioned throughput capacity can save you money.
+
+Provisioned Mode (Option B): Provisioned mode allows you to specify the desired read and write capacity units. Since the workload occurs once a week for 4 hours, 
+you can provision the read and write capacity units accordingly to handle the expected load during that time. This can be a more cost-effective option than
+on-demand pricing for predictable workloads.
+
+
+--------------------------------------
+
+A company runs its applications on Amazon EC2 instances. The company performs periodic financial assessments of its AWS costs. 
+The company recently identified unusual spending.
+
+The company needs a solution to prevent unusual spending. The solution must monitor costs and notify responsible stakeholders in the event of unusual spending.
+
+Which solution will meet these requirements?
+
+A. Use an AWS Budgets template to create a zero spend budget.
+B. Create an AWS Cost Anomaly Detection monitor in the AWS Billing and Cost Management console. Most Voted
+C. Create AWS Pricing Calculator estimates for the current running workload pricing details.
+D. Use Amazon CloudWatch to monitor costs and to identify unusual spending.
+
+
+
+AWS Cost Anomaly Detection (Option B): AWS Cost Anomaly Detection is designed to automatically detect unusual spending patterns based on machine learning algorithms. 
+It can identify anomalies and send notifications when it detects unexpected changes in spending. This aligns well with the requirement to prevent unusual
+spending and notify stakeholders.
+
+
+--------------------------
+
+A company runs an SMB file server in its data center. The file server stores large files that the company frequently accesses for up to 7 days after the file 
+creation date. After 7 days, the company needs to be able to access the files with a maximum retrieval time of 24 hours.
+
+Which solution will meet these requirements?
+
+A. Use AWS DataSync to copy data that is older than 7 days from the SMB file server to AWS.
+B. Create an Amazon S3 File Gateway to increase the company's storage space. Create an S3 Lifecycle policy to transition the data to S3 Glacier Deep Archive after 7 days. Most Voted
+C. Create an Amazon FSx File Gateway to increase the company's storage space. Create an Amazon S3 Lifecycle policy to transition the data after 7 days.
+D. Configure access to Amazon S3 for each user. Create an S3 Lifecycle policy to transition the data to S3 Glacier Flexible Retrieval after 7 days.
+
+
+A: DataSync is not used for this
+C: FSx File Gateway requires NFS on both sides so won't work with S3
+D: Doesn't say how to transfer data to S3
+B: S3 File Gateway will connect SMB to S3. Lifecycle policy will move objects to S3 Glacier Deep Archive which support 12 hours retrieval
+
+--------------------------
+
+
+A company runs a web application on Amazon EC2 instances in an Auto Scaling group. The application uses a database that runs on an Amazon RDS for PostgreSQL DB instance. 
+The application performs slowly when traffic increases. The database experiences a heavy read load during periods of high traffic.
+
+Which actions should a solutions architect take to resolve these performance issues? (Choose two.)
+
+A. Turn on auto scaling for the DB instance.
+B. Create a read replica for the DB instance. Configure the application to send read traffic to the read replica. Most Voted
+C. Convert the DB instance to a Multi-AZ DB instance deployment. Configure the application to send read traffic to the standby DB instance.
+D. Create an Amazon ElastiCache cluster. Configure the application to cache query results in the ElastiCache cluster. Most Voted
+E. Configure the Auto Scaling group subnets to ensure that the EC2 instances are provisioned in the same Availability Zone as the DB instance.
+
+
+ans:
+A: RDS DB instance Autoscaling is not a thing
+C: You cannot read from standby even if this was done.
+E: Does not solve any problem
+Correct answer
+B: Read replicas distribute load and help improving performance
+D: Caching of any kind will help with performance
+
+Remember: " The database experiences a heavy read load during periods of high traffic.
+
+
+
+-------------------------
+
+
+A company's application uses Network Load Balancers, Auto Scaling groups, Amazon EC2 instances, and databases that are deployed in an Amazon VPC. The company wants
+to capture information about traffic to and from the network interfaces in near real time in its Amazon VPC. The company wants to send the information
+to Amazon OpenSearch Service for analysis.
+
+Which solution will meet these requirements?
+
+A. Create a log group in Amazon CloudWatch Logs. Configure VPC Flow Logs to send the log data to the log group. Use Amazon Kinesis Data Streams to 
+stream the logs from the log group to OpenSearch Service.
+B. Create a log group in Amazon CloudWatch Logs. Configure VPC Flow Logs to send the log data to the log group. Use Amazon Kinesis Data Firehose to
+stream the logs from the log group to OpenSearch Service. Most Voted
+C. Create a trail in AWS CloudTrail. Configure VPC Flow Logs to send the log data to the trail. Use Amazon Kinesis Data Streams to stream the logs 
+from the trail to OpenSearch Service.
+D. Create a trail in AWS CloudTrail. Configure VPC Flow Logs to send the log data to the trail. Use Amazon Kinesis Data Firehose to stream the logs 
+from the trail to OpenSearch Service.
+
+
+
+CloudTrail is for logging administrative actions, we need CloudWatch. We want the data in another AWS service (OpenSearch),
+not Kinesis, thus we need Firehose, not Streams.
+
+Amazon CloudWatch Logs and VPC Flow Logs (Option B): VPC Flow Logs capture information about the IP traffic going to and from network interfaces in a VPC
+
+
+----------------------------
+
+A company is developing an application that will run on a production Amazon Elastic Kubernetes Service (Amazon EKS) cluster. The EKS cluster has managed
+node groups that are provisioned with On-Demand Instances.
+
+The company needs a dedicated EKS cluster for development work. The company will use the development cluster infrequently to test the resiliency of the application. 
+The EKS cluster must manage all the nodes.
+
+Which solution will meet these requirements MOST cost-effectively?
+
+A. Create a managed node group that contains only Spot Instances.
+B. Create two managed node groups. Provision one node group with On-Demand Instances. Provision the second node group with Spot Instances. Most Voted
+C. Create an Auto Scaling group that has a launch configuration that uses Spot Instances. Configure the user data to add the nodes to the EKS cluster.
+D. Create a managed node group that contains only On-Demand Instances.
+
+it is A
+
+A node group is simply a collection of worker nodes (EC2 instances) that are managed together in an EKS cluster. Managed Node Groups are the best 
+choice for most cases because AWS takes care of provisioning, scaling, and updates automatically. 
+
+Types of Node Groups in EKS
+
+There are two main types of node groups in EKS:
+1️⃣ Managed Node Groups (Recommended)
+Fully managed by AWS—EKS handles the provisioning, scaling, and updates.
+Uses Amazon EC2 instances that are launched automatically into the cluster.
+Supports both On-Demand and Spot Instances.
+Integrated with AWS Auto Scaling, so it can scale nodes up or down as needed.
+Requires no manual configuration—simpler to manage.
+2️⃣ Self-Managed Node Groups
+Nodes are manually created and managed by the user.
+Requires setting up an Auto Scaling Group (ASG) and configuring instances to join the cluster.
+More flexible but requires more operational effort (e.g., upgrading instances manually).
+
+
+
+In Amazon EKS (Elastic Kubernetes Service), a managed node group is a collection of Amazon EC2 instances that are automatically managed by AWS and 
+used as worker nodes in a Kubernetes cluster.
+
+When the option suggests "Create two managed node groups", it means:
+One group of worker nodes will use On-Demand EC2 Instances (expensive but reliable).
+The second group of worker nodes will use Spot Instances (cheaper but can be interrupted).
+
+
+
+------------------------
+
+
+A company stores sensitive data in Amazon S3. A solutions architect needs to create an encryption solution. The company needs to fully control the ability
+of users to create, rotate, and disable encryption keys with minimal effort for any data that must be encrypted.
+
+Which solution will meet these requirements?
+
+A. Use default server-side encryption with Amazon S3 managed encryption keys (SSE-S3) to store the sensitive data.
+B. Create a customer managed key by using AWS Key Management Service (AWS KMS). Use the new key to encrypt the S3 objects by using server-side encryption 
+with AWS KMS keys (SSE-KMS). Most Voted
+C. Create an AWS managed key by using AWS Key Management Service (AWS KMS). Use the new key to encrypt the S3 objects by using server-side 
+encryption with AWS KMS keys (SSE-KMS).
+D. Download S3 objects to an Amazon EC2 instance. Encrypt the objects by using customer managed keys. Upload the encrypted objects back into Amazon S3.
+
+
+
+A and C do not allow the company "to fully control the ability of users to create, rotate, and disable encryption keys". D is anything but "minimal effort".
+
+
+
+
+------------------------
+
+A solutions architect needs to copy files from an Amazon S3 bucket to an Amazon Elastic File System (Amazon EFS) file
+system and another S3 bucket. The files must be copied continuously. New files 
+are added to the original S3 bucket consistently. The copied files should be overwritten only if the source file changes.
+
+Which solution will meet these requirements with the LEAST operational overhead?
+
+A. Create an AWS DataSync location for both the destination S3 bucket and the EFS file system. Create a task for the destination S3 bucket and
+the EFS file system. Set the transfer mode to transfer only data that has changed. Most Voted
+B. Create an AWS Lambda function. Mount the file system to the function. Set up an S3 event notification to invoke the function when files are created a
+nd changed in Amazon S3. Configure the function to copy files to the file system and the destination S3 bucket.
+C. Create an AWS DataSync location for both the destination S3 bucket and the EFS file system. Create a task for the destination S3 bucket and
+the EFS file system. Set the transfer mode to transfer all data.
+D. Launch an Amazon EC2 instance in the same VPC as the file system. Mount the file system. Create a script to routinely synchronize all objects
+that changed in the origin S3 bucket to the destination S3 bucket and the mounted file system.
+
+
+AWS DataSync is designed for efficient and reliable copying of data between different storage solutions. By setting up an AWS DataSync task with the 
+transfer mode set to transfer only data that has changed, you ensure that only the new or modified files are copied. This minimizes data transfer and operational overhead.
+
+DataSync will do an Initial Scan of both S3 buckets. Identifying Differences. Then, Transferring Changes, so technically DataSync will transfer 
+All the data at first run then it will only transfer newly added/modified objects subsequently.
+
+
+
+
+-----------------
+
+
+A company uses Amazon EC2 instances and stores data on Amazon Elastic Block Store (Amazon EBS) volumes. The company must ensure that all data is
+encrypted at rest by using AWS Key Management Service (AWS KMS). The company must be able to control rotation of the encryption keys.
+
+Which solution will meet these requirements with the LEAST operational overhead?
+
+A. Create a customer managed key. Use the key to encrypt the EBS volumes. Most Voted
+B. Use an AWS managed key to encrypt the EBS volumes. Use the key to configure automatic key rotation.
+C. Create an external KMS key with imported key material. Use the key to encrypt the EBS volumes.
+D. Use an AWS owned key to encrypt the EBS volumes.
+
+
+"Able to control rotation of the encryption keys" = customer managed key (created by AWS but managed by the customer in KMS)
+
+
+------------------
+
+
+A company wants to migrate its web applications from on premises to AWS. The company is located close to the eu-central-1 Region. Because of 
+regulations, the company cannot launch some of its applications in eu-central-1. The company wants to achieve single-digit millisecond latency.
+
+Which solution will meet these requirements?
+
+A. Deploy the applications in eu-central-1. Extend the company’s VPC from eu-central-1 to an edge location in Amazon CloudFront.
+B. Deploy the applications in AWS Local Zones by extending the company's VPC from eu-central-1 to the chosen Local Zone. Most Voted
+C. Deploy the applications in eu-central-1. Extend the company’s VPC from eu-central-1 to the regional edge caches in Amazon CloudFront.
+D. Deploy the applications in AWS Wavelength Zones by extending the company’s VPC from eu-central-1 to the chosen Wavelength Zone.
+
+
+AC is not right "Because of regulations, the company cannot launch some of its applications in eu-central-1"
+D: AWS Wavelength is for mobile network
+B: Local Zones can be used to launch apps close to a region but not in a region like EUC1 so this works
+
+AWS Local Zones place AWS compute, storage, database, and other select services closer to end-users. This would allow the company to deploy 
+applications within geographic proximity to eu-central-1 without being directly in the region, potentially meeting regulatory requirements and achieving low latency.
+
+
+
+----------------
+
+
+A company’s ecommerce website has unpredictable traffic and uses AWS Lambda functions to directly access a private Amazon RDS for PostgreSQL DB instance. 
+The company wants to maintain predictable database performance and ensure that the Lambda invocations do not overload the database with too many connections.
+
+What should a solutions architect do to meet these requirements?
+
+A. Point the client driver at an RDS custom endpoint. Deploy the Lambda functions inside a VPC.
+B. Point the client driver at an RDS proxy endpoint. Deploy the Lambda functions inside a VPC. Most Voted
+C. Point the client driver at an RDS custom endpoint. Deploy the Lambda functions outside a VPC.
+D. Point the client driver at an RDS proxy endpoint. Deploy the Lambda functions outside a VPC.
+
+"A Lambda function that's outside of a VPC can't access an RDS instance that's inside a VPC."
+
+
+
+------------
+
+A company is creating an application. The company stores data from tests of the application in multiple on-premises locations.
+
+The company needs to connect the on-premises locations to VPCs in an AWS Region in the AWS Cloud. The number of accounts and VPCs will increase 
+during the next year. The network architecture must simplify the administration of new connections and must provide the ability to scale.
+
+Which solution will meet these requirements with the LEAST administrative overhead?
+
+A. Create a peering connection between the VPCs. Create a VPN connection between the VPCs and the on-premises locations.
+B. Launch an Amazon EC2 instance. On the instance, include VPN software that uses a VPN connection to connect all VPCs and on-premises locations.
+C. Create a transit gateway. Create VPC attachments for the VPC connections. Create VPN attachments for the on-premises connections. Most Voted
+D. Create an AWS Direct Connect connection between the on-premises locations and a central VPC. Connect the central VPC to other VPCs by using peering connections.
+
+
+multiple on-premises locations + increasing number of accounts and VPCs --> connections using *transit gateway*
+
+Transit Gateway enables customers to connect thousands of VPCs. You can attach all your hybrid connectivity (VPN and Direct Connect connections) to a 
+single gateway, consolidating and controlling your organization's entire AWS routing configuration in one place (refer to the following figure)
+
+
+
+
+--------------
+
+
+A company regularly uploads GB-sized files to Amazon S3. After the company uploads the files, the company uses a fleet of Amazon EC2 Spot Instances to 
+transcode the file format. The company needs to scale throughput when the company uploads data from the on-premises data center to Amazon S3 and
+when the company downloads data from Amazon S3 to the EC2 instances.
+
+Which solutions will meet these requirements? (Choose two.)
+
+A. Use the S3 bucket access point instead of accessing the S3 bucket directly.
+B. Upload the files into multiple S3 buckets.
+C. Use S3 multipart uploads. Most Voted
+D. Fetch multiple byte-ranges of an object in parallel. Most Voted
+E. Add a random prefix to each object when uploading the files.
+
+
+C: Increase the file upload throughput
+D: increase the file download throughput
+
+
+
+-------------
+
+A solutions architect is designing a shared storage solution for a web application that is deployed across multiple Availability Zones. The web application 
+runs on Amazon EC2 instances that are in an Auto Scaling group. The company plans to make frequent changes to the content. The solution must have strong
+consistency in returning the new content as soon as the changes occur.
+
+Which solutions meet these requirements? (Choose two.)
+
+A. Use AWS Storage Gateway Volume Gateway Internet Small Computer Systems Interface (iSCSI) block storage that is mounted to the individual EC2 instances.
+B. Create an Amazon Elastic File System (Amazon EFS) file system. Mount the EFS file system on the individual EC2 instances. Most Voted
+C. Create a shared Amazon Elastic Block Store (Amazon EBS) volume. Mount the EBS volume on the individual EC2 instances.
+D. Use AWS DataSync to perform continuous synchronization of data between EC2 hosts in the Auto Scaling group.
+E. Create an Amazon S3 bucket to store the web content. Set the metadata for the Cache-Control header to no-cache. Use Amazon CloudFront to deliver the content. Most Voted
+
+
+A - Volume Gateway is typically on-prem and optimized for hybrid setups, not for fully cloud-based solutions.
+B - EFS provides a fully managed, shared file storage system that works across multiple AZs.
+C - Even with Multi-Attach, sharing EBS volumes across AZs is pretty complex and error-prone.
+D - DataSync is designed for periodic synchronization and not real-time, frequent updates.
+E - The "no-cache" header ensures the content is always fetched fresh, and CloudFront delivers it efficiently with reduced latency. 
+Although S3 is less efficient for frequent updates compared to a shared file system like EFS, but not a problem here.
+
+
+
+--------------
+
+
+A company is deploying an application in three AWS Regions using an Application Load Balancer. Amazon Route 53 will be used to distribute traffic between these Regions.
+
+Which Route 53 configuration should a solutions architect use to provide the MOST high-performing experience?
+
+A. Create an A record with a latency policy. Most Voted
+B. Create an A record with a geolocation policy.
+C. Create a CNAME record with a failover policy.
+D. Create a CNAME record with a geoproximity policy.
+
+
+create an ALB and create a DNS record in Route53. While you can technically use a CNAME (for subdomains, see below), the wizard will guide 
+you to use an A ALIAS record, which also makes the most sense.
+
+The problem with CNAME records is that it's not possible to create them at the root level of the domain. Let's say your domain is 
+somedomain.com - you can't create a CNAME for the apex of the domain (mydomain.com), only for subdomains (subdomain.mydomain.com).
+
+-----------------
