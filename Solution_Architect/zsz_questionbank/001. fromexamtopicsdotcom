@@ -2112,3 +2112,264 @@ AWS Backup is more cost-effective for cross-Region EC2 backups than using EBS sn
 
 Well Datasync is to transfer data from on-prem to AWS rather than AWS R1 to R2, and it is use for a one-time migration rather
 than repetitive data migration activities like backups hence its out(on so many levels)
+
+
+
+
+----------------------------
+A company runs several websites on AWS for its different brands. Each website generates tens of gigabytes of web traffic logs each day. A solutions 
+architect needs to design a scalable solution to give the company's developers the ability to analyze traffic patterns across all the company's websites. 
+This analysis by the developers will occur on demand once a week over the course of several months. The solution must support queries with standard SQL.
+
+Which solution will meet these requirements MOST cost-effectively?
+
+A. Store the logs in Amazon S3. Use Amazon Athena tor analysis. Most Voted
+B. Store the logs in Amazon RDS. Use a database client for analysis.
+C. Store the logs in Amazon OpenSearch Service. Use OpenSearch Service for analysis.
+D. Store the logs in an Amazon EMR cluster Use a supported open-source framework for SQL-based analysis.
+
+sol:
+Scalable + "The solution must support queries with standard SQL" = A
+B not scalable
+C OpenSearch is like ElasticSearch so does not support SQL syntax
+D EMR is processing not storage. Map-Reduce can use SQL like syntax but this option does not solve scalable storage issues.
+You normally run EMR on some stored data
+
+
+
+--------------------------
+A company wants to monitor its AWS costs for financial review. The cloud operations team is designing an architecture in the AWS Organizations management 
+account to query AWS Cost and Usage Reports for all member accounts. The team must run this query once a month and provide a detailed analysis of the bill.
+
+Which solution is the MOST scalable and cost-effective way to meet these requirements?
+
+A. Enable Cost and Usage Reports in the management account. Deliver reports to Amazon Kinesis. Use Amazon EMR for analysis.
+B. Enable Cost and Usage Reports in the management account. Deliver the reports to Amazon S3 Use Amazon Athena for analysis.
+C. Enable Cost and Usage Reports for member accounts. Deliver the reports to Amazon S3 Use Amazon Redshift for analysis.
+D. Enable Cost and Usage Reports for member accounts. Deliver the reports to Amazon Kinesis. Use Amazon QuickSight tor analysis.
+
+
+
+A - EMR is powerful for large-scale data processing, but is overkill for a monthly query since neither Kinesis nor EMR is 
+cost-effective for infrequent processing.
+B - Cost and Usage Reports are already optimized for S3 delivery, and Athena directly integrates with S3.
+C & D - Delivering reports for each member account creates redundant data. That mean extra time, extra work to do manually, 
+extra money to cost, and extra account to manage.
+
+
+
+
+
+
+
+-------------------
+
+An international company has a subdomain for each country that the company operates in. The subdomains are formatted as example.com, country1.example.com, 
+and country2.example.com. The company's workloads are behind an Application Load Balancer. The company wants to encrypt the website data that is in transit.
+
+Which combination of steps will meet these requirements? (Choose two.)
+
+A. Use the AWS Certificate Manager (ACM) console to request a public certificate for the apex top domain example com and
+a wildcard certificate for *.example.com. Most Voted
+B. Use the AWS Certificate Manager (ACM) console to request a private certificate for the apex top domain example.com and a wildcard certificate for *.example.com.
+C. Use the AWS Certificate Manager (ACM) console to request a public and private certificate for the apex top domain example.com.
+D. Validate domain ownership by email address. Switch to DNS validation by adding the required DNS records to the DNS provider.
+E. Validate domain ownership for the domain by adding the required DNS records to the DNS provider. Most Voted
+
+
+
+ans:
+
+Explanation:
+Why is Option A correct?
+The company operates a website with multiple subdomains (e.g., country1.example.com, country2.example.com).
+To secure all subdomains, a wildcard SSL certificate (*.example.com) is required, which covers all subdomains.
+A public certificate is needed because this is a website accessible on the internet.
+AWS Certificate Manager (ACM) allows requesting a public SSL/TLS certificate for example.com and *.example.com.
+This certificate is then used with the Application Load Balancer (ALB) to encrypt traffic.
+
+Why is Option E correct?
+Domain validation is required before AWS issues an SSL/TLS certificate.
+DNS validation is the recommended method because it is automated and more reliable.
+DNS validation involves adding specific CNAME records to the domain’s DNS provider.
+Once the DNS records are added and detected by AWS, the certificate is issued.
+
+Why are the other options incorrect?
+
+❌ B. Use the AWS Certificate Manager (ACM) console to request a private certificate for the apex top domain example.com and 
+a wildcard certificate for *.example.com.
+Private certificates are used for internal applications within a private network (e.g., internal company services, not public websites).
+Since the company’s website is public, a public certificate is needed instead.
+
+❌ C. Use the AWS Certificate Manager (ACM) console to request a public and private certificate for the apex top domain example.com.
+A private certificate is unnecessary for public websites.
+A public certificate alone is sufficient for securing external websites.
+Requesting both public and private certificates does not provide additional benefits for this use case.
+
+❌ D. Validate domain ownership by email address. Switch to DNS validation by adding the required DNS records to the DNS provider.
+While email validation is possible, it is less recommended because it requires manual intervention (responding to an email sent to 
+the domain’s registered admin).
+The company should directly use DNS validation (Option E) instead of switching from email to DNS later.
+
+
+
+--------------------------------------
+
+A company uses Amazon FSx for NetApp ONTAP in its primary AWS Region for CIFS and NFS file shares. Applications that run on Amazon EC2 instances access the file
+shares. The company needs a storage disaster recovery (DR) solution in a secondary Region. The data that is replicated in the secondary Region needs 
+to be accessed by using the same protocols as the primary Region.
+
+Which solution will meet these requirements with the LEAST operational overhead?
+
+A. Create an AWS Lambda function to copy the data to an Amazon S3 bucket. Replicate the S3 bucket to the secondary Region.
+B. Create a backup of the FSx for ONTAP volumes by using AWS Backup. Copy the volumes to the secondary Region. Create a new FSx for ONTAP instance from the backup.
+C. Create an FSx for ONTAP instance in the secondary Region. Use NetApp SnapMirror to replicate data from the primary Region to the secondary Region.
+D. Create an Amazon Elastic File System (Amazon EFS) volume. Migrate the current data to the volume. Replicate the volume to the secondary Region.
+
+
+What is NetApp ONTAP?
+NetApp ONTAP is a high-performance, enterprise-grade storage management software designed to manage, store, and protect data across on-premises, 
+cloud, and hybrid environments. It provides advanced data management, replication, and security features while supporting multiple
+storage protocols like NFS, SMB (CIFS), and iSCSI.
+
+What is Amazon FSx for NetApp ONTAP?
+Amazon FSx for NetApp ONTAP is a fully managed AWS service that brings the NetApp ONTAP storage system to AWS. It allows customers to 
+run ONTAP-based storage in the cloud while integrating seamlessly with AWS compute and networking services.
+
+Benefits of Amazon FSx for NetApp ONTAP:
+Fully managed service (no need to manage infrastructure).
+Supports SMB, NFS, and iSCSI for compatibility with Windows and Linux workloads.
+Data replication across AWS Regions using SnapMirror for disaster recovery.
+Automatic scaling & performance optimization with SSD storage and caching.
+
+Use Cases for NetApp ONTAP & FSx for ONTAP:
+✅ Enterprise File Shares – For Windows (SMB) and Linux (NFS) users.
+✅ Virtual Desktop Infrastructure (VDI) – Supports shared storage for VMware and Citrix environments.
+✅ Database Storage – Supports SQL Server, Oracle, SAP HANA with high performance.
+✅ Disaster Recovery (DR) – Uses SnapMirror replication for cross-region failover.
+✅ Hybrid Cloud Storage – Extends on-prem NetApp storage to the cloud using AWS, Azure, or Google Cloud.
+
+
+
+
+-----------------------
+
+A company has a large data workload that runs for 6 hours each day. The company cannot lose any data while the process is running. A solutions architect 
+is designing an Amazon EMR cluster configuration to support this critical data workload.
+
+Which solution will meet these requirements MOST cost-effectively?
+
+A. Configure a long-running cluster that runs the primary node and core nodes on On-Demand Instances and the task nodes on Spot Instances.
+B. Configure a transient cluster that runs the primary node and core nodes on On-Demand Instances and the task nodes on Spot Instances. Most Voted
+C. Configure a transient cluster that runs the primary node on an On-Demand Instance and the core nodes and task nodes on Spot Instances.
+D. Configure a long-running cluster that runs the primary node on an On-Demand Instance, the core nodes on Spot Instances, and the task nodes on Spot Instances.
+
+
+"Long-running cluster" = runs until you shut it down
+"Transient cluster" = runs until the workload is completed
+This runs only 6 hours each day -> transient -> B or C
+
+
+--------------------------
+
+A company maintains an Amazon RDS database that maps users to cost centers. The company has accounts in an organization in AWS Organizations. The company needs 
+a solution that will tag all resources that are created in a specific AWS account in the organization. The solution must tag each resource with the cost center ID 
+of the user who created the resource.
+
+Which solution will meet these requirements?
+
+A. Move the specific AWS account to a new organizational unit (OU) in Organizations from the management account. Create a service control policy (SCP)
+that requires all existing resources to have the correct cost center tag before the resources are created. Apply the SCP to the new OU.
+B. Create an AWS Lambda function to tag the resources after the Lambda function looks up the appropriate cost center from the RDS database. Configure
+an Amazon EventBridge rule that reacts to AWS CloudTrail events to invoke the Lambda function. Most Voted
+C. Create an AWS CloudFormation stack to deploy an AWS Lambda function. Configure the Lambda function to look up the appropriate cost center from the
+RDS database and to tag resources. Create an Amazon EventBridge scheduled rule to invoke the CloudFormation stack.
+D. Create an AWS Lambda function to tag the resources with a default value. Configure an Amazon EventBridge rule that reacts to AWS CloudTrail events 
+to invoke the Lambda function when a resource is missing the cost center tag.
+
+
+SCPs cannot directly apply tags to resources; they can only restrict actions based on policies. They do not automatically tag resources. SCPs are
+also used to enforce policies across accounts but cannot look up values from an RDS database or dynamically assign tags.
+
+A policy cannot look up "the cost center ID of the user who created the resource", we need Lambda to do that. Thus A is out.
+C would work but runs on a schedule which doesn't make sense (and we would temporarily have untagged resources).
+D tags resources "with a default value" which is not what we want.
+
+
+----------------------------
+
+
+A company uses an on-premises network-attached storage (NAS) system to provide file shares to its high performance computing (HPC) workloads. The company
+wants to migrate its latency-sensitive HPC workloads and its storage to the AWS Cloud. The company must be able to provide NFS and SMB multi-protocol access from the file system.
+
+Which solution will meet these requirements with the LEAST latency? (Choose two.)
+
+A. Deploy compute optimized EC2 instances into a cluster placement group. Most Voted
+B. Deploy compute optimized EC2 instances into a partition placement group.
+C. Attach the EC2 instances to an Amazon FSx for Lustre file system.
+D. Attach the EC2 instances to an Amazon FSx for OpenZFS file system.
+E. Attach the EC2 instances to an Amazon FSx for NetApp ONTAP file system. Most Voted
+
+
+LEAST latency = cluster placement group
+
+Amazon FSx for Lustre = SMB
+Amazon FSx for OpenZFS = NFS
+Amazon FSx for NetApp ONTAP = NFS, SMB, iSCSI
+
+
+----------------
+
+A company has customers located across the world. The company wants to use automation to secure its systems and network infrastructure. The company's 
+security team must be able to track and audit all incremental changes to the infrastructure.
+
+Which solution will meet these requirements?
+
+A. Use AWS Organizations to set up the infrastructure. Use AWS Config to track changes.
+B. Use AWS CloudFormation to set up the infrastructure. Use AWS Config to track changes. Most Voted
+C. Use AWS Organizations to set up the infrastructure. Use AWS Service Catalog to track changes.
+D. Use AWS CloudFormation to set up the infrastructure. Use AWS Service Catalog to track changes.
+
+
+use automation to secure its systems and network infrastructure = AWS CloudFormation
+track and audit all incremental changes to the infrastructure = AWS Config
+
+
+-------------------
+
+A startup company is hosting a website for its customers on an Amazon EC2 instance. The website consists of a stateless Python application and a MySQL database.
+The website serves only a small amount of traffic. The company is concerned about the reliability of the instance and needs to migrate to a highly available
+architecture. The company cannot modify the application code.
+
+Which combination of actions should a solutions architect take to achieve high availability for the website? (Choose two.)
+
+A. Provision an internet gateway in each Availability Zone in use.
+B. Migrate the database to an Amazon RDS for MySQL Multi-AZ DB instance. Most Voted
+C. Migrate the database to Amazon DynamoDB, and enable DynamoDB auto scaling.
+D. Use AWS DataSync to synchronize the database data across multiple EC2 instances.
+E. Create an Application Load Balancer to distribute traffic to an Auto Scaling group of EC2 instances that are distributed across two Availability Zones. Most Voted
+
+
+A. no failed over mechanism and does not make sense with other options
+C. DynamoDB is no SQL, cannot use with MySQL
+D. Not HA, just sync/replication tools.
+
+
+--------------------
+
+A company is moving its data and applications to AWS during a multiyear migration project. The company wants to securely access data on Amazon S3
+from the company's AWS Region and from the company's on-premises location. The data must not traverse the internet. The company has established
+an AWS Direct Connect connection between its Region and its on-premises location.
+
+Which solution will meet these requirements?
+
+A. Create gateway endpoints for Amazon S3. Use the gateway endpoints to securely access the data from the Region and the on-premises location.
+B. Create a gateway in AWS Transit Gateway to access Amazon S3 securely from the Region and the on-premises location.
+C. Create interface endpoints for Amazon S3. Use the interface endpoints to securely access the data from the Region and the on-premises location. Most Voted
+D. Use an AWS Key Management Service (AWS KMS) key to access the data securely from the Region and the on-premises location.
+
+
+Amazon S3 supports both gateway endpoints and interface endpoints. With a gateway endpoint, you can access Amazon S3 from your VPC, without 
+requiring an internet gateway or NAT device for your VPC, and with no additional cost. 
+However, gateway endpoints do not allow access from on-premises networks, from peered VPCs in other AWS Regions, or through a transit gateway.
+For those scenarios, you must use an interface endpoint, which is available for an additional cost.
