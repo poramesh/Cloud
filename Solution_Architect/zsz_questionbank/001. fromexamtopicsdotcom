@@ -2520,7 +2520,71 @@ not Kinesis, thus we need Firehose, not Streams.
 Amazon CloudWatch Logs and VPC Flow Logs (Option B): VPC Flow Logs capture information about the IP traffic going to and from network interfaces in a VPC
 
 
+
+AWS provides CloudWatch and CloudTrail as monitoring and logging services, but they serve different purposes.
+
+Feature	           Amazon CloudWatch	                                      AWS CloudTrail
+Purpose	           Monitors AWS resources & applications in real time	     Tracks API activity & user actions in AWS
+Use Case	           Performance monitoring, metrics, logs, and alerts	     Security auditing, compliance, and API call tracking
+What It Tracks	     - Metrics (CPU, memory, latency, network, etc.)          - AWS Management Console logins
+                    - Logs (errors, events, app logs)                        - API calls (who did what, when, and from where)
+                    - Dashboards & alarms	                                   - Changes to AWS resources (EC2, S3, IAM, etc.)
+Data Type	        Real-time performance data and logs	                    Event history of API activity
+Example Uses	     - Monitor EC2 CPU usage                                  - Track who deleted an S3 bucket
+                    - Set alarms for high memory usage                       - Detect unauthorized access to AWS
+                    - View application logs	                                - Audit changes to IAM policies
+Retention Period	  Varies based on logs & metrics storage settings	        90 days by default (longer if stored in S3)
+Integration         Works with EC2, RDS, Lambda, EKS, etc.	                 Works with AWS services that use API calls
+
 ----------------------------
+
+A company is building a microservices-based application that will be deployed on Amazon Elastic Kubernetes Service (Amazon EKS). The microservices will 
+interact with each other. The company wants to ensure that the application is observable to identify performance issues in the future.
+
+Which solution will meet these requirements?
+
+A. Configure the application to use Amazon ElastiCache to reduce the number of requests that are sent to the microservices.
+B. Configure Amazon CloudWatch Container Insights to collect metrics from the EKS clusters. Configure AWS X-Ray to trace the requests between the microservices. Most Voted
+C. Configure AWS CloudTrail to review the API calls. Build an Amazon QuickSight dashboard to observe the microservice interactions.
+D. Use AWS Trusted Advisor to understand the performance of the application.
+
+ans:
+
+A - ElastiCache can reduce latency but does not directly provide observability.
+B - CloudWatch Container Insights provides detailed metrics and logs for containers. AWS X-Ray traces requests across microservices
+C - CloudTrail is designed for security auditing and API call tracking, not detailed observability or performance monitoring.
+D - Trusted Advisor focuses on high-level recommendations and does not provide real-time observability for application interactions or performance issues.
+
+
+----------------------------------
+
+A company needs to provide customers with secure access to its data. The company processes customer data and stores the results in an Amazon S3 bucket.
+
+All the data is subject to strong regulations and security requirements. The data must be encrypted at rest. Each customer must be able to access only their 
+data from their AWS account. Company employees must not be able to access the data.
+
+Which solution will meet these requirements?
+
+A. Provision an AWS Certificate Manager (ACM) certificate for each customer. Encrypt the data client-side. In the private certificate policy, 
+deny access to the certificate for all principals except an IAM role that the customer provides.
+B. Provision a separate AWS Key Management Service (AWS KMS) key for each customer. Encrypt the data server-side. In the S3 bucket policy,
+deny decryption of data for all principals except an IAM role that the customer provides.
+C. Provision a separate AWS Key Management Service (AWS KMS) key for each customer. Encrypt the data server-side. In each KMS key policy,
+deny decryption of data for all principals except an IAM role that the customer provides. Most Voted
+D. Provision an AWS Certificate Manager (ACM) certificate for each customer. Encrypt the data client-side. In the public certificate policy,
+deny access to the certificate for all principals except an IAM role that the customer provides.
+
+
+ACM certificates are for securing communication (e.g., HTTPS/SSL), not for encrypting data at rest in S3. A and D are out.
+Between B and C, they both create a separate key for each customer, and both work. So which is more cumbersome, managing S3 policies or managing KMS key policies?
+
+Of course the latter one. In B, S3 bucket policy centralizes access rules for all keys, while in C, policies are distributed across individual keys. That's why I decide to choose B.
+
+Actually I think neither B or C is correctly worded. If talking about key policy, should be "Modify the key's policy to grant the 
+IAM user permissions for the kms:GenerateDataKey and kms:Decrypt actions at minimum."
+If talking about bucket policy, should be "Deny GetObjects of particular customer without condition kms key equals 1234abcd...."
+
+------------------------
 
 A company is developing an application that will run on a production Amazon Elastic Kubernetes Service (Amazon EKS) cluster. The EKS cluster has managed
 node groups that are provisioned with On-Demand Instances.
@@ -2611,10 +2675,49 @@ transfer mode set to transfer only data that has changed, you ensure that only t
 DataSync will do an Initial Scan of both S3 buckets. Identifying Differences. Then, Transferring Changes, so technically DataSync will transfer 
 All the data at first run then it will only transfer newly added/modified objects subsequently.
 
+--------------------------------
+
+A company copies 200 TB of data from a recent ocean survey onto AWS Snowball Edge Storage Optimized devices. The company has a high 
+performance computing (HPC) cluster that is hosted on AWS to look for oil and gas deposits. A solutions architect must provide the
+cluster with consistent sub-millisecond latency and high-throughput access to the data on the Snowball Edge Storage Optimized devices.
+The company is sending the devices back to AWS.
+
+Which solution will meet these requirements?
+
+A. Create an Amazon S3 bucket. Import the data into the S3 bucket. Configure an AWS Storage Gateway file gateway to use the S3 bucket. Access 
+the file gateway from the HPC cluster instances.
+B. Create an Amazon S3 bucket. Import the data into the S3 bucket. Configure an Amazon FSx for Lustre file system, and integrate it with the S3 bucket. 
+Access the FSx for Lustre file system from the HPC cluster instances. Most Voted
+C. Create an Amazon S3 bucket and an Amazon Elastic File System (Amazon EFS) file system. Import the data into the S3 bucket. Copy the data from the S3 
+bucket to the EFS file system. Access the EFS file system from the HPC cluster instances.
+D. Create an Amazon FSx for Lustre file system. Import the data directly into the FSx for Lustre file system. Access the FSx for Lustre file system
+from the HPC cluster instances.
 
 
 
+ans:
+No direct integration between Snowball and Fsx for Lustre. It must be via S3.
+Snowball Edge (Storage Optimized) --> S3 --integrate--> FSx for Lustre
 -----------------
+
+
+A company has NFS servers in an on-premises data center that need to periodically back up small amounts of data to Amazon S3.
+
+Which solution meets these requirements and is MOST cost-effective?
+
+A. Set up AWS Glue to copy the data from the on-premises servers to Amazon S3.
+B. Set up an AWS DataSync agent on the on-premises servers, and sync the data to Amazon S3. Most Voted
+C. Set up an SFTP sync using AWS Transfer for SFTP to sync data from on premises to Amazon S3.
+D. Set up an AWS Direct Connect connection between the on-premises data center and a VPC, and copy the data to Amazon S3.
+
+ans:
+A -> Used for ETL not copying
+B -> Works
+C -> Works, but overkill for the described scenario of periodic small backups, high cost
+D -> Works but it may not be necessary for transferring small amounts of data periodically. High setup cost
+   upvoted 9 times
+
+--------------------------
 
 
 A company uses Amazon EC2 instances and stores data on Amazon Elastic Block Store (Amazon EBS) volumes. The company must ensure that all data is
@@ -2759,3 +2862,356 @@ The problem with CNAME records is that it's not possible to create them at the r
 somedomain.com - you can't create a CNAME for the apex of the domain (mydomain.com), only for subdomains (subdomain.mydomain.com).
 
 -----------------
+
+A company is moving its on-premises Oracle database to Amazon Aurora PostgreSQL. The database has several applications that write to the same tables. The
+applications need to be migrated one by one with a month in between each migration. Management has expressed concerns that the database has a high number 
+of reads and writes. The data must be kept in sync across both databases throughout the migration.
+
+What should a solutions architect recommend?
+
+A. Use AWS DataSync for the initial migration. Use AWS Database Migration Service (AWS DMS) to create a change data capture (CDC) replication task 
+and a table mapping to select all tables.
+B. Use AWS DataSync for the initial migration. Use AWS Database Migration Service (AWS DMS) to create a full load plus change data capture (CDC) 
+replication task and a table mapping to select all tables.
+C. Use the AWS Schema Conversion Tool with AWS Database Migration Service (AWS DMS) using a memory optimized replication instance. Create a full
+load plus change data capture (CDC) replication task and a table mapping to select all tables. Most Voted
+D. Use the AWS Schema Conversion Tool with AWS Database Migration Service (AWS DMS) using a compute optimized replication instance. Create a full 
+load plus change data capture (CDC) replication task and a table mapping to select the largest tables.
+
+
+ans: C
+AWS Schema Conversion Tool (AWS SCT) supports heterogeneous database migrations by automatically converting the source database schema and a majority 
+of the custom code to a format compatible with the target database.
+A memory-optimized replication instance is recommended because the database has a high number of reads and writes. Memory-optimized instances
+are designed to deliver fast performance for workloads that process large data sets in memory.
+
+
+
+-------------------------
+
+
+A company runs a three-tier application in a VPC. The database tier uses an Amazon RDS for MySQL DB instance.
+
+The company plans to migrate the RDS for MySQL DB instance to an Amazon Aurora PostgreSQL DB cluster. The company needs a solution that replicates 
+the data changes that happen during the migration to the new database.
+
+Which combination of steps will meet these requirements? (Choose two.)
+
+A. Use AWS Database Migration Service (AWS DMS) Schema Conversion to transform the database objects. Most Voted
+B. Use AWS Database Migration Service (AWS DMS) Schema Conversion to create an Aurora PostgreSQL read replica on the RDS for MySQL DB instance.
+C. Configure an Aurora MySQL read replica for the RDS for MySQL DB instance.
+D. Define an AWS Database Migration Service (AWS DMS) task with change data capture (CDC) to migrate the data. Most Voted
+E. Promote the Aurora PostgreSQL read replica to a standalone Aurora PostgreSQL DB cluster when the replica lag is zero.
+
+
+ans: 
+A: Correct. because need convert from MySQL to PostgreSQL
+B: Wrong. Schema Conversion does not create an Aurora read replica
+C: Wrong. Company wants to migrate to Aurora PostgreSQL, not Aurora MySQL
+D: Correct. CDC task helps to capture ongoing change from source data store
+E: Wrong. Although using Aurora Read Replica is an option for DB migration within the same Region, this question is asking for "combination of steps", 
+which this option does not have another compatible option to pair with
+
+
+
+------------------------------------
+
+
+A company is designing a web application on AWS. The application will use a VPN connection between the company’s existing data centers and the company's VPCs.
+The company uses Amazon Route 53 as its DNS service. The application must use private DNS records to communicate with the on-premises services from a VPC.
+
+Which solution will meet these requirements in the MOST secure manner?
+
+A. Create a Route 53 Resolver outbound endpoint. Create a resolver rule. Associate the resolver rule with the VPC. Most Voted
+B. Create a Route 53 Resolver inbound endpoint. Create a resolver rule. Associate the resolver rule with the VPC.
+C. Create a Route 53 private hosted zone. Associate the private hosted zone with the VPC.
+D. Create a Route 53 public hosted zone. Create a record for each service to allow service communication
+
+
+
+Inbound Resolver endpoints allow DNS queries to your VPC from your on-premises network or another VPC.
+Outbound Resolver endpoints allow DNS queries from your VPC to your on-premises network or another VPC.
+
+Resolver rules enable you to create one forwarding rule for each domain name and specify the name of the domain for which you
+want to forward DNS queries from your VPC to an on-premises DNS resolver and from your on-premises to your VPC. Rules are 
+applied directly to your VPC and can be shared across multiple accounts.
+
+---------------------------------------
+
+
+
+
+A company runs a highly available web application on Amazon EC2 instances behind an Application Load Balancer. 
+The company uses Amazon CloudWatch metrics.
+
+As the traffic to the web application increases, some EC2 instances become overloaded with many outstanding requests. The CloudWatch metrics
+show that the number of requests processed and the time to receive the responses from some EC2 instances are both higher compared to other EC2 instances.
+The company does not want new requests to be forwarded to the EC2 instances that are already overloaded.
+
+Which solution will meet these requirements?
+
+A. Use the round robin routing algorithm based on the RequestCountPerTarget and ActiveConnectionCount CloudWatch metrics.
+B. Use the least outstanding requests algorithm based on the RequestCountPerTarget and ActiveConnectionCount CloudWatch metrics. 
+C. Use the round robin routing algorithm based on the RequestCount and TargetResponseTime CloudWatch metrics.
+D. Use the least outstanding requests algorithm based on the RequestCount and TargetResponseTime CloudWatch metrics.
+
+
+
+sol:
+Option B is correct because can use "RequestCountPerTarget" to identify the amount of requests for each EC2 instance. Then use "least outstanding 
+requests algorithm" to route to targets with the lowest number of in progress requests.
+
+Option D is wrong because "RequestCount" cannot identify the amount of requests for each EC2 instance. "RequestCount" is for the whole ALB.
+
+
+
+-------------------
+
+A company uses Amazon EC2, AWS Fargate, and AWS Lambda to run multiple workloads in the company's AWS account. The company wants to fully make
+use of its Compute Savings Plans. The company wants to receive notification when coverage of the Compute Savings Plans drops.
+
+Which solution will meet these requirements with the MOST operational efficiency?
+
+A. Create a daily budget for the Savings Plans by using AWS Budgets. Configure the budget with a coverage threshold to send notifications to
+the appropriate email message recipients. Most Voted
+B. Create a Lambda function that runs a coverage report against the Savings Plans. Use Amazon Simple Email Service (Amazon SES) to email the
+report to the appropriate email message recipients.
+C. Create an AWS Budgets report for the Savings Plans budget. Set the frequency to daily.
+D. Create a Savings Plans alert subscription. Enable all notification options. Enter an email address to receive notifications.
+
+
+
+ans: A is the answer!!
+
+
+**************
+AWS Budgets 
+
+Purpose: Allows users to set custom budgets for AWS spending and receive notifications if they approach or exceed their budget.
+Integration: Works with Cost Explorer, AWS Chatbot, and Service Catalog.
+Use Case Example:
+If you set a $100 budget and AWS forecasts $129 in spending, you will receive an alert so you can take action.
+
+
+Key Features
+
+Budget Types
+Cost Budget: Tracks spending against a dollar threshold.
+Usage Budget: Tracks AWS service usage limits (e.g., EC2 hours, data transfer).
+Reservation Budget: Monitors Reserved Instance (RI) utilization and coverage.
+Savings Plan Budget: Tracks AWS Savings Plans utilization.
+
+Alerts & Notifications
+Get notified when actual or forecasted spending exceeds a threshold.
+Example: Notify at 80% usage of the set budget.
+Alerts sent via email.
+
+Budget Reports
+Allows users to schedule daily, weekly, or monthly budget reports.
+Delivered via email.
+
+
+AWS Budgets Setup Process
+
+>Go to the AWS Billing Dashboard → Select Budgets.
+
+>Create a New Budget
+Choose a budget type (e.g., cost budget).
+Set a budgeted amount (e.g., $10 per month).
+Configure alert thresholds (e.g., 80% usage alert).
+Enter email for notifications.
+
+>(Optional) Create Budget Reports
+Set up automated budget reports.
+Choose recipients and report frequency.
+
+
+Summary
+AWS Budgets is a cost management tool that helps users monitor spending, get alerts on budget thresholds, and track AWS service usage. 
+It integrates with AWS Cost Explorer and AWS Chatbot, making it easier to manage and optimize cloud costs.
+
+
+
+
+
+and 
+
+
+AWS Cost Explorer:
+
+Purpose: A tool that helps users analyze and visualize AWS spending over time.
+
+Key Features:
+Provides historical and forecasted cost analysis.
+Supports filters for services, regions, instance types, users, and tags.
+Allows CSV file downloads for deeper analysis.
+Helps identify unexpected costs and optimize AWS usage.
+
+
+
+Key Functionalities
+
+Cost & Usage Graphs
+Provides a visual breakdown of AWS spending over different time periods.
+Color-coded charts display costs by service (e.g., EC2, RDS, Route 53).
+View spending trends month-by-month or daily for detailed insights.
+
+Filtering Options
+Time Period: View costs over the last 6 months, or change the granularity to daily or monthly.
+AWS Service: Filter costs by specific AWS services (e.g., EC2, RDS, Lambda).
+Region: Analyze spending in specific AWS regions (e.g., US East (N. Virginia), Asia Pacific (Sydney)).
+Instance Type: View cost breakdown by instance types (e.g., t2.micro).
+
+Cost Categories & Tags
+Cost Categories: Group expenses into categories, such as departments or projects.
+Cost Allocation Tags: Track spending by department, user, or resource owner.
+Example:
+Tag: Department = Operations → View costs incurred by the operations team.
+Tag: Created By = User123 → Identify which user generated specific costs.
+
+Identifying Unexpected Costs
+Helps detect unexpected expenses in different regions or services.
+Allows users to terminate unused resources if needed.
+
+
+
+AWS Cost Explorer Setup Process
+
+Go to the AWS Billing Dashboard → Select Cost Explorer.
+Enable Cost Explorer (if not already enabled).
+View Cost & Usage Graphs to analyze AWS expenses.
+Apply Filters to refine spending insights by service, region, user, or instance type.
+Download Data as a CSV file for further analysis.
+
+
+Summary
+AWS Cost Explorer is a powerful cost management tool that helps users track, analyze, and optimize AWS expenses. With 
+filtering options and cost allocation tags, it enables businesses to identify spending patterns, detect unexpected
+charges, and optimize AWS resource usage.
+
+****************
+
+-----------------------
+
+A company runs a real-time data ingestion solution on AWS. The solution consists of the most recent version of Amazon Managed Streaming 
+for Apache Kafka (Amazon MSK). The solution is deployed in a VPC in private subnets across three Availability Zones.
+
+A solutions architect needs to redesign the data ingestion solution to be publicly available over the internet. 
+The data in transit must also be encrypted.
+
+Which solution will meet these requirements with the MOST operational efficiency?
+
+A. Configure public subnets in the existing VPC. Deploy an MSK cluster in the public subnets. Update the MSK cluster security settings to
+enable mutual TLS authentication. Most Voted
+B. Create a new VPC that has public subnets. Deploy an MSK cluster in the public subnets. Update the MSK cluster security settings 
+to enable mutual TLS authentication.
+C. Deploy an Application Load Balancer (ALB) that uses private subnets. Configure an ALB security group inbound rule to allow inbound 
+traffic from the VPC CIDR block for HTTPS protocol.
+D. Deploy a Network Load Balancer (NLB) that uses private subnets. Configure an NLB listener for HTTPS communication over the internet.
+
+
+-----------------
+
+
+
+A company is designing a new multi-tier web application that consists of the following components:
+
+• Web and application servers that run on Amazon EC2 instances as part of Auto Scaling groups
+• An Amazon RDS DB instance for data storage
+
+A solutions architect needs to limit access to the application servers so that only the web servers can access them.
+
+Which solution will meet these requirements?
+
+A. Deploy AWS PrivateLink in front of the application servers. Configure the network ACL to allow only the web servers to access the application servers.
+B. Deploy a VPC endpoint in front of the application servers. Configure the security group to allow only the web servers to access the application servers.
+C. Deploy a Network Load Balancer with a target group that contains the application servers' Auto Scaling group. Configure 
+the network ACL to allow only the web servers to access the application servers.
+D. Deploy an Application Load Balancer with a target group that contains the application servers' Auto Scaling group. Configure
+the security group to allow only the web servers to access the application servers. Most Voted
+
+D is the answer!
+
+
+
+-----------------
+
+
+A company operates a two-tier application for image processing. The application uses two Availability Zones, each with one public subnet and one private
+subnet. An Application Load Balancer (ALB) for the web tier uses the public subnets. Amazon EC2 instances for the application tier use the private subnets.
+
+Users report that the application is running more slowly than expected. A security audit of the web server log files shows that the application is 
+receiving millions of illegitimate requests from a small number of IP addresses. A solutions architect needs to resolve the immediate performance
+problem while the company investigates a more permanent solution.
+
+What should the solutions architect recommend to meet this requirement?
+
+A. Modify the inbound security group for the web tier. Add a deny rule for the IP addresses that are consuming resources.
+B. Modify the network ACL for the web tier subnets. Add an inbound deny rule for the IP addresses that are consuming resources. Most Voted
+C. Modify the inbound security group for the application tier. Add a deny rule for the IP addresses that are consuming resources.
+D. Modify the network ACL for the application tier subnets. Add an inbound deny rule for the IP addresses that are consuming resources.
+
+
+A: Wrong as SG cannot deny. By default everything is deny in SG and you allow stuff
+CD: App tier is not under attack so these are irrelevant options
+B: Correct as NACL is exactly for this access control list to define rules for CIDR or IP addresses
+
+
+
+***********
+Security Groups (SG)
+Purpose:
+Security Groups act as virtual firewalls for EC2 instances. They control which inbound and outbound traffic is allowed to reach your EC2 instances.
+Key Characteristics:
+Stateful: If you allow inbound traffic, the response (outbound) is automatically allowed, even if there is no outbound rule for it.
+Level: Applied at the instance level. Each EC2 instance can have multiple security groups.
+Rule Type: Can only allow traffic. Cannot block traffic; if a traffic type is not allowed by any rule, it is implicitly denied.
+
+
+
+Network Access Control Lists (NACLs)
+Purpose:
+Network ACLs are used to control traffic at the subnet level. They allow you to specify rules for both inbound 
+and outbound traffic and apply to all resources within a subnet.
+
+Key Characteristics:
+Stateless: You must explicitly define both inbound and outbound rules. Traffic will not be automatically allowed to return (like in SGs). 
+You need both rules to allow two-way communication.
+Level: Applied at the subnet level. A single NACL affects all resources in a subnet (like EC2, RDS, etc.).
+Rule Type: Can both allow and deny traffic, providing finer control over which traffic is blocked.
+Default Behavior: By default, new NACLs allow all inbound and outbound traffic unless modified. You can configure deny rules to block unwanted traffic.
+Effect on Subnet: NACLs are useful to create security boundaries between subnets.
+
+When to Use:
+Use NACLs when you want to block specific types of traffic (using deny rules) or control the flow of traffic at the subnet level (e.g., between public and private subnets).
+
+
+
+
+Route Table (RT)
+Purpose:
+Route Tables control where traffic is directed within a VPC. They are responsible for determining the next hop for network traffic.
+
+Key Characteristics:
+Defines traffic flow: Determines where traffic should go based on destination IP addresses.
+Level: Works at the subnet level and applies to all resources within the subnet.
+State: It is stateless, meaning no memory of previous requests. For every new request, it needs to check the route.
+Default Routes: Usually has a default route (0.0.0.0/0) that directs traffic to an Internet Gateway (IGW), NAT Gateway, or VPN Gateway.
+No Allow/Deny Rules: Route tables don't allow you to specify rules to allow or deny traffic; they simply determine the direction of traffic.
+
+When to Use:
+Use route tables when you need to control the network traffic direction. For example, route traffic from a private subnet through a NAT 
+Gateway or route traffic from the public subnet through an Internet Gateway.
+
+
+Comparison of Route Tables, Security Groups, and NACLs
+Feature	     Route Table	                                    Security Group (SG)	                                 Network ACL (NACL)
+Purpose	     Controls traffic routing (where traffic goes)	   Controls traffic access(whocan access EC2instances)	Controls traffic access (subnet-level rules for traffic flow)
+Level	        Subnet-level (affects all resources in subnet)	Instance-level (EC2 instances)	                     Subnet-level (affects all resources in subnet)
+Statefulness  Stateless (doesn’t remember previous requests)	Stateful (allows return traffic automatically)	      Stateless (requires explicit inbound and outbound rules)
+Rule Type	  Routes traffic to specific destinations	         Allow only (cannot block traffic)	                  Allow and Deny traffic
+Deflt Behavr  Routes traffic based on destination IP	         Denies all inbound traffic by default	               Allows all inbound and outbound traffic by default
+Direction	  Inbound and outbound traffic                     routingInbound and outbound (ingress n egress)rules	Inbound and outbound (ingress and egress) rules
+Usage	        Used to control where traffic should go(next hop)	Used to control access to EC2 instances	         Used to control traffic flow between subnets, or VPCs
+
+**************************
