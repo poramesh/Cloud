@@ -3542,3 +3542,33 @@ ans:
 IAM users are typically used for human access or API-based access, but EC2 instances require IAM roles, not IAM users. Systems
 Manager must have a role attached to the instances, not a user, to work with EC2 instances.
 
+Host Configuration Management enables automated patch management and maintenance, allowing EC2 instances 
+to be patched without affecting running applications.
+It ensures that necessary patches and updates are applied efficiently by Systems Manager, and minimizes any potential 
+disruptions to application performance during the patching process.
+***
+ AWS Systems Manager (Session Manager) provides a secure, efficient, and scalable method to connect to your EC2 instances without requiring open
+SSH or RDP ports, making it an excellent choice for managing EC2 instances, especially in highly secure environments.
+
+
+Session Manager (Optional)
+
+If you don’t want to open SSH or RDP ports to the internet, you can use AWS Systems Manager's Session Manager to connect securely without opening ports.
+
+Steps to Use Session Manager:
+Ensure EC2 Instance has the necessary IAM Role:
+The instance must have an IAM role with AmazonSSMManagedInstanceCore policy attached.
+
+Verify SSM Agent is Installed:
+The SSM agent should be installed on your EC2 instance (for Amazon Linux 2, it comes pre-installed).
+
+sudo systemctl status amazon-ssm-agent //If it’s running, the agent is installed and operational
+
+sudo yum install -y amazon-ssm-agent//to install 
+
+Connect via Session Manager:
+Go to the EC2 Console, select your instance, and choose Connect.
+Select Session Manager under connection type and click Connect.
+This will open a browser-based terminal to manage your instance securely.
+
+***
