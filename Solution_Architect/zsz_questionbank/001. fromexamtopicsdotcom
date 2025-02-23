@@ -2007,6 +2007,79 @@ Does not support routing between entire VPC networks.
 
 
 ---------------------
+
+
+A company has an AWS Direct Connect connection from its on-premises location to an AWS account. The AWS account has 30 different VPCs 
+in the same AWS Region. The VPCs use private virtual interfaces (VIFs). Each VPC has a CIDR block that does
+not overlap with other networks under the company's control.
+
+The company wants to centrally manage the networking architecture while still allowing each VPC to communicate with all other VPCs and on-premises networks.
+
+Which solution will meet these requirements with the LEAST amount of operational overhead?
+
+A. Create a transit gateway, and associate the Direct Connect connection with a new transit VIF. Turn on the transit 
+gateway's route propagation feature. Most Voted
+B. Create a Direct Connect gateway. Recreate the private VIFs to use the new gateway. Associate each VPC by 
+creating new virtual private gateways.
+C. Create a transit VPConnect the Direct Connect connection to the transit VPCreate a peering connection between all 
+other VPCs in the Region. Update the route tables.
+D. Create AWS Site-to-Site VPN connections from on premises to each VPC. Ensure that both VPN tunnels are UP for
+each connection. Turn on the route propagation feature.
+
+ans:
+
+A. Create a transit gateway, and associate the Direct Connect connection with a new transit VIF. Turn on 
+the transit gateway's route propagation feature.
+Transit Gateway is a central hub for VPC networking, enabling inter-VPC communication without complex peering or managing routes manually.
+Direct Connect with Transit VIF: You would associate the Direct Connect connection with a new transit virtual interface (VIF) to
+allow the on-premises network to communicate with the transit gateway.
+Route Propagation: By enabling route propagation on the transit gateway, routes between all VPCs and the on-premises 
+network are automatically updated in each VPC's route table.
+
+Why is this the best option?
+
+The Transit Gateway simplifies the routing architecture by allowing centralized communication between all VPCs and the on-premises network.
+Minimal operational overhead: Once the transit gateway is set up, all VPCs are automatically connected to each other and the on-premises network, 
+and routes are automatically propagated.
+It scales well as new VPCs are added, since you don't need to modify individual VPC route tables or manage a complex network of peering connections.
+
+
+B. Create a Direct Connect gateway. Recreate the private VIFs to use the new gateway. Associate each VPC by creating new virtual private gateways.
+Direct Connect Gateway allows you to connect multiple VPCs (in the same or different regions) to a Direct Connect connection.
+However, for each VPC, you'd need to create a new virtual private gateway and associate it with the Direct Connect gateway. This means you'll have to set up multiple private virtual interfaces and ensure each VPC has its own VPN connection.
+
+Why this isn't the best option:
+It requires more manual setup for each VPC (creating VPGs and updating routing) compared to a Transit Gateway.
+Higher operational overhead: You need to manage connections for each VPC separately, which increases complexity as the number of VPCs grows.
+Scaling is harder: Adding new VPCs requires creating new virtual private gateways and modifying the route tables.
+
+
+C. Create a transit VPC. Connect the Direct Connect connection to the transit VPC. Create a peering connection between all other 
+VPCs in the region. Update the route tables.
+A transit VPC is a solution where you create a VPC that acts as a hub for routing traffic to other VPCs. You would then create
+VPC peering between the transit VPC and the other VPCs.
+You'd also need to manually manage route tables to ensure communication between VPCs and the on-premises network.
+
+Why this isn't the best option:
+Manual peering between every VPC adds significant complexity. As the number of VPCs grows, the number of
+peering connections increases, which becomes hard to maintain.
+This approach is less scalable and requires more manual route table management.
+Higher operational overhead, especially as more VPCs and resources are added.
+
+D. Create AWS Site-to-Site VPN connections from on-premises to each VPC. Ensure that both VPN tunnels are
+UP for each connection. Turn on the route propagation feature.
+This option involves creating individual Site-to-Site VPN connections from your on-premises network to each VPC.
+Each VPC would need a dedicated VPN connection, and you'd enable route propagation to automatically update routes.
+
+Why this isn’t ideal:
+VPN connections are useful but come with higher operational overhead: Managing 30 Site-to-Site VPNs would be complex and time-consuming.
+Scalability becomes difficult as the number of VPCs grows.
+This option would increase costs and add complexity to your network architecture compared to other options.
+
+
+
+
+----------------------
 63. A company is building an ecommerce application and needs to store sensitive customer information. The company needs to give customers the ability to complete
 purchase transactions on the website. The company also needs to ensure that sensitive customer data is protected, even from database administrators.
 
@@ -3278,3 +3351,194 @@ as the local prefix entry in the route tables would take care of this point
 I'm 110% sure the question or answers or both are wrong. Prove me wrong! :)
 Completely agreed, I was looking for an option to allow HTTPS traffic on port 443 from the ALB to the EC2 instance's security group.
 Either the question or the answers are wrong.
+
+
+--------------------
+
+
+A company wants to migrate an on-premises legacy application to AWS. The application ingests customer order files from an on-premises enterprise resource
+planning (ERP) system. The application then uploads the files to an SFTP server. The application uses a scheduled job that checks for order files every hour.
+
+The company already has an AWS account that has connectivity to the on-premises network. The new application on AWS must support integration 
+with the existing ERP system. The new application must be secure and resilient and must use the SFTP protocol to process orders from the ERP system immediately.
+
+Which solution will meet these requirements?
+
+A. Create an AWS Transfer Family SFTP internet-facing server in two Availability Zones. Use Amazon S3 storage. Create an AWS Lambda
+function to process order files. Use S3 Event Notifications to send s3:ObjectCreated:* events to the Lambda function.
+B. Create an AWS Transfer Family SFTP internet-facing server in one Availability Zone. Use Amazon Elastic File System (Amazon EFS) storage.
+Create an AWS Lambda function to process order files. Use a Transfer Family managed workflow to invoke the Lambda function.
+C. Create an AWS Transfer Family SFTP internal server in two Availability Zones. Use Amazon Elastic File System (Amazon EFS) storage. 
+Create an AWS Step Functions state machine to process order files. Use Amazon EventBridge Scheduler to invoke the state
+machine to periodically check Amazon EFS for order files.
+D. Create an AWS Transfer Family SFTP internal server in two Availability Zones. Use Amazon S3 storage. Create
+an AWS Lambda function to process order files. Use a Transfer Family managed workflow to invoke the Lambda function. 
+
+
+sol:
+D looks more secure over existing on-prem to AWS connection
+-Transfer Family SFTP internal server in two Availability Zones.
+-Use Amazon S3 storage.
+-Use a Transfer Family managed workflow to invoke the Lambda function"
+
+A and D are similar, but A internet-facing server is less secure than D, also no need to use S3 Event Notifications to send s3:ObjectCreated:*
+events to the Lambda function because Transfer Family managed workflows can directly invoke Lambda..
+
+A and B is out since it is public facing and we don't need public facing SFTP since Company already have Connection to AWS thro ON-PREMISES.
+Initially i thought it will C since it was doing scheduled as they were doing scheduled job every hour on on-premises. Then the read thro question
+and saw they are saying with new solution, they want to process the file immediately after it is uploaded so D is correct since it will trigger
+the Lambda file as soon as file appears on S3.
+
+
+-----------------------------------
+
+
+
+A company’s applications use Apache Hadoop and Apache Spark to process data on premises. The existing infrastructure is not scalable and is complex to manage.
+
+A solutions architect must design a scalable solution that reduces operational complexity. The solution must keep the data processing on premises.
+
+Which solution will meet these requirements?
+
+A. Use AWS Site-to-Site VPN to access the on-premises Hadoop Distributed File System (HDFS) data and application. Use an Amazon EMR cluster to process the data.
+B. Use AWS DataSync to connect to the on-premises Hadoop Distributed File System (HDFS) cluster. Create an Amazon EMR cluster to process the data.
+C. Migrate the Apache Hadoop application and the Apache Spark application to Amazon EMR clusters on AWS Outposts. Use the EMR clusters to process the data. Most Voted
+D. Use an AWS Snowball device to migrate the data to an Amazon S3 bucket. Create an Amazon EMR cluster to process the data.
+
+
+C cover requirement: The solution must keep the data processing on premises
+
+
+
+
+AWS Outposts
+AWS Outposts is a fully managed service that extends AWS infrastructure, services, and tools to on-premises data centers or edge locations.
+It allows businesses to run AWS services locally while maintaining seamless integration with the AWS Cloud.
+
+
+How It Works (Step-by-Step)
+
+Order an AWS Outposts Rack
+Customers choose an Outposts configuration (compute, storage, networking) based on their workload requirements.
+AWS ships and installs a fully pre-configured rack to the customer’s on-premises location.
+
+Installation & Connectivity
+The Outposts rack is physically installed in the data center.
+It connects to the AWS Cloud via a Direct Connect or VPN link.
+AWS manages updates, monitoring, and maintenance remotely.
+
+Deploy & Run AWS Services Locally
+Customers can launch AWS services (EC2, EBS, RDS, S3, EMR, etc.) on-premises just like they do in the AWS Cloud.
+The Outposts rack integrates with AWS IAM, VPC, and Security Groups for consistent security and access control.
+
+Data Processing & Hybrid Cloud Integration
+Workloads running on Outposts can interact with AWS Cloud services (e.g., backup to Amazon S3, machine learning with SageMaker).
+Low-latency applications process data on-site, reducing data transfer delays to the cloud.
+
+🔑 Key Features of AWS Outposts
+✅ Hybrid Cloud Solution – Run AWS workloads on-premises with direct connectivity to AWS Cloud.
+✅ Fully Managed by AWS – AWS takes care of updates, patching, and maintenance.
+✅ Low Latency – Ideal for applications that require real-time data processing close to the source.
+✅ Supports AWS Services – Can run Amazon EC2, Amazon S3, Amazon EMR, RDS, EKS, Lambda, and more.
+✅ Connected to AWS – Integrates with AWS services like Amazon S3, Amazon VPC, and AWS IAM.
+
+📌 Use Cases for AWS Outposts
+Big Data & Analytics – Run Apache Hadoop, Apache Spark, or Amazon EMR on-premises for low-latency data processing.
+Machine Learning (ML) & AI – Process large datasets close to the data source.
+Edge Computing – Handle workloads in factories, hospitals, retail stores, or oil rigs where real-time processing is needed.
+Regulated Industries – Useful for banking, healthcare, and government sectors that require on-premises data residency.
+
+📌 Best Answer to Your Question
+Since the company wants to keep data processing on-premises, the best option is:
+✅ C. Migrate the Apache Hadoop and Apache Spark applications to Amazon EMR clusters on AWS Outposts. Use the EMR clusters to process the data.
+
+💡 Why?
+Maintains on-premises data processing ✅
+Scales easily using AWS-managed infrastructure ✅
+Reduces operational complexity ✅
+
+
+---------------
+A company is migrating a large amount of data from on-premises storage to AWS. Windows, Mac, and Linux based Amazon EC2 instances in the
+same AWS Region will access the data by using SMB and NFS storage protocols. The company will access a portion of the data routinely. 
+The company will access the remaining data infrequently.
+
+The company needs to design a solution to host the data.
+
+Which solution will meet these requirements with the LEAST operational overhead?
+
+A. Create an Amazon Elastic File System (Amazon EFS) volume that uses EFS Intelligent-Tiering. Use AWS DataSync to migrate the data to the EFS volume.
+B. Create an Amazon FSx for ONTAP instance. Create an FSx for ONTAP file system with a root volume that uses the auto tiering policy. Migrate the data to 
+the FSx for ONTAP volume. Most Voted
+C. Create an Amazon S3 bucket that uses S3 Intelligent-Tiering. Migrate the data to the S3 bucket by using an AWS Storage Gateway Amazon S3 File Gateway.
+D. Create an Amazon FSx for OpenZFS file system. Migrate the data to the new volume.
+
+
+sol: Amazon FsX for NetAPP ONTAP feature: Multi-protocol access to data using the Network File System (NFS), Server Message Block (SMB),
+and Internet Small Computer Systems Interface (iSCSI) protocols
+
+
+
+-----------------------------------------
+
+A company wants to rearchitect a large-scale web application to a serverless microservices architecture. The application uses Amazon EC2 instances and is written in Python.
+
+The company selected one component of the web application to test as a microservice. The component supports hundreds of requests each second. 
+The company wants to create and test the microservice on an AWS solution that supports Python. The solution must also scale automatically
+and require minimal infrastructure and minimal operational support.
+
+Which solution will meet these requirements?
+
+A. Use a Spot Fleet with auto scaling of EC2 instances that run the most recent Amazon Linux operating system.
+B. Use an AWS Elastic Beanstalk web server environment that has high availability configured.
+C. Use Amazon Elastic Kubernetes Service (Amazon EKS). Launch Auto Scaling groups of self-managed EC2 instances.
+D. Use an AWS Lambda function that runs custom developed code. Most Voted
+
+
+sol:
+
+Why AWS Lambda is the Best Fit:
+Serverless: AWS Lambda is fully serverless, meaning you don’t have to manage any infrastructure, which aligns with the requirement to minimize operational support.
+Automatic Scaling: Lambda automatically scales in response to incoming traffic, so you don’t need to configure auto-scaling groups or manage instances.
+Python Support: AWS Lambda supports Python, so you can easily run your Python code without additional configuration.
+Event-driven: Lambda is designed for microservices and can be triggered by events (such as HTTP requests through Amazon API Gateway) with minimal setup.
+
+Why Elastic Beanstalk May Not Be Ideal:
+While Elastic Beanstalk provides an easy way to deploy and manage applications, it's not fully serverless. Here's why it might not 
+meet the "minimal infrastructure" and "serverless" requirements as effectively as Lambda:
+Infrastructure Management: Elastic Beanstalk still requires you to manage and scale EC2 instances behind the scenes, which means there
+is more infrastructure to manage compared to Lambda, where you only focus on your application code.
+Scaling Complexity: Elastic Beanstalk automatically scales, but it still relies on EC2 instances (even with auto-scaling), which 
+introduces complexity in terms of instance management and cost optimization. Lambda automatically scales without needing to provision instances.
+More Overhead: You need to configure things like load balancing, health checks, and instance scaling within Elastic Beanstalk. This adds c
+omplexity compared to Lambda's "just code" approach.
+
+Other Options Breakdown:
+A. Spot Fleet with Auto Scaling of EC2 instances: This would be more complex to manage, especially for serverless requirements, since 
+you're still managing EC2 instances (including their scaling).
+B. Elastic Beanstalk (correct answer) with High Availability: Good for simplifying infrastructure, but still involves EC2, which isn't the most optimal
+for a serverless microservices approach.
+C. Amazon EKS (Elastic Kubernetes Service): This involves a significant amount of operational overhead, especially for scaling, managing pods,
+and ensuring availability. It's not the simplest solution for a serverless, microservices architecture.
+
+
+
+
+-------------------------------
+A company has applications that run on Amazon EC2 instances. The EC2 instances connect to Amazon RDS databases by using an IAM role that has 
+associated policies. The company wants to use AWS Systems Manager to patch the EC2 instances without disrupting the running applications.
+
+Which solution will meet these requirements?
+
+A. Create a new IAM role. Attach the AmazonSSMManagedInstanceCore policy to the new IAM role. Attach the new IAM role to the EC2 instances and the existing IAM role.
+B. Create an IAM user. Attach the AmazonSSMManagedInstanceCore policy to the IAM user. Configure Systems Manager to use the IAM user to manage the EC2 instances.
+C. Enable Default Host Configuration Management in Systems Manager to manage the EC2 instances. Most Voted
+D. Remove the existing policies from the existing IAM role. Add the AmazonSSMManagedInstanceCore policy to the existing IAM role.
+
+
+ans:
+
+"Attach the new IAM role to the EC2 instances and the existing IAM role" - You can't attach multiple policies to an EC2 instance. So A is wrong.
+IAM users are typically used for human access or API-based access, but EC2 instances require IAM roles, not IAM users. Systems
+Manager must have a role attached to the instances, not a user, to work with EC2 instances.
+
