@@ -3572,3 +3572,135 @@ Select Session Manager under connection type and click Connect.
 This will open a browser-based terminal to manage your instance securely.
 
 ***
+
+
+
+
+-------------------
+
+A company runs container applications by using Amazon Elastic Kubernetes Service (Amazon EKS) and the Kubernetes Horizontal Pod Autoscaler. 
+The workload is not consistent throughout the day. A solutions architect notices that the number of nodes does not automatically
+scale out when the existing nodes have reached maximum capacity in the cluster, which causes performance issues.
+
+Which solution will resolve this issue with the LEAST administrative overhead?
+
+A. Scale out the nodes by tracking the memory usage.
+B. Use the Kubernetes Cluster Autoscaler to manage the number of nodes in the cluster. Most Voted
+C. Use an AWS Lambda function to resize the EKS cluster automatically.
+D. Use an Amazon EC2 Auto Scaling group to distribute the workload.
+
+
+
+sol:
+When the workload increases and existing nodes reach maximum capacity, the Cluster Autoscaler detects the need for additional nodes 
+and requests them from the underlying AWS infrastructure.
+
+autoscaling in EKS:
+Cluster Autoscaling: Scales the worker nodes.
+Vertical Pod Autoscaler: Adjusts CPU and memory for individual pods (vertical scaling).
+Horizontal Pod Autoscaler: Scales the number of pods in a deployment (horizontal scaling).
+Workload Autoscaling:
+Kubernetes Cluster Autoscaler: Uses AWS scaling groups.
+Karpenter: An open-source autoscaling project that works with EC2 fleets.
+
+
+----------------
+
+
+A company maintains about 300 TB in Amazon S3 Standard storage month after month. The S3 objects are each typically around 50 GB in size and 
+are frequently replaced with multipart uploads by their global application. The number and size of S3 objects remain constant, but the
+company's S3 storage costs are increasing each month.
+
+How should a solutions architect reduce costs in this situation?
+
+A. Switch from multipart uploads to Amazon S3 Transfer Acceleration.
+B. Enable an S3 Lifecycle policy that deletes incomplete multipart uploads. Most Voted
+C. Configure S3 inventory to prevent objects from being archived too quickly.
+D. Configure Amazon CloudFront to reduce the number of objects stored in Amazon S3.
+
+
+sol:
+Example 3: A Cloud Backup Service
+The company provides a backup service for its customers.
+Each customer’s backup file is around 50 GB.
+Whenever a customer uploads a new version of their backup, it replaces the previous backup.
+This upload process uses multipart uploads for efficiency.
+If a customer's backup fails in the middle, S3 still stores the failed parts, even though they are not part of the final backup file.
+🔴 Result? Wasted storage from incomplete uploads.
+
+
+
+----------------
+
+
+
+A company has an on-premises data center that is running out of storage capacity. The company wants to migrate its storage infrastructure 
+to AWS while minimizing bandwidth costs. The solution must allow for immediate retrieval of data at no additional cost.
+
+How can these requirements be met?
+
+A. Deploy Amazon S3 Glacier Vault and enable expedited retrieval. Enable provisioned retrieval capacity for the workload.
+B. Deploy AWS Storage Gateway using cached volumes. Use Storage Gateway to store data in Amazon S3 while retaining
+copies of frequently accessed data subsets locally. Most Voted
+C. Deploy AWS Storage Gateway using stored volumes to store data locally. Use Storage Gateway to asynchronously back up 
+point-in-time snapshots of the data to Amazon S3.
+D. Deploy AWS Direct Connect to connect with the on-premises data center. Configure AWS Storage Gateway to store data locally. 
+Use Storage Gateway to asynchronously back up point-in-time snapshots of the data to Amazon S3.
+
+
+sol:B
+1- "The company wants to migrate its storage infrastructure to AWS" ->> B as data will be migrated to AWS.
+2- "The solution must allow for immediate retrieval of data at no additional cost." ->> B as data will be stored in S3 Standard storage class which provide immediate data retrieval
+
+
+
+-----------------
+
+A company runs a three-tier web application in a VPC across multiple Availability Zones. Amazon EC2 instances run in an Auto Scaling group for the application tier.
+
+The company needs to make an automated scaling plan that will analyze each resource's daily and weekly historical workload trends.
+The configuration must scale resources appropriately according to both the forecast and live changes in utilization.
+
+Which scaling strategy should a solutions architect recommend to meet these requirements?
+
+A. Implement dynamic scaling with step scaling based on average CPU utilization from the EC2 instances.
+B. Enable predictive scaling to forecast and scale. Configure dynamic scaling with target tracking Most Voted
+C. Create an automated scheduled scaling action based on the traffic patterns of the web application.
+D. Set up a simple scaling policy. Increase the cooldown period based on the EC2 instance startup time.
+
+
+Not A: Only handles Dynamic scaling, not pattern-based/predictive scaling.
+B: Both Predictive and dynamic
+Not C: Manual version of predictive, lacks live circumstances..
+Not D: The question doesn't talk about cool down period...
+
+
+
+
+-------------
+
+
+An ecommerce company runs applications in AWS accounts that are part of an organization in AWS Organizations. The applications 
+run on Amazon Aurora PostgreSQL databases across all the accounts. The company needs to prevent malicious activity and must identify 
+abnormal failed and incomplete login attempts to the databases.
+
+Which solution will meet these requirements in the MOST operationally efficient way?
+
+A. Attach service control policies (SCPs) to the root of the organization to identity the failed login attempts.
+B. Enable the Amazon RDS Protection feature in Amazon GuardDuty for the member accounts of the organization. Most Voted
+C. Publish the Aurora general logs to a log group in Amazon CloudWatch Logs. Export the log data to a central Amazon S3 bucket.
+D. Publish all the Aurora PostgreSQL database events in AWS CloudTrail to a central Amazon S3 bucket.
+
+
+sol: After you enable the RDS Protection feature, GuardDuty immediately starts monitoring RDS login activity from Aurora
+databases in your account. GuardDuty continuously monitors and profiles RDS login activity for suspicious activity, 
+for example, unauthorized access to Aurora database in your account, from a previously unseen external actor.
+
+Amazon GuardDuty is a threat detection service that continuously monitors for malicious activity and unauthorized behavior to 
+protect your Amazon Web Services accounts, workloads, and data stored in Amazon S3.
+
+
+
+--------------------
+
+
