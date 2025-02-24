@@ -228,7 +228,8 @@ more instances are launched; when the queue shrinks, instances are terminated.
 C, D - incorrect: Primary server should not be in same Auto Scaling group with compute nodes.
 ASGs are designed for stateless, replaceable compute nodes (e.g., web servers, worker nodes).
 If an instance in an ASG fails or is unhealthy, the ASG automatically terminates and replaces it.
-Problem: If the primary server (e.g., a database or stateful service) is in the ASG, it could be unintentionally terminated and replaced, leading to data loss or service disruption.
+Problem: If the primary server (e.g., a database or stateful service) is in the ASG, it could be unintentionally terminated and replaced, 
+leading to data loss or service disruption.
 ✅ Best Practice: The primary server should be a separate dedicated instance or managed service (e.g., Amazon RDS for databases).
 
 Compute nodes (web servers, worker nodes, etc.) are stateless, meaning they process tasks without storing persistent data.
@@ -1262,7 +1263,8 @@ is set up to transition the data to Amazon S3 Glacier after 14 days to minimize 
 
 If you think D, just consider what is needed to move the message from SQS to S3... you are polling daily 14 TB to take out 1 TB...
 that's no operationally efficient at all.
-"A" is simply correct because kinesis firehouse is made for this, SQS standard is not going to support 500 million alerts 2KB each (1 TB) this service is made for requests that are lighter.
+"A" is simply correct because kinesis firehouse is made for this, SQS standard is not going to support 500 million alerts 2KB each (1 TB) this service is made for
+requests that are lighter.
 
 #kinesis
 #sqs
@@ -2046,7 +2048,9 @@ It scales well as new VPCs are added, since you don't need to modify individual 
 
 B. Create a Direct Connect gateway. Recreate the private VIFs to use the new gateway. Associate each VPC by creating new virtual private gateways.
 Direct Connect Gateway allows you to connect multiple VPCs (in the same or different regions) to a Direct Connect connection.
-However, for each VPC, you'd need to create a new virtual private gateway and associate it with the Direct Connect gateway. This means you'll have to set up multiple private virtual interfaces and ensure each VPC has its own VPN connection.
+However, for each VPC, you'd need to create a new virtual private gateway and associate it with the Direct Connect gateway. This means you'll have to set
+up multiple private virtual interfaces and
+ensure each VPC has its own VPN connection.
 
 Why this isn't the best option:
 It requires more manual setup for each VPC (creating VPGs and updating routing) compared to a Transit Gateway.
