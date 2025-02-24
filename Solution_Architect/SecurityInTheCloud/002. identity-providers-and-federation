@@ -1,3 +1,22 @@
+**
+What is Single Sign-On (SSO)?
+Single Sign-On (SSO) is a system that allows users to log in once and gain access to multiple applications 
+or services without needing to log in again for each one.
+
+In AWS, AWS Single Sign-On (AWS SSO) lets users access multiple AWS accounts and applications with one 
+login instead of managing separate credentials for each account.
+
+How SSO Works (Simple Explanation)
+User logs in once using their corporate credentials (e.g., Microsoft Active Directory, Okta, Google Workspace).
+SSO verifies their identity and grants access to all authorized applications.
+User can switch between services/accounts without entering their password again.
+Example: How AWS SSO Helps
+A company has 5 AWS accounts (Production, Development, Testing, Security, Billing).
+Without SSO: Each user must remember and manage separate logins for each AWS account.
+With AWS SSO: Users log in once and switch between accounts easily based on their permissions.
+
+**
+
 Identity Providers and Federation 
 
 What is Federation?
