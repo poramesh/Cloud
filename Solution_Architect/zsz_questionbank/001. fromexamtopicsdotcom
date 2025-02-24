@@ -3869,3 +3869,264 @@ B. Set up AWS account root users with user email addresses and passwords that ar
 C. Configure AWS IAM Identity Center (AWS Single Sign-On). Connect IAM Identity Center to the existing IdP. Provision users 
 and groups from the existing IdP.
 D. Use AWS Resource Access Manager (AWS RAM) to share access to the AWS accounts with the users in the existing IdP.
+
+
+
+sol:
+
+The company has 10 AWS accounts under AWS Organizations.
+There are thousands of employees who need access.
+The company already has an Identity Provider (IdP) (e.g., Microsoft Active Directory, Okta, Google Workspace).
+They want to use the existing IdP for authentication instead of manually creating AWS credentials.
+
+Best Solution: AWS IAM Identity Center (AWS SSO)
+✅ Correct Answer: C. Configure AWS IAM Identity Center (AWS Single Sign-On). Connect IAM Identity Center to the existing IdP. Provision users and groups from the existing IdP.
+
+👉 Why?
+AWS IAM Identity Center (AWS SSO) allows organizations to:
+Connect AWS accounts with an external IdP (like Okta, Microsoft AD, or Google).
+Let employees log in once using their company credentials and access multiple AWS accounts.
+Automatically manage user permissions via groups and roles.
+
+How AWS IAM Identity Center (AWS SSO) Works
+Set up AWS IAM Identity Center (AWS SSO) in AWS Organizations.
+Connect AWS IAM Identity Center to the company's IdP using SAML 2.0 integration.
+Sync users & groups from the IdP into AWS IAM Identity Center.
+Assign access permissions to AWS accounts using groups (e.g., Admins get full access, Developers get limited access).
+Users log in once with their existing credentials and can switch between AWS accounts without re-entering passwords.
+
+Why the Other Options Are Wrong?
+Option                                                                	Why It's Wrong?
+A. Create IAM users for emp & configure federated authencatn	❌ Not scalable for thousands of employees. Manually managing IAM users across 10 AWS accounts is inefficient.
+B. Use AWS root users with emails & passwords from the IdP	    ❌ Root users are for account ownership, not daily operations. Using root users for access control is insecure.
+D. Use AWS Resource Access Manager (AWS RAM) to share access	 ❌ AWS RAM is for sharing resources (e.g., VPCs, Subnets) between accounts, not for authentication.
+
+
+
+
+
+
+---------------------
+A solutions architect is designing an AWS Identity and Access Management (IAM) authorization model for a company's AWS account. The company has designated
+five specific employees to have full access to AWS services and resources in the AWS account.
+
+The solutions architect has created an IAM user for each of the five designated employees and has created an IAM user group.
+
+Which solution will meet these requirements?
+
+A. Attach the AdministratorAccess resource-based policy to the IAM user group. Place each of the five designated employee IAM users in the IAM user group.
+B. Attach the SystemAdministrator identity-based policy to the IAM user group. Place each of the five designated employee IAM users in the IAM user group.
+C. Attach the AdministratorAccess identity-based policy to the IAM user group. Place each of the five designated employee IAM users in the IAM user group. 
+D. Attach the SystemAdministrator resource-based policy to the IAM user group. Place each of the five designated employee IAM users in the IAM user group.
+
+
+The question says "full access to AWS services and resources in the AWS account" and "created an IAM user group."
+You can see it is identity-based policy, not resource-based.--->A and D are out.
+SystemAdministrator: Allow 28 of 412 services.--->B is out.
+AdministratorAccess: Allow 412 of 412 services.--->C is the correct answer.
+
+
+-----------
+
+A company has users all around the world accessing its HTTP-based application deployed on Amazon EC2 instances in multiple AWS Regions.
+The company wants to improve the availability and performance of the application. The company also wants to protect the application 
+against common web exploits that may affect availability, compromise security, or consume excessive resources. Static IP addresses are required.
+
+What should a solutions architect recommend to accomplish this?
+
+A. Put the EC2 instances behind Network Load Balancers (NLBs) in each Region. Deploy AWS WAF on the NLBs. Create an accelerator 
+using AWS Global Accelerator and register the NLBs as endpoints.
+B. Put the EC2 instances behind Application Load Balancers (ALBs) in each Region. Deploy AWS WAF on the ALBs. Create an accelerator 
+using AWS Global Accelerator and register the ALBs as endpoints. Most Voted
+C. Put the EC2 instances behind Network Load Balancers (NLBs) in each Region. Deploy AWS WAF on the NLBs. Create an Amazon CloudFront
+distribution with an origin that uses Amazon Route 53 latency-based routing to route requests to the NLBs.
+D. Put the EC2 instances behind Application Load Balancers (ALBs) in each Region. Create an Amazon CloudFront distribution with an
+origin that uses Amazon Route 53 latency-based routing to route requests to the ALBs. Deploy AWS WAF on the CloudFront distribution.
+
+ans:
+
+HTTP based application so ALB is required.
+because static IP addresses are required, we should use global accelerator:
+"By default, Global Accelerator provides you with static IP addresses that you associate with your accelerator."
+
+
+
+------------
+
+
+A company stores text files in Amazon S3. The text files include customer chat messages, date and time information, and 
+customer personally identifiable information (PII).
+
+The company needs a solution to provide samples of the conversations to an external service provider for quality control. The external
+service provider needs to randomly pick sample conversations up to the most recent conversation. The company must not share the customer 
+PII with the external service provider. The solution must scale when the number of customer conversations increases.
+
+Which solution will meet these requirements with the LEAST operational overhead?
+
+A. Create an Object Lambda Access Point. Create an AWS Lambda function that redacts the PII when the function reads the file. Instruct the
+external service provider to access the Object Lambda Access Point. 
+B. Create a batch process on an Amazon EC2 instance that regularly reads all new files, redacts the PII from the files, and writes the redacted 
+files to a different S3 bucket. Instruct the external service provider to access the bucket that does not contain the PII.
+B. Create a web application on an Amazon EC2 instance that presents a list of the files, redacts the PII from the files, and allows the external 
+service provider to download new versions of the files that have the PII redacted.
+D. Create an Amazon DynamoDB table. Create an AWS Lambda function that reads only the data in the files that does not contain PII. Configure the
+Lambda function to store the non-PII data in the DynamoDB table when a new file is written to Amazon S3. Grant the external service provider access to the DynamoDB table.
+
+
+
+ans: A
+
+
+all of the options work but a works more operationally wihtout much overhead.
+Use AWS Lambda functions to change the Object before it is retrieved by the caller application. Only one S3 bucket is needed,
+on top of which we create S3 Access Point And S3 Object Lambda Access Points
+Use case:
+1. Redact PII for analytics or non-production environment
+2. Convert across data formats ex: XML to Json
+3. Resizing and watermaking images on fly using caller-specific details ex: user who requested the object
+
+
+
+
+
+
+--------------
+
+A company is running a legacy system on an Amazon EC2 instance. The application code cannot be modified, and the system cannot run on more 
+than one instance. A solutions architect must design a resilient solution that can improve the recovery time for the system.
+
+What should the solutions architect recommend to meet these requirements?
+
+A. Enable termination protection for the EC2 instance.
+B. Configure the EC2 instance for Multi-AZ deployment.
+C. Create an Amazon CloudWatch alarm to recover the EC2 instance in case of failure.
+D. Launch the EC2 instance with two Amazon Elastic Block Store (Amazon EBS) volumes that use RAID configurations for storage redundancy.
+
+
+
+A. Enable termination protection for the EC2 instance.
+No. Termination protection is about avoid accidentally delete the instance
+
+B. Configure the EC2 instance for Multi-AZ deployment.
+No. Question says "cannot run on more than one instance"
+
+C. Create an Amazon CloudWatch alarm to recover the EC2 instance in case of failure.
+Yes. CloudWatch can be used to recover the instance
+
+D. Launch the EC2 instance with two Amazon Elastic Block Store (Amazon EBS) volumes that use RAID configurations for storage redundancy.
+No. Raid could be helpful to increase resilience, but does not help with "improve the recovery time"
+
+
+-----------
+
+
+
+A company needs to use its on-premises LDAP directory service to authenticate its users to the AWS Management Console. The directory service is 
+not compatible with Security Assertion Markup Language (SAML).
+
+Which solution meets these requirements?
+
+A. Enable AWS IAM Identity Center (AWS Single Sign-On) between AWS and the on-premises LDAP.
+B. Create an IAM policy that uses AWS credentials, and integrate the policy into LDAP.
+C. Set up a process that rotates the IAM credentials whenever LDAP credentials are updated.
+D. Develop an on-premises custom identity broker application or process that uses AWS Security Token Service (AWS STS) to get short-lived credentials
+
+
+sol:
+A - AWS IAM Identity Center (formerly AWS SSO) allows integration with SAML-compatible identity providers, which won't work with 
+on-premises LDAP directory (not SAML-compatible).
+B - There's no way to "integrate" an IAM policy into LDAP.
+C - Too complex. AWS already provides better mechanisms for handling temporary credentials - AWS STS.
+D - YES. Actually, this approach is commonly used when SAML is not an option.
+
+---------------
+
+
+
+A company has 150 TB of archived image data stored on-premises that needs to be moved to the AWS Cloud within the next month. The company’s 
+current network connection allows up to 100 Mbps uploads for this purpose during the night only.
+
+What is the MOST cost-effective mechanism to move this data and meet the migration deadline?
+
+A. Use AWS Snowmobile to ship the data to AWS.
+B. Order multiple AWS Snowball devices to ship the data to AWS. Most Voted
+C. Enable Amazon S3 Transfer Acceleration and securely upload the data.
+D. Create an Amazon S3 VPC endpoint and establish a VPN to upload the data.
+
+sol:
+SnowBall Storage will give us 80TB. To transfer data we will need 2 devices. Taking into consideration that 1 device = ~300$ we
+will spend 600$. Option B is most Cost effective and will allow us to end operation in lest then month.
+
+
+
+-----------------
+
+
+A company wants to migrate its three-tier application from on premises to AWS. The web tier and the application tier are running on
+third-party virtual machines (VMs). The database tier is running on MySQL.
+
+The company needs to migrate the application by making the fewest possible changes to the architecture. The company also needs a 
+database solution that can restore data to a specific point in time.
+
+Which solution will meet these requirements with the LEAST operational overhead?
+
+A. Migrate the web tier and the application tier to Amazon EC2 instances in private subnets. Migrate the database tier to Amazon
+RDS for MySQL in private subnets.
+B. Migrate the web tier to Amazon EC2 instances in public subnets. Migrate the application tier to EC2 instances in private subnets.
+Migrate the database tier to Amazon Aurora MySQL in private subnets. Most Voted
+C. Migrate the web tier to Amazon EC2 instances in public subnets. Migrate the application tier to EC2 instances in private subnets.
+Migrate the database tier to Amazon RDS for MySQL in private subnets.
+D. Migrate the web tier and the application tier to Amazon EC2 instances in public subnets. Migrate the database tier to Amazon Aurora MySQL in public subnets.
+
+
+sol: The problem with this question is that we do not have enough information. We can execute task with both AURORA or RDS DB. I 
+will go with AURORA as it is Amazon Proprietary and is developed by AWS teams, hence we do not need to think about updates etc. as it is done by AWS teams.
+
+Aurora provides automated backup and point-in-time recovery, simplifying backup management and data protection. Continuous incremental backups are taken 
+automatically and stored in Amazon S3, and data retention periods can be specified to meet compliance requirements.
+
+RDS provides the same but first, the users should set a retention period for these backups, allowing historical data recovery
+in case of accidental data loss or corruption, and point-in-time recovery (PITR) allows users to restore the database to any specific moment within the set retention period.
+
+
+-------------------
+A development team is collaborating with another company to create an integrated product. The other company needs to access
+an Amazon Simple Queue Service (Amazon SQS) queue that is contained in the development team's account. The other company
+wants to poll the queue without giving up its own account permissions to do so.
+
+How should a solutions architect provide access to the SQS queue?
+
+A. Create an instance profile that provides the other company access to the SQS queue.
+B. Create an IAM policy that provides the other company access to the SQS queue.
+C. Create an SQS access policy that provides the other company access to the SQS queue. Most Voted
+D. Create an Amazon Simple Notification Service (Amazon SNS) access policy that provides the other company access to the SQS queue.
+
+
+sol:
+By creating an SQS access policy, you can define specific permissions for the other company to access the SQS queue without requiring them
+to modify their own account permissions. This allows for fine-grained control over access to the queue while maintaining security and 
+isolation between accounts. Options A, B, and D are not appropriate for granting access to the SQS queue in this scenario.
+
+Here is the example:
+{
+"Version": "2012-10-17",
+"Statement": [
+{
+"Effect": "Allow",
+"Principal": {
+"AWS": "arn:aws:iam::OtherCompanyAccountID:root"
+},
+"Action": [
+"sqs:ReceiveMessage",
+"sqs:DeleteMessage"
+],
+"Resource": "arn:aws:sqs:region:YourAccountID:YourQueueName"
+}
+]
+}
+
+A - Instance profiles are attached to Amazon EC2 instances. This is irrelevant.
+B - While you could create an IAM role in your account for the other company to assume, it is explicitly stated that the
+other company does not want to give up its own permissions, meaning cross-account access must be configured, but IAM policies alone do not provide cross-account access.
+C - SQS supports resource-based policies, which allow you to grant access to specific AWS principals (users, roles, or accounts) across accounts.
+D - No idea what it would achieve. SNS policies don't even apply to SQS queues.
