@@ -3905,9 +3905,34 @@ A. Create IAM users for emp & configure federated authencatn	❌ Not scalable fo
 B. Use AWS root users with emails & passwords from the IdP	    ❌ Root users are for account ownership, not daily operations. Using root users for access control is insecure.
 D. Use AWS Resource Access Manager (AWS RAM) to share access	 ❌ AWS RAM is for sharing resources (e.g., VPCs, Subnets) between accounts, not for authentication.
 
+---------------------------------------
 
 
+A company’s developers want a secure way to gain SSH access on the company's Amazon EC2 instances that run the latest version of Amazon Linux. 
+The developers work remotely and in the corporate office.
 
+The company wants to use AWS services as a part of the solution. The EC2 instances are hosted in a VPC private subnet and access the internet 
+through a NAT gateway that is deployed in a public subnet.
+
+What should a solutions architect do to meet these requirements MOST cost-effectively?
+
+A. Create a bastion host in the same subnet as the EC2 instances. Grant the ec2:CreateVpnConnection IAM permission to the developers. 
+Install EC2 Instance Connect so that the developers can connect to the EC2 instances.
+B. Create an AWS Site-to-Site VPN connection between the corporate network and the VPC. Instruct the developers to use the Site-to-Site
+VPN connection to access the EC2 instances when the developers are on the corporate network. Instruct the developers to set 
+up another VPN connection for access when they work remotely.
+C. Create a bastion host in the public subnet of the VPConfigure the security groups and SSH keys of the bastion host to only 
+allow connections and SSH authentication from the developers’ corporate and remote networks. Instruct the developers to connect 
+through the bastion host by using SSH to reach the EC2 instances.
+D. Attach the AmazonSSMManagedInstanceCore IAM policy to an IAM role that is associated with the EC2 instances. Instruct the
+developers to use AWS Systems Manager Session Manager to access the EC2 instances. Most Voted
+
+sol:
+
+A - Bastion hosts are typically placed in public subnets (not private subnets). Also, see option C below.
+B - Would work, but this is too complex and too expensive.
+C - An additional EC2 instance (bastion host) = instance running costs + endless maintenance.
+D - God yes. No need to manage SSH keys, and access is encrypted by default.
 
 
 ---------------------
@@ -4091,6 +4116,65 @@ automatically and stored in Amazon S3, and data retention periods can be specifi
 
 RDS provides the same but first, the users should set a retention period for these backups, allowing historical data recovery
 in case of accidental data loss or corruption, and point-in-time recovery (PITR) allows users to restore the database to any specific moment within the set retention period.
+----------------------------
+
+
+A pharmaceutical company is developing a new drug. The volume of data that the company generates has grown exponentially over the past few months. 
+The company's researchers regularly require a subset of the entire dataset to be immediately available with minimal lag. However,
+the entire dataset does not need to be accessed on a daily basis. All the data currently resides in on-premises storage arrays, and 
+the company wants to reduce ongoing capital expenses.
+
+Which storage solution should a solutions architect recommend to meet these requirements?
+
+A. Run AWS DataSync as a scheduled cron job to migrate the data to an Amazon S3 bucket on an ongoing basis.
+B. Deploy an AWS Storage Gateway file gateway with an Amazon S3 bucket as the target storage. Migrate the data to the Storage Gateway appliance.
+C. Deploy an AWS Storage Gateway volume gateway with cached volumes with an Amazon S3 bucket as the target storage. Migrate the
+data to the Storage Gateway appliance. Most Voted
+D. Configure an AWS Site-to-Site VPN connection from the on-premises environment to AWS. Migrate data to an Amazon Elastic
+File System (Amazon EFS) file system.
+
+
+
+Types of Gateways
+
+File Gateway
+Purpose: Provides file-based access to Amazon S3, allowing applications to interact with S3 objects via SMB or NFS protocols.
+
+Key Features:
+Files are stored as objects in S3, with a local cache for frequently accessed files.
+Compatible with VMware, Hyper-V, KVM, or EC2 (as a virtual appliance).
+Supports multiple S3 storage classes (e.g., Standard, Intelligent-Tiering, Glacier).
+Encryption in transit (SSL/TLS) and at rest (SSE-S3).
+
+Use Cases:
+Applications requiring file system protocols (NFS/SMB) while storing data in object storage (S3).
+On-premises or EC2 applications needing file storage with S3 object integration.
+
+Workflow:
+Applications write/read files via NFS/SMB to the File Gateway.
+Files are cached locally for low-latency access and stored as objects in S3.
+
+
+
+Volume Gateway
+Purpose: Provides block-based storage via iSCSI for on-premises applications, with data backed up to S3 and EBS snapshots.
+
+Modes:
+1. Cached Volume Mode:
+Frequently accessed data is cached locally on-premises.
+The full dataset resides in Amazon S3.
+
+2. Stored Volume Mode:
+Entire dataset stored on-premises.
+Asynchronous backups are sent to S3, with point-in-time EBS snapshots for recovery.
+
+Use Cases:
+Block-based storage requirements for applications.
+Disaster recovery using EBS snapshots.
+
+Workflow:
+Applications access storage via iSCSI.
+Data is either cached (cached mode) or fully stored (stored mode) locally, with S3 as the backend storage.
 
 
 -------------------
@@ -4134,3 +4218,27 @@ B - While you could create an IAM role in your account for the other company to 
 other company does not want to give up its own permissions, meaning cross-account access must be configured, but IAM policies alone do not provide cross-account access.
 C - SQS supports resource-based policies, which allow you to grant access to specific AWS principals (users, roles, or accounts) across accounts.
 D - No idea what it would achieve. SNS policies don't even apply to SQS queues.
+
+
+
+=--
+---------------
+
+A company hosts an application used to upload files to an Amazon S3 bucket. Once uploaded, the files are processed to extract metadata,
+which takes less than 5 seconds. The volume and frequency of the uploads varies from a few files each hour to hundreds of concurrent uploads. 
+The company has asked a solutions architect to design a cost-effective architecture that will meet these requirements.
+
+What should the solutions architect recommend?
+
+A. Configure AWS CloudTrail trails to log S3 API calls. Use AWS AppSync to process the files.
+B. Configure an object-created event notification within the S3 bucket to invoke an AWS Lambda function to process the files. Most Voted
+C. Configure Amazon Kinesis Data Streams to process and send data to Amazon S3. Invoke an AWS Lambda function to process the files.
+D. Configure an Amazon Simple Notification Service (Amazon SNS) topic to process the files uploaded to Amazon S3. Invoke an AWS
+Lambda function to process the files.
+
+
+ans:
+option b bcz option c is WS AppSync is not the most appropriate solution for file processing.
+option d While Amazon Simple Notification Service (SNS) can be used to trigger actions based on S3 events, it's not directly involved 
+in processing files .option c :Kinesis is typically used for real-time data streaming and analytics, which may not be needed for 
+simple file processing tasks such as extracting metadata.
