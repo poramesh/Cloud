@@ -4242,3 +4242,495 @@ option b bcz option c is WS AppSync is not the most appropriate solution for fil
 option d While Amazon Simple Notification Service (SNS) can be used to trigger actions based on S3 events, it's not directly involved 
 in processing files .option c :Kinesis is typically used for real-time data streaming and analytics, which may not be needed for 
 simple file processing tasks such as extracting metadata.
+
+
+-------------------------------
+
+
+A company has deployed an application in an AWS account. The application consists of microservices that run on AWS Lambda and
+Amazon Elastic Kubernetes Service (Amazon EKS). A separate team supports each microservice. The company has multiple AWS 
+accounts and wants to give each team its own account for its microservices.
+
+A solutions architect needs to design a solution that will provide service-to-service communication over HTTPS (port 443).
+The solution also must provide a service registry for service discovery.
+
+Which solution will meet these requirements with the LEAST administrative overhead?
+
+A. Create an inspection VPC. Deploy an AWS Network Firewall firewall to the inspection VPC. Attach the inspection VPC to a new transit gateway.
+Route VPC-to-VPC traffic to the inspection VPC. Apply firewall rules to allow only HTTPS communication.
+B. Create a VPC Lattice service network. Associate the microservices with the service network. Define HTTPS listeners for each service. Register
+microservice compute resources as targets. Identify VPCs that need to communicate with the services.
+Associate those VPCs with the service network.
+C. Create a Network Load Balancer (NLB) with an HTTPS listener and target groups for each microservice. Create an AWS PrivateLink endpoint service
+for each microservice. Create an interface VPC endpoint in each VPC that needs to consume that microservice.
+D. Create peering connections between VPCs that contain microservices. Create a prefix list for each service that requires a connection to a client.
+Create route tables to route traffic to the appropriate VPC. Create security groups to allow only HTTPS communication.
+
+
+
+Answer: B. Create a VPC Lattice service network.
+Why?
+Simplified Service-to-Service Communication:
+AWS VPC Lattice is designed for service-to-service communication across multiple VPCs and AWS accounts.
+It provides automatic service discovery and routing between services.
+It works across VPCs and accounts without complex network configurations.
+
+Built-in Service Discovery and Routing:
+VPC Lattice allows teams to register their microservices.
+It automatically handles routing based on defined listeners (e.g., HTTPS).
+No need for manual service registry like AWS Cloud Map.
+
+Cross-Account and Cross-VPC Support:
+VPC Lattice allows secure, controlled access across AWS accounts.
+It eliminates the need for complex VPC peering, transit gateways, or PrivateLink.
+Teams can operate independently while allowing services to communicate.
+
+Security and Access Control:
+Supports HTTPS (port 443) with authentication and authorization.
+You can apply IAM policies and security groups for fine-grained access control.
+
+Why Not the Other Options?
+Option	                                          Why Not?
+A. AWS Network Firewall w transit gateway	 ✅ Good for security but ❌ high administrative overhead (firewall rule management, NAT rules, transit gateway costs).
+C. PrivateLink with NLB  	                ✅ Secure but ❌ requires a PrivateLink endpoint for each service, leading to higher costs and complexity.
+D. VPC Peering	                            ✅ Low cost but ❌ scales poorly (each VPC needs direct peering), and ❌ requires manual route table and security group management.
+-------------------
+
+
+A company runs a container application by using Amazon Elastic Kubernetes Service (Amazon EKS). The application includes microservices that
+manage customers and place orders. The company needs to route incoming requests to the appropriate microservices.
+
+Which solution will meet this requirement MOST cost-effectively?
+
+A. Use the AWS Load Balancer Controller to provision a Network Load Balancer.
+B. Use the AWS Load Balancer Controller to provision an Application Load Balancer. 
+C. Use an AWS Lambda function to connect the requests to Amazon EKS.
+D. Use Amazon API Gateway to connect the requests to Amazon EKS.
+
+
+
+ans:
+
+API Gateway has a pricing model that includes a cost per API call, and depending on the volume of requests, this could potentially be more expensive
+than using an Application Load Balancer.
+
+
+AWS Load Balancer Controller: The AWS Load Balancer Controller is a Kubernetes controller that makes it easy to set up an Application
+Load Balancer (ALB) or Network Load Balancer (NLB) for your Amazon EKS clusters. It simplifies the process of managing 
+load balancers for applications running on EKS.
+Application Load Balancer (ALB): ALB is a Layer 7 load balancer that is capable of routing requests based on content, such as URL
+paths or hostnames. This makes it suitable for routing requests to different microservices based on specific criteria.
+Cost-Effectiveness: ALB is typically more cost-effective than an NLB, and it provides additional features at the application layer, 
+which may be useful for routing requests to microservices based on specific conditions.
+
+Option D: Amazon API Gateway is designed for creating, publishing, and managing APIs. While it can integrate with Amazon EKS, it
+may be more feature-rich and complex than needed for simple routing to microservices within an EKS cluster.
+
+
+----------------------------
+
+
+
+A company uses AWS Organizations for its multi-account AWS setup. The security organizational unit (OU) of the company needs to share
+approved Amazon Machine Images (AMIs) with the development OU. The AMIs are created
+by using AWS Key Management Service (AWS KMS) encrypted snapshots.
+
+Which solution will meet these requirements? (Choose two.)
+
+A. Add the development team's OU Amazon Resource Name (ARN) to the launch permission list for the AMIs.
+B. Add the Organizations root Amazon Resource Name (ARN) to the launch permission list for the AMIs.
+C. Update the key policy to allow the development team's OU to use the AWS KMS keys that are used to decrypt the snapshots.
+D. Add the development team’s account Amazon Resource Name (ARN) to the launch permission list for the AMIs.
+E. Recreate the AWS KMS key. Add a key policy to allow the Organizations root Amazon Resource Name (ARN) to use the AWS KMS key.
+
+
+sol:
+A - The security OU is explicitly allowing the development OU to use the AMI.
+B - OK but too broad, and not secure.
+C - Now they can use the encrypted snapshots.
+D - Would be too much trouble if there are many accounts. A is enough.
+E - Recreate the AWS KMS key? Uhm, why?
+
+
+----------------
+
+A company wants to run its experimental workloads in the AWS Cloud. The company has a budget for cloud spending. The company's CFO is concerned 
+about cloud spending accountability for each department. The CFO wants to receive notification when the spending threshold reaches 60% of the budget.
+
+Which solution will meet these requirements?
+
+A. Use cost allocation tags on AWS resources to label owners. Create usage budgets in AWS Budgets. Add an alert threshold to receive
+notification when spending exceeds 60% of the budget.
+B. Use AWS Cost Explorer forecasts to determine resource owners. Use AWS Cost Anomaly Detection to create alert threshold notifications 
+when spending exceeds 60% of the budget.
+C. Use cost allocation tags on AWS resources to label owners. Use AWS Support API on AWS Trusted Advisor to create alert threshold notifications
+when spending exceeds 60% of the budget.
+D. Use AWS Cost Explorer forecasts to determine resource owners. Create usage budgets in AWS Budgets. Add an alert threshold to receive
+notification when spending exceeds 60% of the budget.
+
+
+its A
+---------
+
+A company maintains its accounting records in a custom application that runs on Amazon EC2 instances. The company needs to migrate
+the data to an AWS managed service for development and maintenance of the application data. The solution must require minimal operational 
+support and provide immutable, cryptographically verifiable logs of data changes.
+
+Which solution will meet these requirements MOST cost-effectively?
+
+A. Copy the records from the application into an Amazon Redshift cluster.
+B. Copy the records from the application into an Amazon Neptune cluster.
+C. Copy the records from the application into an Amazon Timestream database.
+D. Copy the records from the application into an Amazon Quantum Ledger Database (Amazon QLDB) ledger.
+
+
+sol:
+
+Amazon QLDB
+• QLDB stands for ”Quantum Ledger Database”
+• A ledger is a book recording financial transactions
+• Fully Managed, Serverless, High available, Replication across 3 AZ
+• Used to review history of all the changes made to your application data over time
+• Immutable system: no entry can be removed or modified, cryptographically verifiable
+
+-------------------
+
+A company's marketing data is uploaded from multiple sources to an Amazon S3 bucket. A series of data preparation jobs aggregate
+the data for reporting. The data preparation jobs need to run at regular intervals in parallel. A few jobs need to run in a specific order later.
+
+The company wants to remove the operational overhead of job error handling, retry logic, and state management.
+
+Which solution will meet these requirements?
+
+A. Use an AWS Lambda function to process the data as soon as the data is uploaded to the S3 bucket. Invoke other Lambda functions at regularly scheduled intervals.
+B. Use Amazon Athena to process the data. Use Amazon EventBridge Scheduler to invoke Athena on a regular internal.
+C. Use AWS Glue DataBrew to process the data. Use an AWS Step Functions state machine to run the DataBrew data preparation jobs. Most Voted
+D. Use AWS Data Pipeline to process the data. Schedule Data Pipeline to process the data once at midnight.
+
+sol:
+A - Lambda function alone is incompetent for retries or running in a specific order.
+B - Athena cannot automatically handle errors or running in a specific order.
+C - YES and fully managed. See below.
+D - Data Pipeline with retries and error handling is A LOT OF WORK.
+Takeaway:
+1. Glue DataBrew simplifies the data preparation process with a visual interface, and it integrates with S3 for input/output.
+2. Step Functions efficiently manages parallel and sequential workflows while minimizing operational overhead for state
+management, error handling, and retries.
+
+
+
+--------------
+
+
+A solutions architect is designing a payment processing application that runs on AWS Lambda in private subnets across
+multiple Availability Zones. The application uses multiple Lambda functions and processes
+millions of transactions each day.
+
+The architecture must ensure that the application does not process duplicate payments.
+
+Which solution will meet these requirements?
+
+A. Use Lambda to retrieve all due payments. Publish the due payments to an Amazon S3 bucket. Configure the S3 bucket with an event
+notification to invoke another Lambda function to process the due payments.
+B. Use Lambda to retrieve all due payments. Publish the due payments to an Amazon Simple Queue Service (Amazon SQS) queue. Configure 
+another Lambda function to poll the SQS queue and to process the due payments.
+C. Use Lambda to retrieve all due payments. Publish the due payments to an Amazon Simple Queue Service (Amazon SQS) FIFO queue. Configure 
+another Lambda function to poll the FIFO queue and to process the due payments. Most Voted
+D. Use Lambda to retrieve all due payments. Store the due payments in an Amazon DynamoDB table. Configure streams on the DynamoDB table 
+to invoke another Lambda function to process the due payments.
+
+sol:
+Standard queues provide at-least-once delivery, which means that each message is delivered at least once.
+
+FIFO queues provide exactly-once processing , which means that each message is delivered once and remains available until 
+a consumer processes it and deletes it. Duplicates are not introduced into the queue. 
+
+
+------------
+
+A company runs multiple workloads in its on-premises data center. The company's data center cannot scale fast enough to meet the
+company's expanding business needs. The company wants to collect usage and configuration data about the on-premises servers and workloads to plan a migration to AWS.
+
+Which solution will meet these requirements?
+
+A. Set the home AWS Region in AWS Migration Hub. Use AWS Systems Manager to collect data about the on-premises servers.
+B. Set the home AWS Region in AWS Migration Hub. Use AWS Application Discovery Service to collect data about the on-premises servers.
+C. Use the AWS Schema Conversion Tool (AWS SCT) to create the relevant templates. Use AWS Trusted Advisor to collect data about the on-premises servers.
+D. Use the AWS Schema Conversion Tool (AWS SCT) to create the relevant templates. Use AWS Database Migration Service (AWS DMS)
+to collect data about the on-premises servers.
+
+
+BB
+
+-----------
+
+
+A company has an organization in AWS Organizations that has all features enabled. The company requires that all API calls and logins
+in any existing or new AWS account must be audited. The company needs a managed solution to prevent additional work and to minimize costs.
+The company also needs to know when any AWS account is not compliant with the AWS Foundational Security Best Practices (FSBP) standard.
+
+Which solution will meet these requirements with the LEAST operational overhead?
+
+A. Deploy an AWS Control Tower environment in the Organizations management account. Enable AWS Security Hub and AWS Control 
+Tower Account Factory in the environment. 
+B. Deploy an AWS Control Tower environment in a dedicated Organizations member account. Enable AWS Security Hub and AWS Control 
+Tower Account Factory in the environment.
+C. Use AWS Managed Services (AMS) Accelerate to build a multi-account landing zone (MALZ). Submit an RFC to self-service provision Amazon GuardDuty in the MALZ.
+D. Use AWS Managed Services (AMS) Accelerate to build a multi-account landing zone (MALZ). Submit an RFC to self-service provision AWS Security Hub in the MALZ.
+
+
+sol:
+
+A - Control Tower enforces centralized logging, monitoring, and account management. Security Hub monitors compliance with 
+AWS Foundational Security Best Practices (FSBP). Account Factory simplifies the 
+creation of new accounts with preconfigured settings.
+B - Control Tower is intended to be deployed in the management account, not a member account, which deviates from AWS-recommended practices.
+C - GuardDuty focuses on security threats rather than compliance monitoring for FSBP.
+D - AMS Accelerate is more suitable for enterprises with highly complex requirements. Also, more operational overheads and 
+cost more, but the question wants "to prevent additional work and to minimize costs".
+
+
+
+-----------
+
+A company has AWS Lambda functions that use environment variables. The company does not want its developers to see environment variables in plaintext.
+
+Which solution will meet these requirements?
+
+A. Deploy code to Amazon EC2 instances instead of using Lambda functions.
+B. Configure SSL encryption on the Lambda functions to use AWS CloudHSM to store and encrypt the environment variables.
+C. Create a certificate in AWS Certificate Manager (ACM). Configure the Lambda functions to use the certificate to encrypt the environment variables.
+D. Create an AWS Key Management Service (AWS KMS) key. Enable encryption helpers on the Lambda functions to use the KMS key to store and encrypt the environment variables.
+
+
+sol:
+
+AWS KMS is the primary service for managing encryption keys in AWS. This makes it the most appropriate choice for encrypting 
+sensitive environment variables within Lambda functions.
+
+Encryption helpers in Lambda allow you to easily integrate KMS key usage within your Lambda code, ensuring that environment variables
+are stored and accessed in an encrypted format.
+
+
+
+-------------------
+
+An analytics company uses Amazon VPC to run its multi-tier services. The company wants to use RESTful APIs to offer
+a web analytics service to millions of users. Users must be verified by using an authentication service to access the APIs.
+
+Which solution will meet these requirements with the MOST operational efficiency?
+
+A. Configure an Amazon Cognito user pool for user authentication. Implement Amazon API Gateway REST APIs with a Cognito authorizer. Most Voted
+B. Configure an Amazon Cognito identity pool for user authentication. Implement Amazon API Gateway HTTP APIs with a Cognito authorizer.
+C. Configure an AWS Lambda function to handle user authentication. Implement Amazon API Gateway REST APIs with a Lambda authorizer.
+D. Configure an IAM user to handle user authentication. Implement Amazon API Gateway HTTP APIs with an IAM authorizer.
+
+
+ans:
+User pools is for Authentication and user management
+
+
+------------
+
+A company has a mobile app for customers. The app’s data is sensitive and must be encrypted at rest. The company uses AWS Key Management Service (AWS KMS).
+
+The company needs a solution that prevents the accidental deletion of KMS keys. The solution must use Amazon Simple Notification
+Service (Amazon SNS) to send an email notification to administrators when a user attempts to delete a KMS key.
+
+Which solution will meet these requirements with the LEAST operational overhead?
+
+A. Create an Amazon EventBridge rule that reacts when a user tries to delete a KMS key. Configure an AWS Config rule that cancels 
+any deletion of a KMS key. Add the AWS Config rule as a target of the EventBridge rule. Create
+an SNS topic that notifies the administrators.
+B. Create an AWS Lambda function that has custom logic to prevent KMS key deletion. Create an Amazon CloudWatch alarm that is 
+activated when a user tries to delete a KMS key. Create an Amazon EventBridge rule that invokes the Lambda function when the
+DeleteKey operation is performed. Create an SNS topic. Configure the EventBridge rule to publish 
+an SNS message that notifies the administrators.
+C. Create an Amazon EventBridge rule that reacts when the KMS DeleteKey operation is performed. Configure the rule to initiate
+an AWS Systems Manager Automation runbook. Configure the runbook to cancel the deletion of the KMS key. Create an SNS topic. 
+Configure the EventBridge rule to publish an SNS message that notifies the administrators. Most Voted
+D. Create an AWS CloudTrail trail. Configure the trail to deliver logs to a new Amazon CloudWatch log group. Create a CloudWatch
+alarm based on the metric filter for the CloudWatch log group. Configure the alarm to use Amazon SNS to notify the administrators
+when the KMS DeleteKey operation is performed.
+
+sol:
+A- AWS config is for detection, not for prevention, it cannot cancel the deletion.
+B is more effort to implement the custom logic to prevent KMS key deletion.
+C is correct to use EventBridge rule to detect it then config the rule to use AWS System Manager Automation rubook to cancel the deletion and publish the event to SNS.
+D - does not have action for prevent the deletion of key.
+
+
+
+---------------
+
+A company is designing a tightly coupled high performance computing (HPC) environment in the AWS Cloud. The company needs to include features 
+that will optimize the HPC environment for networking and storage.
+
+Which combination of solutions will meet these requirements? (Choose two.)
+
+A. Create an accelerator in AWS Global Accelerator. Configure custom routing for the accelerator.
+B. Create an Amazon FSx for Lustre file system. Configure the file system with scratch storage. 
+C. Create an Amazon CloudFront distribution. Configure the viewer protocol policy to be HTTP and HTTPS.
+D. Launch Amazon EC2 instances. Attach an Elastic Fabric Adapter (EFA) to the instances. 
+E. Create an AWS Elastic Beanstalk deployment to manage the environment.
+
+
+A - Global Accelerator is not designed for tightly coupled HPC environments. It focuses on improving performance 
+for geographically distributed users, not for low-latency intra-cluster communication.
+B - FSx for Lustre is specifically designed for HPC workloads and integrates well with Amazon S3 for high-throughput and low-latency access to data.
+C - CloudFront does not address the low-latency, high-bandwidth networking or storage requirements of tightly coupled HPC environments.
+D - EFA is a network interface that provides low-latency, high-throughput connectivity for tightly coupled HPC workloads, 
+such as those using MPI (Message Passing Interface).
+E - Elastic Beanstalk is used for deploying and managing web applications and services, which has nothing to do with HPC.
+
+
+---------
+A company needs a solution to prevent photos with unwanted content from being uploaded to the company's web application. The solution must 
+not involve training a machine learning (ML) model.
+
+Which solution will meet these requirements?
+
+A. Create and deploy a model by using Amazon SageMaker Autopilot. Create a real-time endpoint that the web application invokes when new photos are uploaded.
+B. Create an AWS Lambda function that uses Amazon Rekognition to detect unwanted content. Create a Lambda function URL that the web application
+invokes when new photos are uploaded. 
+C. Create an Amazon CloudFront function that uses Amazon Comprehend to detect unwanted content. Associate the function with the web application.
+D. Create an AWS Lambda function that uses Amazon Rekognition Video to detect unwanted content. Create a Lambda function URL that the web application 
+invokes when new photos are uploaded.
+
+
+
+
+For your quick reference:
+Vision and Image Processing
+1. Amazon Rekognition: Detects objects, scenes, text, faces, and activities in images/videos.
+2. Amazon Textract: Extracts text, tables, and forms from scanned documents.
+
+Speech and Language
+1. Amazon Polly: Converts text to lifelike speech.
+2. Amazon Transcribe: Converts speech to text for audio files.
+3. Amazon Translate: Yeah, translate.
+4. Amazon Comprehend: Extracts insights like sentiment, entities, and key phrases from text.
+
+Machine Learning Development
+1. Amazon SageMaker: Comprehensive ML platform for building, training, and deploying models.
+2. Amazon SageMaker Autopilot: Automatically builds, trains, and tunes ML models, basically simplified model creation for non-experts.
+3. Amazon SageMaker JumpStart: Provides pre-built ML models and solutions for quick deployment.
+   
+
+
+Chatbots and Conversations
+1. Amazon Lex: Builds conversational AI (chatbots) using speech and text.
+2. Amazon Kendra: Intelligent search service for documents and FAQs.
+
+Personalization and Forecasting
+1. Amazon Personalize: Provides personalized recommendations using ML.
+2. Amazon Forecast: Time-series forecasting for demand, sales, and resource planning.
+
+Data Insights
+1. Amazon Fraud Detector: Detects fraudulent activity using ML models.
+2. Amazon Lookout for Metrics: Detects anomalies in metrics automatically.
+3. Amazon Lookout for Vision: Detects manufacturing defects in images.
+
+Robotics and Edge AI
+1. AWS DeepRacer: Provides a platform for learning reinforcement learning using autonomous racing.
+2. AWS Panorama: Adds computer vision to on-premises cameras.
+
+
+
+00000000000000
+
+
+--------------
+A social media company is creating a rewards program website for its users. The company gives users points when users create
+and upload videos to the website. Users redeem their points for gifts or discounts from the company's affiliated partners.
+A unique ID identifies users. The partners refer to this ID to verify user eligibility for rewards.
+
+The partners want to receive notification of user IDs through an HTTP endpoint when the company gives users points. Hundreds of 
+vendors are interested in becoming affiliated partners every day. The company wants to design an architecture that gives the website 
+the ability to add partners rapidly in a scalable way.
+
+Which solution will meet these requirements with the LEAST implementation effort?
+
+A. Create an Amazon Timestream database to keep a list of affiliated partners. Implement an AWS Lambda function to read the list. 
+Configure the Lambda function to send user IDs to each partner when the company gives users points.
+B. Create an Amazon Simple Notification Service (Amazon SNS) topic. Choose an endpoint protocol. Subscribe the partners to the topic.
+Publish user IDs to the topic when the company gives users points. Most Voted
+C. Create an AWS Step Functions state machine. Create a task for every affiliated partner. Invoke the state machine with user IDs as input when the company gives users points.
+D. Create a data stream in Amazon Kinesis Data Streams. Implement producer and consumer applications. Store a list of affiliated partners
+in the data stream. Send user IDs when the company gives users points.
+
+
+sol:
+
+SNS is designed for precisely this kind of use case. It allows you to publish messages to a topic, which can then
+be delivered to multiple subscribers. Partners can subscribe to the SNS topic using an HTTP endpoint as the protocol, which meets the
+requirement to notify partners via an HTTP endpoint. This approach is highly scalable and requires the least implementation effort because 
+it leverages managed services without the need for custom logic to manage subscriptions or deliver notifications.
+
+
+
+
+----------------
+
+A company needs to extract the names of ingredients from recipe records that are stored as text files in an Amazon S3 bucket. A
+web application will use the ingredient names to query an Amazon DynamoDB table and determine a nutrition score.
+
+The application can handle non-food records and errors. The company does not have any employees who have machine learning knowledge to develop this solution.
+
+Which solution will meet these requirements MOST cost-effectively?
+
+A. Use S3 Event Notifications to invoke an AWS Lambda function when PutObject requests occur. Program the Lambda function to analyze the 
+object and extract the ingredient names by using Amazon Comprehend. Store the Amazon Comprehend output in the DynamoDB table. 
+B. Use an Amazon EventBridge rule to invoke an AWS Lambda function when PutObject requests occur. Program the Lambda function to analyze the object 
+by using Amazon Forecast to extract the ingredient names. Store the Forecast output in the DynamoDB table.
+C. Use S3 Event Notifications to invoke an AWS Lambda function when PutObject requests occur. Use Amazon Polly to create audio recordings of the
+recipe records. Save the audio files in the S3 bucket. Use Amazon Simple Notification Service (Amazon SNS) to send a URL as a message to employees. 
+Instruct the employees to listen to the audio files and calculate the nutrition score. Store the ingredient names in the DynamoDB table.
+D. Use an Amazon EventBridge rule to invoke an AWS Lambda function when a PutObject request occurs. Program the Lambda function to analyze the object and 
+extract the ingredient names by using Amazon SageMaker. Store the inference output from the SageMaker endpoint in the DynamoDB table.
+
+
+sol:
+Key: Most cost-effective solution
+Key: Extract the names of ingredients from recipe records
+Key: The company does not have any employees with machine learning knowledge
+
+
+
+Not B because Forecast is used for making predictions in time series, not for extracting text or ingredients.
+Not C because it would be too expensive and involve too much operational overhead.
+Not D because SageMaker is designed for creating custom machine learning models, and the company lacks employees with machine learning knowledge.
+
+Conclusion: The answer is A because Comprehend is used for natural language processing (NLP), which in this case can extract
+ingredient names from the recipes effectively.
+so the answer is A because comprehend is used for nlp (natular languages processing) which is in this case use for to extract the names of the recipes
+
+
+
+-------
+
+A company needs to create an AWS Lambda function that will run in a VPC in the company's primary AWS account. The Lambda function needs
+to access files that the company stores in an Amazon Elastic File System (Amazon EFS) file system. The EFS file system is located in a 
+secondary AWS account. As the company adds files to the file system, the solution must scale to meet the demand.
+
+Which solution will meet these requirements MOST cost-effectively?
+
+A. Create a new EFS file system in the primary account. Use AWS DataSync to copy the contents of the original EFS file system to the new EFS file system.
+B. Create a VPC peering connection between the VPCs that are in the primary account and the secondary account. Most Voted
+C. Create a second Lambda function in the secondary account that has a mount that is configured for the file system. Use the primary account's 
+Lambda function to invoke the secondary account's Lambda function.
+D. Move the contents of the file system to a Lambda layer. Configure the Lambda layer's permissions to allow the company's secondary
+account to use the Lambda layer.
+
+
+sol:
+
+B -> VPC peering allows the Lambda access secondary account securely and efficiently
+A -> redundancy
+C -> additional complexity
+D -> sharing code libraries
+
+A - Duplicating the EFS file system leads to unnecessary storage costs and additional complexity.
+B - VPC peering connection allows seamless access without additional manual scaling.
+C - Well... I don't know, but you could've directly enabled access to the EFS file system. Why make it even more complex?
+D - Lambda layers are intended for shared libraries or dependencies. You would be crazy to store large amounts of data there.
