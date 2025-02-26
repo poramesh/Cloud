@@ -4992,3 +4992,614 @@ Not A because for individual conenction not company
 Not B because overkill, usually for high bandwidth, but qns clearly stated no need for high bandwidth and handle small traffic
 Not C because bastion host for remote access
 D because ideal for small amt of traffic
+
+
+
+--------------
+
+
+A company runs a container application on a Kubernetes cluster in the company's data center. The application uses Advanced Message
+Queuing Protocol (AMQP) to communicate with a message queue. The data center cannot scale fast enough to meet the company’s expanding
+business needs. The company wants to migrate the workloads to AWS.
+
+Which solution will meet these requirements with the LEAST operational overhead?
+
+A. Migrate the container application to Amazon Elastic Container Service (Amazon ECS). Use Amazon Simple Queue Service (Amazon SQS) to retrieve the messages.
+B. Migrate the container application to Amazon Elastic Kubernetes Service (Amazon EKS). Use Amazon MQ to retrieve the messages. 
+C. Use highly available Amazon EC2 instances to run the application. Use Amazon MQ to retrieve the messages.
+D. Use AWS Lambda functions to run the application. Use Amazon Simple Queue Service (Amazon SQS) to retrieve the messages.
+
+
+sol:
+
+This question is a trap because A is definitely the answer for a Least overhead (ECS + SQS) and in a real life scenario could be good in 99% of cases.
+However SQS do not implement AMQP (SQS is only a simple queueing system very basic) so we have to use Amazon MQ
+In terms of containers EKS will always be a better solution than a manual setup of Docker.
+Good solution would have been ECS+AmazonMQ not given here
+Lambda can work with containers, but since there are limitations like 15 minutes limit we can't really consider it as a good solution.
+
+We were asked for the LEAST operational overhead, so the company already has a managed message broker and thats why we use Amazon MQ and they are already using Kubernetes.
+
+
+
+-----------
+
+
+A company has an on-premises application that uses SFTP to collect financial data from multiple vendors. The company is migrating to 
+the AWS Cloud. The company has created an application that uses Amazon S3 APIs to upload files from vendors.
+
+Some vendors run their systems on legacy applications that do not support S3 APIs. The vendors want to continue to use SFTP-based 
+applications to upload data. The company wants to use managed services for the needs of the vendors that use legacy applications.
+
+Which solution will meet these requirements with the LEAST operational overhead?
+
+A. Create an AWS Database Migration Service (AWS DMS) instance to replicate data from the storage of the vendors that use legacy
+applications to Amazon S3. Provide the vendors with the credentials to access the AWS DMS instance.
+B. Create an AWS Transfer Family endpoint for vendors that use legacy applications. Most Voted
+C. Configure an Amazon EC2 instance to run an SFTP server. Instruct the vendors that use legacy applications to use the SFTP server to upload data.
+D. Configure an Amazon S3 File Gateway for vendors that use legacy applications to upload files to an SMB file share.
+
+
+sol:
+
+A - DMS is designed for database migrations, not for file-based SFTP uploads.
+B - AWS Transfer Family is a fully managed service that supports SFTP, FTPS, and FTP protocols.
+C - OK but significant operational overhead.
+D - S3 File Gateway supports SMB and NFS, not SFTP.
+
+WS Transfer Family is a fully managed service that allows you to set up SFTP, FTPS, and FTP endpoints for accessing Amazon S3 and Amazon EFS storage.
+By creating an AWS Transfer Family endpoint, the company can provide vendors with the familiar SFTP interface to upload data
+directly to Amazon S3 without requiring them to make any changes to their legacy applications.
+This solution eliminates the need for the company to manage and maintain additional infrastructure such as EC2 instances or file gateways.
+AWS Transfer Family handles scalability, availability, and security, reducing operational overhead for the company.
+
+
+------------
+
+A marketing team wants to build a campaign for an upcoming multi-sport event. The team has news reports from the past five years in PDF format. 
+The team needs a solution to extract insights about the content and the sentiment of the news reports. The solution must use Amazon Textract to process the news reports.
+
+Which solution will meet these requirements with the LEAST operational overhead?
+
+A. Provide the extracted insights to Amazon Athena for analysis. Store the extracted insights and analysis in an Amazon S3 bucket.
+B. Store the extracted insights in an Amazon DynamoDB table. Use Amazon SageMaker to build a sentiment model.
+C. Provide the extracted insights to Amazon Comprehend for analysis. Save the analysis to an Amazon S3 bucket.
+D. Store the extracted insights in an Amazon S3 bucket. Use Amazon QuickSight to visualize and analyze the data.
+
+
+Whenever new PDF files are uploaded to the designated S3 bucket, the Lambda function will be triggered to extract insights using Textract and Comprehend.
+Amazon Comprehend uses natural language processing (NLP) to extract insights about the content of documents. It develops insights by 
+recognizing the entities, key phrases, language, sentiments, and other common elements in a document. Use Amazon Comprehend to create
+new products based on understanding the structure of documents. For example, using Amazon Comprehend you can search social networking
+feeds for mentions of products or scan an entire document repository for key phrases.
+
+amazon comprehend= sentiment analysis
+
+
+
+---------
+
+A company uses Salesforce. The company needs to load existing data and ongoing data changes from Salesforce to Amazon Redshift for analysis. 
+The company does not want the data to travel over the public internet.
+
+Which solution will meet these requirements with the LEAST development effort?
+
+A. Establish a VPN connection from the VPC to Salesforce. Use AWS Glue DataBrew to transfer data.
+B. Establish an AWS Direct Connect connection from the VPC to Salesforce. Use AWS Glue DataBrew to transfer data.
+C. Create an AWS PrivateLink connection in the VPC to Salesforce. Use Amazon AppFlow to transfer data. Most Voted
+D. Create a VPC peering connection to Salesforce. Use Amazon AppFlow to transfer data.
+
+
+
+sol:
+A - VPN connection, public internet, no.
+B - Significant setup effort and cost. Also, DataBrew is not suitable for loading ongoing data changes.
+C - Amazon AppFlow is a fully managed integration service that natively supports Salesforce and Amazon Redshift.
+D - VPC peering is for connecting two AWS VPCs. Salesforce is external to AWS, so no.
+
+
+-----------
+
+A company recently migrated its application to AWS. The application runs on Amazon EC2 Linux instances in an Auto Scaling group across
+multiple Availability Zones. The application stores data in an Amazon Elastic File System (Amazon EFS) file system that
+uses EFS Standard-Infrequent Access storage. The application indexes the company's files. The index is stored in an Amazon RDS database.
+
+The company needs to optimize storage costs with some application and services changes.
+
+Which solution will meet these requirements MOST cost-effectively?
+
+A. Create an Amazon S3 bucket that uses an Intelligent-Tiering lifecycle policy. Copy all files to the S3 bucket. Update the application to 
+use Amazon S3 API to store and retrieve files. Most Voted
+B. Deploy Amazon FSx for Windows File Server file shares. Update the application to use CIFS protocol to store and retrieve files.
+C. Deploy Amazon FSx for OpenZFS file system shares. Update the application to use the new mount point to store and retrieve files.
+D. Create an Amazon S3 bucket that uses S3 Glacier Flexible Retrieval. Copy all files to the S3 bucket. Update the application to use Amazon 
+S3 API to store and retrieve files as standard retrievals.
+
+
+ans: B, C, D off.
+B - Windows
+C - OpenZFS Costs ~ NFS Costs *3 (optimized mainly for high-performance Data analysis)
+D - Glacier Standard retrieval: 12 Hrs
+
+
+
+----------
+
+
+
+A robotics company is designing a solution for medical surgery. The robots will use advanced sensors, cameras, and AI algorithms
+to perceive their environment and to complete surgeries.
+
+The company needs a public load balancer in the AWS Cloud that will ensure seamless communication with backend services. The 
+load balancer must be capable of routing traffic based on the query strings to different target groups. The traffic must also be encrypted.
+
+Which solution will meet these requirements?
+
+A. Use a Network Load Balancer with a certificate attached from AWS Certificate Manager (ACM). Use query parameter-based routing.
+B. Use a Gateway Load Balancer. Import a generated certificate in AWS Identity and Access Management (IAM). Attach the certificate to the load
+balancer. Use HTTP path-based routing.
+C. Use an Application Load Balancer with a certificate attached from AWS Certificate Manager (ACM). Use query parameter-based routing. 
+D. Use a Network Load Balancer. Import a generated certificate in AWS Identity and Access Management (IAM). Attach the certificate to the load balancer. 
+Use query parameter-based routing.
+
+
+ans: Option C - parameter is not a thing NLB can process
+
+
+
+--------
+
+
+A company is migrating applications from an on-premises Microsoft Active Directory that the company manages to AWS. The company deploys the applications
+in multiple AWS accounts. The company uses AWS Organizations to manage the accounts centrally.
+
+The company's security team needs a single sign-on solution across all the company's AWS accounts. The company must continue to manage users and groups
+that are in the on-premises Active Directory.
+
+Which solution will meet these requirements?
+
+A. Create an Enterprise Edition Active Directory in AWS Directory Service for Microsoft Active Directory. Configure the Active Directory to be the
+identity source for AWS IAM Identity Center.
+B. Enable AWS IAM Identity Center. Configure a two-way forest trust relationship to connect the company's self-managed Active Directory
+with IAM Identity Center by using AWS Directory Service for Microsoft Active Directory. 
+C. Use AWS Directory Service and create a two-way trust relationship with the company's self-managed Active Directory.
+D. Deploy an identity provider (IdP) on Amazon EC2. Link the IdP as an identity source within AWS IAM Identity Center.
+
+
+
+AWS IAM Identity Center (formerly AWS SSO): Provides SSO across multiple AWS accounts in an organization. By configuring a 2-way forest
+trust relationship between the on-premises AD and MAD, IAM Identity Center can integrate seamlessly with the existing AD to manage 
+authentication and authorization, allowing the company to retain its existing on-premises AD as the primary identity source while extending to AWS.
+
+A - This creates a separate directory in AWS, requiring migration of users and groups, which fails to continue using the on-premises AD.
+C - IAM Identity Center is still needed for SSO (single sign-on) functionality.
+D - OK but so much overhead.
+
+
+---------
+
+
+A company is planning to deploy its application on an Amazon Aurora PostgreSQL Serverless v2 cluster. The application will receive large amounts of traffic. 
+The company wants to optimize the storage performance of the cluster as the load on the application increases.
+
+Which solution will meet these requirements MOST cost-effectively?
+
+A. Configure the cluster to use the Aurora Standard storage configuration.
+B. Configure the cluster storage type as Provisioned IOPS.
+C. Configure the cluster storage type as General Purpose.
+D. Configure the cluster to use the Aurora I/O-Optimized storage configuration.
+
+
+ans:
+For Aurora we have 2 storage type/options:
+A - Standard
+B -- I/O-Optimized
+hence answers B and C options are incorrect.
+Because customer inform us that there will be a big amount of traffic for their application I would go with I/O-Optimized. Maybe we
+are giving more $$ per GB-month but we are not paing for I/O operations/request.
+
+
+
+---------------
+
+
+A financial services company that runs on AWS has designed its security controls to meet industry standards. The industry standards include
+the National Institute of Standards and Technology (NIST) and the Payment Card Industry Data Security Standard (PCI DSS).
+
+The company's third-party auditors need proof that the designed controls have been implemented and are functioning correctly. The company has
+hundreds of AWS accounts in a single organization in AWS Organizations. The company needs to monitor the current state of the controls across accounts.
+
+Which solution will meet these requirements?
+
+A. Designate one account as the Amazon Inspector delegated administrator account from the Organizations management account. Integrate Inspector with
+Organizations to discover and scan resources across all AWS accounts. Enable Inspector industry standards for NIST and PCI DSS.
+B. Designate one account as the Amazon GuardDuty delegated administrator account from the Organizations management account. In the designated GuardDuty 
+administrator account, enable GuardDuty to protect all member accounts. Enable GuardDuty industry standards for NIST and PCI DSS.
+C. Configure an AWS CloudTrail organization trail in the Organizations management account. Designate one account as the compliance account. Enable CloudTrail 
+security standards for NIST and PCI DSS in the compliance account.
+D. Designate one account as the AWS Security Hub delegated administrator account from the Organizations management account. In the designated Security Hub
+administrator account, enable Security Hub for all member accounts. Enable Security Hub standards for NIST and PCI DSS.
+
+sol: NIST, PCI DSS Compliance + AWS accounts -> Security Hub
+
+
+----
+
+A company has 5 TB of datasets. The datasets consist of 1 million user profiles and 10 million connections. The user profiles have connections as
+many-to-many relationships. The company needs a performance efficient way to find mutual connections up to five levels.
+
+Which solution will meet these requirements?
+
+A. Use an Amazon S3 bucket to store the datasets. Use Amazon Athena to perform SQL JOIN queries to find connections.
+B. Use Amazon Neptune to store the datasets with edges and vertices. Query the data to find connections. 
+C. Use an Amazon S3 bucket to store the datasets. Use Amazon QuickSight to visualize connections.
+D. Use Amazon RDS to store the datasets with multiple tables. Perform SQL JOIN queries to find connections.
+
+everytime i see some social network related qns i immediately look for amazon neptune
+
+
+
+
+---------
+
+A company has an on-premises SFTP file transfer solution. The company is migrating to the AWS Cloud to scale the file transfer 
+solution and to optimize costs by using Amazon S3. The company's employees will use their credentials for the on-premises Microsoft 
+Active Directory (AD) to access the new solution. The company wants to keep the current authentication and file access mechanisms.
+
+Which solution will meet these requirements with the LEAST operational overhead?
+
+A. Configure an S3 File Gateway. Create SMB file shares on the file gateway that use the existing Active Directory to authenticate.
+B. Configure an Auto Scaling group with Amazon EC2 instances to run an SFTP solution. Configure the group to scale up at 60% CPU utilization.
+C. Create an AWS Transfer Family server with SFTP endpoints. Choose the AWS Directory Service option as the identity provider. Use AD Connector 
+to connect the on-premises Active Directory. 
+D. Create an AWS Transfer Family SFTP endpoint. Configure the endpoint to use the AWS Directory Service option as the identity provider to
+connect to the existing Active Directory.
+
+sol:
+AD Connector - when the company already had the Active Directory, you need a connector
+
+
+--------
+
+
+A company is designing an event-driven order processing system. Each order requires multiple validation steps after the order is created. An idempotent AWS 
+Lambda function performs each validation step. Each validation step is independent from the other validation steps. Individual 
+validation steps need only a subset of the order event information.
+
+The company wants to ensure that each validation step Lambda function has access to only the information from the order event
+that the function requires. The components of the order processing system should be loosely coupled to accommodate future business changes.
+
+Which solution will meet these requirements?
+
+A. Create an Amazon Simple Queue Service (Amazon SQS) queue for each validation step. Create a new Lambda function to transform the
+order data to the format that each validation step requires and to publish the messages to the appropriate SQS queues. 
+Subscribe each validation step Lambda function to its corresponding SQS queue.
+B. Create an Amazon Simple Notification Service (Amazon SNS) topic. Subscribe the validation step Lambda functions to the SNS topic. 
+Use message body filtering to send only the required data to each subscribed Lambda function.
+C. Create an Amazon EventBridge event bus. Create an event rule for each validation step. Configure the input transformer to send only the 
+required data to each target validation step Lambda function. 
+D. Create an Amazon Simple Queue Service (Amazon SQS) queue. Create a new Lambda function to subscribe to the SQS queue and to transform the
+order data to the format that each validation step requires. Use the new Lambda function to perform synchronous invocations of the validation
+step Lambda functions in parallel on separate threads.
+
+
+
+sol:
+
+Example Use Case
+Imagine an e-commerce order processing system where each order must go through multiple validation steps before fulfillment. The order event contains fields like:
+
+json
+Copy
+Edit
+{
+  "order_id": "12345",
+  "customer_id": "67890",
+  "payment_status": "Paid",
+  "items": [
+    {"item_id": "A1", "quantity": 2},
+    {"item_id": "B2", "quantity": 1}
+  ],
+  "shipping_address": "123 Main St, City, Country"
+}
+Validation steps:
+Payment Validation – Needs only order_id and payment_status
+Inventory Check – Needs only order_id and items
+Fraud Detection – Needs order_id, customer_id, and payment_status
+
+With Option C (EventBridge):
+The order system sends an event to EventBridge.
+Event rules filter and transform the event data:
+Payment validation Lambda gets: {"order_id": "12345", "payment_status": "Paid"}
+Inventory check Lambda gets: {"order_id": "12345", "items": [{"item_id": "A1", "quantity": 2}, {"item_id": "B2", "quantity": 1}]}
+Fraud detection Lambda gets: {"order_id": "12345", "customer_id": "67890", "payment_status": "Paid"}
+Final Answer: C (EventBridge Event Bus with Rules and Input Transformers)
+This solution ensures that: ✅ Each Lambda function gets only the data it needs.
+✅ The system is loosely coupled and easy to modify.
+✅ Event-driven architecture scales well with future validation steps.
+
+
+------------
+
+
+A company is expanding a secure on-premises network to the AWS Cloud by using an AWS Direct Connect connection. The on-premises network has no
+direct internet access. An application that runs on the on-premises network needs to use an Amazon S3 bucket.
+
+Which solution will meet these requirements MOST cost-effectively?
+
+A. Create a public virtual interface (VIF). Route the AWS traffic over the public VIF.
+B. Create a VPC and a NAT gateway. Route the AWS traffic from the on-premises network to the NAT gateway.
+C. Create a VPC and an Amazon S3 interface endpoint. Route the AWS traffic from the on-premises network to the S3 interface endpoint.
+D. Create a VPC peering connection between the on-premises network and Direct Connect. Route the AWS traffic over the peering connection.
+
+
+C
+
+
+--------
+
+
+A company serves its website by using an Auto Scaling group of Amazon EC2 instances in a single AWS Region. The website does not require a database.
+
+The company is expanding, and the company's engineering team deploys the website to a second Region. The company wants to
+distribute traffic across both Regions to accommodate growth and for disaster recovery purposes. The solution should not serve
+traffic from a Region in which the website is unhealthy.
+
+Which policy or resource should the company use to meet these requirements?
+
+A. An Amazon Route 53 simple routing policy
+B. An Amazon Route 53 multivalue answer routing policy Most Voted
+C. An Application Load Balancer in one Region with a target group that specifies the EC2 instance IDs from both Regions
+D. An Application Load Balancer in one Region with a target group that specifies the IP addresses of the EC2 instances from both Regions
+
+
+
+sol:
+
+53 with multivalue is the best option for this case
+
+Multivalue answer routing lets you configure Amazon Route 53 to return multiple values, such as IP addresses for your web servers,
+in response to DNS queries. You can specify multiple values for almost any record, but multivalue answer routing also lets you check the 
+health of each resource, so Route 53 returns only values for healthy resources. It's not a substitute for a load balancer, but the ability
+to return multiple health-checkable IP addresses is a way to use DNS to improve availability and load balancing.
+
+
+
+--------------------
+
+A company runs an AWS Lambda function in private subnets in a VPC. The subnets have a default route to the internet through an Amazon EC2 NAT instance. 
+The Lambda function processes input data and saves its output as an object to Amazon S3.
+
+Intermittently, the Lambda function times out while trying to upload the object because of saturated traffic on the NAT instance's network. 
+The company wants to access Amazon S3 without traversing the internet.
+
+Which solution will meet these requirements?
+
+A. Replace the EC2 NAT instance with an AWS managed NAT gateway.
+B. Increase the size of the EC2 NAT instance in the VPC to a network optimized instance type.
+C. Provision a gateway endpoint for Amazon S3 in the VPUpdate the route tables of the subnets accordingly. 
+D. Provision a transit gateway. Place transit gateway attachments in the private subnets where the Lambda function is running.
+
+
+sol: C
+
+
+----------------
+A company has an on-premises business application that generates hundreds of files each day. These files are stored on an SMB file share 
+and require a low-latency connection to the application servers. A new company policy states all application-generated files must be copied
+to AWS. There is already a VPN connection to AWS.
+
+The application development team does not have time to make the necessary code modifications to move the application to AWS.
+
+Which service should a solutions architect recommend to allow the application to copy files to AWS?
+
+A. Amazon Elastic File System (Amazon EFS)
+B. Amazon FSx for Windows File Server
+C. AWS Snowball
+D. AWS Storage Gateway 
+
+
+ans:
+
+D is good to go. AWS Storage Gateway provides seamless integration between on-premises environments and AWS, and specifically,
+File Gateway can be used to expose an SMB interface that on-premises applications can use.
+
+For B: While FSx does support SMB, it's optimized for AWS cloud workloads, not necessarily for on-premises systems. If you want
+an on-premises system to directly interact with an SMB share in AWS, you would typically need a service that integrates with the on-premises network seamlessly.
+
+
+
+
+
+
+
+
+----------
+
+A company has 15 employees. The company stores employee start dates in an Amazon DynamoDB table. The company wants to send an email
+message to each employee on the day of the employee's work anniversary.
+
+Which solution will meet these requirements with the MOST operational efficiency?
+
+A. Create a script that scans the DynamoDB table and uses Amazon Simple Notification Service (Amazon SNS) to send email messages to 
+employees when necessary. Use a cron job to run this script every day on an Amazon EC2 instance.
+B. Create a script that scans the DynamoDB table and uses Amazon Simple Queue Service (Amazon SQS) to send email messages to employees
+when necessary. Use a cron job to run this script every day on an Amazon EC2 instance.
+C. Create an AWS Lambda function that scans the DynamoDB table and uses Amazon Simple Notification Service (Amazon SNS) to send email
+messages to employees when necessary. Schedule this Lambda function to run every day. Most Voted
+D. Create an AWS Lambda function that scans the DynamoDB table and uses Amazon Simple Queue Service (Amazon SQS) to send email messages
+to employees when necessary. Schedule this Lambda function to run every day.
+
+sol: Deploying full instance is an overkill. Lambda should be enough + SNS to sent email. And it should be quite cheap
+
+
+
+--------
+
+A large company wants to provide its globally located developers separate, limited size, managed PostgreSQL databases for development
+purposes. The databases will be low volume. The developers need the databases only when they are actively working.
+
+Which solution will meet these requirements MOST cost-effectively?
+
+A. Give the developers the ability to launch separate Amazon Aurora instances. Set up a process to shut down Aurora instances at the end of the
+workday and to start Aurora instances at the beginning of the next workday.
+B. Develop an AWS Service Catalog product that enforces size restrictions for launching Amazon Aurora instances. Give the developers access to launch
+the product when they need a development database.
+C. Create an Amazon Aurora Serverless cluster. Develop an AWS Service Catalog product to launch databases in the cluster with the default capacity settings. 
+Grant the developers access to the product. Most Voted
+D. Monitor AWS Trusted Advisor checks for idle Amazon RDS databases. Create a process to terminate identified idle RDS databases.
+
+
+sol:
+(A,B,D) eliminated. Aurora instances & Amazon RDS use On-Demand or Reserved INSTANCES. These are more expensive than a serverless solution.
+
+(C) is correct. Amazon Aurora Serverless automatically starts up, shuts down & scales capacity up or
+down based on your application's needs; you pay only for capacity consumed.
+
+
+
+--------------
+
+A company's web application consists of multiple Amazon EC2 instances that run behind an Application Load Balancer in a VPC. An Amazon 
+RDS for MySQL DB instance contains the data. The company needs the ability to automatically detect and respond to suspicious or unexpected behavior
+in its AWS environment. The company already has added AWS WAF to its architecture.
+
+What should a solutions architect do next to protect against threats?
+
+A. Use Amazon GuardDuty to perform threat detection. Configure Amazon EventBridge to filter for GuardDuty findings and to invoke an AWS Lambda function to 
+adjust the AWS WAF rules. Most Voted
+B. Use AWS Firewall Manager to perform threat detection. Configure Amazon EventBridge to filter for Firewall Manager findings and to invoke an AWS Lambda 
+function to adjust the AWS WAF web ACL.
+C. Use Amazon Inspector to perform threat detection and to update the AWS WAF rules. Create a VPC network ACL to limit access to the web application.
+D. Use Amazon Macie to perform threat detection and to update the AWS WAF rules. Create a VPC network ACL to limit access to the web application.
+
+
+
+
+
+ans:
+
+option A: Amazon GuardDuty + EventBridge + AWS WAF (✅ Best Choice)
+Amazon GuardDuty performs continuous threat detection for AWS environments (VPC flow logs, DNS logs, CloudTrail, etc.).
+Amazon EventBridge captures GuardDuty findings and triggers actions.
+AWS Lambda function adjusts AWS WAF rules dynamically to block threats.
+✅ Pros:
+✔ Real-time threat detection
+✔ Automated response to malicious traffic
+✔ Seamless AWS integration (GuardDuty + EventBridge + AWS WAF)
+
+Option B: AWS Firewall Manager + EventBridge + AWS WAF (❌ Incorrect)
+AWS Firewall Manager helps centrally manage AWS WAF, Shield, and security groups across multiple accounts.
+However, it does not perform threat detection like GuardDuty.
+Firewall Manager does not generate security findings that EventBridge can react to.
+❌ Why Not?
+Firewall Manager enforces security policies but does not detect new threats dynamically.
+
+
+Option C: Amazon Inspector + VPC Network ACL (❌ Incorrect)
+Amazon Inspector is a vulnerability assessment tool, not a real-time threat detection tool.
+Inspector scans for security risks in EC2 instances but does not actively detect and respond to threats.
+VPC network ACLs are static and cannot respond dynamically to threats.
+❌ Why Not?
+Inspector does not integrate with AWS WAF for blocking threats.
+VPC network ACLs are manually managed and lack real-time adjustments.
+
+Option D: Amazon Macie + VPC Network ACL (❌ Incorrect)
+Amazon Macie is used for data security (e.g., detecting sensitive data in S3).
+It does not detect infrastructure threats like GuardDuty.
+VPC network ACLs are static and do not provide dynamic threat response.
+❌ Why Not?
+Macie focuses on S3 data security, not EC2 threats.
+No integration with AWS WAF for threat blocking.
+
+
+---------------------------
+
+
+
+A company wants to configure its Amazon CloudFront distribution to use SSL/TLS certificates. The company does not want to use the default domain
+name for the distribution. Instead, the company wants to use a different domain name for the distribution.
+
+Which solution will deploy the certificate without incurring any additional costs?
+
+A. Request an Amazon issued private certificate from AWS Certificate Manager (ACM) in the us-east-1 Region.
+B. Request an Amazon issued private certificate from AWS Certificate Manager (ACM) in the us-west-1 Region.
+C. Request an Amazon issued public certificate from AWS Certificate Manager (ACM) in the us-east-1 Region.
+D. Request an Amazon issued public certificate from AWS Certificate Manager (ACM) in the us-west-1 Region
+
+
+CloudFront serves content to public users over the internet.
+
+Public SSL/TLS certificates are trusted by browsers and allow secure HTTPS communication between users and CloudFront.
+Private SSL/TLS certificates are used for internal applications within a private network (e.g., internal services in a VPC).
+They are not trusted by browsers and require AWS Private CA, which incurs costs.
+CC IS THE ANS
+THE CERTIFICATES ARE HOSTED IN EAST US_EAST_1
+
+
+------------
+
+
+A company is planning to run a group of Amazon EC2 instances that connect to an Amazon Aurora database.
+The company has built an AWS CloudFormation template to deploy the EC2 instances and the Aurora DB cluster. The company wants to allow the 
+instances to authenticate to the database in a secure way. The company does not want to maintain static database credentials.
+Which solution meets these requirements with the LEAST operational effort?
+
+A. Create a database user with a user name and password. Add parameters for the database user name and password to the CloudFormation template. 
+Pass the parameters to the EC2 instances when the instances are launched.
+B. Configure the DB cluster to use IAM database authentication. Create a database user to use with IAM authentication. Associate a role with the
+EC2 instances to allow applications on the instances to access the database.
+C. Configure the DB cluster to use IAM database authentication with an IAM user. Create a database user that has a name that matches the IAM user.
+Associate the 1AM user with the EC2 instances to allow applications on the instances to access the database.
+D. Create a database user with a user name and password. Store the user name and password in AWS Systems Manager Parameter Store. Configure the EC2 instances 
+to retrieve the database credentials from Parameter Store.
+
+
+B. IAM authentication with a role (Best Choice)	
+
+
+--------------------
+
+
+A company creates operations data and stores the data in an Amazon S3 bucket. For the company's annual audit, an external consultant needs to 
+access an annual report that is stored in the S3 bucket. The external consultant needs to access the report for 7 days.
+
+The company must implement a solution to allow the external consultant access to only the report.
+
+Which solution will meet these requirements with the MOST operational efficiency?
+
+A. Create a new S3 bucket that is configured to host a public static website. Migrate the operations data to the new S3 bucket. Share the S3 website URL with the external consultant.
+B. Enable public access to the S3 bucket for 7 days. Remove access to the S3 bucket when the external consultant completes the audit.
+C. Create a new IAM user that has access to the report in the S3 bucket. Provide the access keys to the external consultant. Revoke the access keys after 7 days.
+D. Generate a presigned URL that has the required access to the location of the report on the S3 bucket. Share the presigned URL with the external consultant.
+
+
+ans:
+Pre-signed URLs are used to provide short-term access to a private object in your S3 bucket. They work by appending an AWS Access Key, expiration time,
+and Sigv4 signature as query parameters to the S3 object.
+
+
+
+-----------------
+
+
+A company has primary and secondary data centers that are 500 miles (804.7 km) apart and interconnected with high-speed fiber-optic cable. The company
+needs a highly available and secure network connection between its data centers and a VPC on AWS for a mission-critical workload. A solutions architect must
+choose a connection solution that provides maximum resiliency.
+
+Which solution meets these requirements?
+
+A. Two AWS Direct Connect connections from the primary data center terminating at two Direct Connect locations on two separate devices
+B. A single AWS Direct Connect connection from each of the primary and secondary data centers terminating at one Direct Connect location on the same device
+C. Two AWS Direct Connect connections from each of the primary and secondary data centers terminating at two Direct Connect locations on two separate devices 
+D. A single AWS Direct Connect connection from each of the primary and secondary data centers terminating at one Direct Connect location on two separate devices
+
+
+A. Two DX connections from the primary data center to two DX locations ❌ Incorrect	
+No redundancy for the secondary data center. If the primary data center fails, there's no backup path.
+B. Single DX connection from each data center to one DX location, same device	❌ Incorrect	
+Single DX location and same device create a single point of failure.
+C. Two DX connections from each data center to two DX locations, separate devices ✅ Correct
+Best redundancy – multiple paths, multiple locations, and multiple devices.
+D. Single DX connection from each data center to one DX location, different devices	❌ Incorrect	
+One DX location is a risk – failure at this location disconnects both data centers.
