@@ -4754,3 +4754,241 @@ D. Encrypt the data at the company's data center before storing the data in the 
 sol:
 Given the requirement to manage encryption keys outside the AWS Cloud, option D is the most suitable solution, despite not directly
 utilizing AWS's native encryption services like SSE with AWS KMS. Instead, it leverages external encryption mechanisms controlled by the company.
+
+
+------------
+
+A company has an Amazon S3 data lake. The company needs a solution that transforms the data from the data lake and loads the data into a
+data warehouse every day. The data warehouse must have massively parallel processing (MPP) capabilities.
+
+Data analysts then need to create and train machine learning (ML) models by using SQL commands on the data. The
+solution must use serverless AWS services wherever possible.
+
+Which solution will meet these requirements?
+
+A. Run a daily Amazon EMR job to transform the data and load the data into Amazon Redshift. Use Amazon Redshift ML to create and train the ML models.
+B. Run a daily Amazon EMR job to transform the data and load the data into Amazon Aurora Serverless. Use Amazon Aurora ML to create and train the ML models.
+C. Run a daily AWS Glue job to transform the data and load the data into Amazon Redshift Serverless. Use Amazon Redshift ML to create and train the ML models.
+D. Run a daily AWS Glue job to transform the data and load the data into Amazon Athena tables. Use Amazon Athena ML to create and train the ML models.
+
+sol:
+Data warehouse ==> Redshift
+Without additional informations both EMR and Glue Jobs can work.
+Since the question asks to use serverless as much as possible, Redshift Serverless is a better solution.
+
+----------
+
+
+A company runs containers in a Kubernetes environment in the company's local data center. The company wants to use Amazon Elastic
+Kubernetes Service (Amazon EKS) and other AWS managed services. Data must remain locally in the company's data center and cannot
+be stored in any remote site or cloud to maintain compliance.
+
+Which solution will meet these requirements?
+
+A. Deploy AWS Local Zones in the company's data center.
+B. Use an AWS Snowmobile in the company's data center.
+C. Install an AWS Outposts rack in the company's data center. 
+D. Install an AWS Snowball Edge Storage Optimized node in the data center.
+
+
+sol:
+Outpost is a service where AWS has physical servers in your datacenter.
+
+A - AWS Local Zones provide low-latency access to AWS services by placing AWS infrastructure closer to customers,
+but the data is still stored in an AWS-managed facility.
+B - AWS Snowmobile is used for large-scale data migrations to the cloud, not for running workloads or storing data locally.
+C - AWS Outposts allows you to run AWS services, including Amazon EKS, in your own data center while keeping data locally.
+D - AWS Snowball Edge is a portable edge computing and data storage device, but it’s not suitable for running Kubernetes or AWS-managed services like Amazon EKS.
+
+
+
+------------
+
+A social media company has workloads that collect and process data. The workloads store the data in on-premises NFS storage. The data stor
+e cannot scale fast enough to meet the company’s expanding business needs. The company wants to migrate the current data store to AWS.
+
+Which solution will meet these requirements MOST cost-effectively?
+
+A. Set up an AWS Storage Gateway Volume Gateway. Use an Amazon S3 Lifecycle policy to transition the data to the appropriate storage class.
+B. Set up an AWS Storage Gateway Amazon S3 File Gateway. Use an Amazon S3 Lifecycle policy to transition the data to the appropriate storage class.
+C. Use the Amazon Elastic File System (Amazon EFS) Standard-Infrequent Access (Standard-IA) storage class. Activate the infrequent access lifecycle policy.
+D. Use the Amazon Elastic File System (Amazon EFS) One Zone-Infrequent Access (One Zone-IA) storage class. Activate the infrequent access lifecycle policy.
+
+This solution meets the requirements most cost-effectively because it enables the company to migrate its on-premises NFS data store to
+AWS without changing the existing applications or workflows. AWS Storage Gateway is a hybrid cloud storage service that provides seamless 
+and secure integration between on-premises and AWS storage. Amazon S3 File Gateway is a type of AWS Storage Gateway that provides a file 
+interface to Amazon S3, with local caching for low-latency access. By setting up an Amazon S3 File Gateway, the company can store and 
+retrieve files as objects in Amazon S3 using standard file protocols such as NFS.
+
+
+
+-----------------
+
+A company uses high concurrency AWS Lambda functions to process a constantly increasing number of messages in a message queue during 
+marketing events. The Lambda functions use CPU intensive code to process the messages. The company wants to reduce the compute 
+costs and to maintain service latency for its customers.
+
+Which solution will meet these requirements?
+
+A. Configure reserved concurrency for the Lambda functions. Decrease the memory allocated to the Lambda functions.
+B. Configure reserved concurrency for the Lambda functions. Increase the memory according to AWS Compute Optimizer recommendations.
+C. Configure provisioned concurrency for the Lambda functions. Decrease the memory allocated to the Lambda functions.
+D. Configure provisioned concurrency for the Lambda functions. Increase the memory according to AWS Compute Optimizer recommendations
+
+sol:
+
+I vote D instead of B because of constantly increasing number of messages and to maintain service latency for its customer 
+although provisioned concurrency incurs the charges to your AWS account. If the reduce of comput costs is more important than service latency , B is correct.
+
+
+----------
+
+A company runs its workloads on Amazon Elastic Container Service (Amazon ECS). The container images that the ECS task definition uses need 
+to be scanned for Common Vulnerabilities and Exposures (CVEs). New container images that are created also need to be scanned.
+
+Which solution will meet these requirements with the FEWEST changes to the workloads?
+
+A. Use Amazon Elastic Container Registry (Amazon ECR) as a private image repository to store the container images. Specify scan on push filters 
+for the ECR basic scan. Most Voted
+B. Store the container images in an Amazon S3 bucket. Use Amazon Macie to scan the images. Use an S3 Event Notification to initiate a Macie
+scan for every event with an s3:ObjectCreated:Put event type.
+C. Deploy the workloads to Amazon Elastic Kubernetes Service (Amazon EKS). Use Amazon Elastic Container Registry (Amazon ECR) as a private
+image repository. Specify scan on push filters for the ECR enhanced scan.
+D. Store the container images in an Amazon S3 bucket that has versioning enabled. Configure an S3 Event Notification for s3:ObjectCreated:* 
+events to invoke an AWS Lambda function. Configure the Lambda function to initiate an Amazon Inspector scan.
+
+sol:
+
+Amazon ECR: Designed for storing container images, integrates seamlessly with Amazon ECS.
+Scan on Push: Automatically scans images for vulnerabilities (CVEs) when they are uploaded. This is built-in functionality and requires minimal changes to existing workflows.
+Fewest Changes: Existing ECS workloads can directly pull images from ECR without modification to the workloads themselves.
+
+B - Amazon Macie focuses on data discovery and classification (such as identifying sensitive data in S3 buckets), not container image vulnerabilities.
+C - Result-wise OK, but switching from ECS to EKS is unnecessary and involves a steep learning curve and operational overhead.
+D - Result-wise OK. Amazon Inspector can scan for vulnerabilities, but this is too complex and requires a custom setup, including using S3 and Lambda to trigger scans.
+
+
+
+
+
+
+-----------------
+
+A company uses an AWS Batch job to run its end-of-day sales process. The company needs a serverless solution that will invoke a third-party reporting 
+application when the AWS Batch job is successful. The reporting application has an HTTP API interface that uses username and password authentication.
+
+Which solution will meet these requirements?
+
+A. Configure an Amazon EventBridge rule to match incoming AWS Batch job SUCCEEDED events. Configure the third-party API as
+an EventBridge API destination with a username and password. Set the API destination as the EventBridge rule target. 
+B. Configure Amazon EventBridge Scheduler to match incoming AWS Batch job SUCCEEDED events. Configure an AWS Lambda function to
+invoke the third-party API by using a username and password. Set the Lambda function as the EventBridge rule target.
+C. Configure an AWS Batch job to publish job SUCCEEDED events to an Amazon API Gateway REST API. Configure an HTTP proxy integration
+on the API Gateway REST API to invoke the third-party API by using a username and password.
+D. Configure an AWS Batch job to publish job SUCCEEDED events to an Amazon API Gateway REST API. Configure a proxy integration on 
+
+
+sol:
+
+A - EventBridge API Destination is specifically designed to send events to HTTP APIs. It supports basic
+authentication (username and password), which fits the requirement for 3rd-party API authentication.
+B - OK, but EventBridge Scheduler is unnecessary because EventBridge rules can already match Batch job events. Introducing 
+Lambda functions adds complexity and costs.
+C - An HTTP proxy integration on API Gateway cannot handle authentication directly. We still need to manage username and password authentication separately.
+D - OK, but even more complex than option B.
+the API Gateway REST API to an AWS Lambda function. Configure the Lambda function to invoke the third-party API by using a username and password.
+
+
+------------------
+
+
+A company collects and processes data from a vendor. The vendor stores its data in an Amazon RDS for MySQL database in the vendor's own 
+AWS account. The company’s VPC does not have an internet gateway, an AWS Direct Connect connection, or an AWS Site-to-Site VPN connection. 
+The company needs to access the data that is in the vendor database.
+
+Which solution will meet this requirement?
+
+A. Instruct the vendor to sign up for the AWS Hosted Connection Direct Connect Program. Use VPC peering to connect the company's VPC and the vendor's VPC.
+B. Configure a client VPN connection between the company's VPC and the vendor's VPC. Use VPC peering to connect the company's VPC and the vendor's VPC.
+C. Instruct the vendor to create a Network Load Balancer (NLB). Place the NLB in front of the Amazon RDS for MySQL database. Use AWS PrivateLink to
+integrate the company's VPC and the vendor's VPC. Most Voted
+D. Use AWS Transit Gateway to integrate the company's VPC and the vendor's VPC. Use VPC peering to connect the company’s VPC and the vendor's VPC.
+
+sol:
+
+PrivateLink: AWS PrivateLink enables secure and private access to resources (like RDS) across accounts and VPCs using interface 
+endpoints. It avoids exposing the database to the internet.
+NLB: A Network Load Balancer acts as the integration point for PrivateLink. The vendor's NLB will route traffic to the RDS database.
+VPC Without Internet Gateway: PrivateLink works even if the company's VPC does not have an internet gateway because communication occurs over private AWS infrastructure.
+
+Option A, B, and D all mention VPC Peering, but it doesn't enable direct access to RDS without additional routing or security configurations.
+
+
+-----------------
+
+A company wants to set up Amazon Managed Grafana as its visualization tool. The company wants to visualize data from its Amazon RD
+S database as one data source. The company needs a secure solution that will not expose the data over the internet.
+
+Which solution will meet these requirements?
+
+A. Create an Amazon Managed Grafana workspace without a VPC. Create a public endpoint for the RDS database. Configure the public
+endpoint as a data source in Amazon Managed Grafana.
+B. Create an Amazon Managed Grafana workspace in a VPC. Create a private endpoint for the RDS database. Configure the private endpoint 
+as a data source in Amazon Managed Grafana. 
+C. Create an Amazon Managed Grafana workspace without a VPCreate an AWS PrivateLink endpoint to establish a connection between Amazon Managed
+Grafana and Amazon RDS. Set up Amazon RDS as a data source in Amazon Managed Grafana.
+D. Create an Amazon Managed Grafana workspace in a VPC. Create a public endpoint for the RDS database. Configure
+the public endpoint as a data source in Amazon Managed Grafana.
+
+
+I think is b. Private endpoint sounds like private vpc endpoint, that is equals to privatelink
+
+Choice B or C could be resolved in this way:
+B. Create an Amazon Managed Grafana workspace in a VPC
+C. Create an Amazon Managed Grafana workspace without a VPC
+
+As far as I know we cannot create workspace without VCP
+
+
+
+-------------
+
+A company hosts a data lake on Amazon S3. The data lake ingests data in Apache Parquet format from various data sources.
+The company uses multiple transformation steps to prepare the ingested data. The steps include filtering of anomalies, normalizing 
+of data to standard date and time values, and generation of aggregates for analyses.
+
+The company must store the transformed data in S3 buckets that data analysts access. The company needs a prebuilt solution for data
+transformation that does not require code. The solution must provide data lineage and data profiling. The company needs to share the
+data transformation steps with employees throughout the company.
+
+Which solution will meet these requirements?
+
+A. Configure an AWS Glue Studio visual canvas to transform the data. Share the transformation steps with employees by using AWS Glue jobs.
+B. Configure Amazon EMR Serverless to transform the data. Share the transformation steps with employees by using EMR Serverless jobs.
+C. Configure AWS Glue DataBrew to transform the data. Share the transformation steps with employees by using DataBrew recipes.
+D. Create Amazon Athena tables for the data. Write Athena SQL queries to transform the data. Share the Athena SQL queries with employees.
+
+sol:
+
+A - AWS Glue doesn't focus on data profiling or provide an easy way for non-technical employees to collaborate on transformation steps.
+B - You need to code.
+C - AWS Glue DataBrew is a no-code tool specifically designed for data preparation and transformation.
+D - Let's say writing SQLs are not coding, still, Athena lacks data lineage, data profiling, and the ability to reuse transformations as recipes.
+
+----------
+
+A company needs a secure connection between its on-premises environment and AWS. This connection does not need high bandwidth and will 
+handle a small amount of traffic. The connection should be set up quickly.
+
+What is the MOST cost-effective method to establish this type of connection?
+
+A. Implement a client VPN.
+B. Implement AWS Direct Connect.
+C. Implement a bastion host on Amazon EC2.
+D. Implement an AWS Site-to-Site VPN connection.
+
+sol:
+Not A because for individual conenction not company
+Not B because overkill, usually for high bandwidth, but qns clearly stated no need for high bandwidth and handle small traffic
+Not C because bastion host for remote access
+D because ideal for small amt of traffic
