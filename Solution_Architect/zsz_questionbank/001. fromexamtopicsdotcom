@@ -4734,3 +4734,23 @@ A - Duplicating the EFS file system leads to unnecessary storage costs and addit
 B - VPC peering connection allows seamless access without additional manual scaling.
 C - Well... I don't know, but you could've directly enabled access to the EFS file system. Why make it even more complex?
 D - Lambda layers are intended for shared libraries or dependencies. You would be crazy to store large amounts of data there.
+
+
+
+--------------
+
+
+A financial company needs to handle highly sensitive data. The company will store the data in an Amazon S3 bucket. The company needs 
+to ensure that the data is encrypted in transit and at rest. The company must manage the encryption keys outside the AWS Cloud.
+
+Which solution will meet these requirements?
+
+A. Encrypt the data in the S3 bucket with server-side encryption (SSE) that uses an AWS Key Management Service (AWS KMS) customer managed key.
+B. Encrypt the data in the S3 bucket with server-side encryption (SSE) that uses an AWS Key Management Service (AWS KMS) AWS managed key.
+C. Encrypt the data in the S3 bucket with the default server-side encryption (SSE).
+D. Encrypt the data at the company's data center before storing the data in the S3 bucket. 
+
+
+sol:
+Given the requirement to manage encryption keys outside the AWS Cloud, option D is the most suitable solution, despite not directly
+utilizing AWS's native encryption services like SSE with AWS KMS. Instead, it leverages external encryption mechanisms controlled by the company.
