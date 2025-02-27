@@ -4886,10 +4886,114 @@ C - Result-wise OK, but switching from ECS to EKS is unnecessary and involves a 
 D - Result-wise OK. Amazon Inspector can scan for vulnerabilities, but this is too complex and requires a custom setup, including using S3 and Lambda to trigger scans.
 
 
+---------------------
+
+A GraphQL API hosted is hosted in an Amazon EKS cluster with Fargate launch type and deployed using AWS SAM. The API is 
+connected to an Amazon DynamoDB table with an Amazon DynamoDB Accelerator (DAX) as its data store. Both resources are hosted in the us-east-1 region.
+
+The AWS IAM authenticator for Kubernetes is integrated into the EKS cluster for role-based access control (RBAC) and cluster authentication.
+A solutions architect must improve network security by preventing database calls from traversing the public internet. An automated
+cross-account backup for the DynamoDB table is also required for long-term retention.
+
+Which of the following should the solutions architect implement to meet the requirement?
+
+
+Create a DynamoDB interface endpoint. Set up a stateless rule using AWS Network Firewall to control all outbound traffic to 
+only use the dynamodb.us-east-1.amazonaws.com endpoint. Integrate the DynamoDB table with Amazon Timestream to allow point-in-time recovery from a different AWS account.
+
+Create a DynamoDB gateway endpoint. Set up a Network Access Control List (NACL) rule that allows outbound traffic to 
+the dynamodb.us-east-1.amazonaws.com gateway endpoint. Use the built-in on-demand DynamoDB backups for cross-account backup and recovery.
+
+Create a DynamoDB interface endpoint. Associate the endpoint to the appropriate route table. Enable Point-in-Time Recovery (PITR) 
+to restore the DynamoDB table to a particular point in time on the same or a different AWS account.
+
+Create a DynamoDB gateway endpoint. Associate the endpoint to the appropriate route table. Use AWS Backup to automatically
+copy the on-demand DynamoDB backups to another AWS account for disaster recovery.
+
+
+sol:
+DynamoDB on-demand backups are available at no additional cost beyond the normal pricing that’s associated with backup storage size.
+DynamoDB on-demand backups cannot be copied to a different account or Region. To create backup copies across AWS accounts and Regions 
+and for other advanced features, you should use AWS Backup.
 
 
 
+AWS AppSync is a managed GraphQL service by AWS that allows you to build scalable, real-time, and serverless APIs. It integrates directly 
+with AWS services like DynamoDB, Lambda, and OpenSearch, making it easier to build applications without managing backend servers.
 
+✅ Key Features of AppSync:
+
+GraphQL-based API: Fetch only the required data in a single request.
+Real-time data updates: Built-in subscriptions for live updates.
+Offline data sync: Works with mobile and web apps even when offline.
+Built-in authorization: Supports IAM, API keys, Cognito, and Lambda authorization.
+Automatic scaling: Fully managed by AWS, no need to provision servers.
+
+
+on this case, the GraphQL API is running in Amazon EKS with Fargate and is connected to DynamoDB and DAX as its database. Here’s how it works:
+
+1️⃣ GraphQL Resolver Layer
+A GraphQL resolver is responsible for fetching data from the database when a query is received. The resolver can be:
+Lambda-based (AWS AppSync)
+Server-based (e.g., Apollo Server, Express, or GraphQL Yoga in Node
+
+
+Step-by-Step Guide to Setting Up a DynamoDB Gateway Endpoint in AWS
+
+
+step 1:
+1️⃣ Sign in to the AWS Management Console
+2️⃣ Go to VPC
+3️⃣ In the left panel, select Endpoints
+4️⃣ Click Create Endpoint
+5️⃣ Under Service Name, select com.amazonaws.<region>.dynamodb
+Example: com.amazonaws.us-east-1.dynamodb
+6️⃣ Under VPC, choose the VPC where your instances run
+7️⃣ Under Route Tables, select the route table associated with your subnets
+8️⃣ Click Create Endpoint
+
+
+Step 2: Update Route Table
+After creating the endpoint, AWS automatically updates your route table
+A new route will be added with:
+Destination → Amazon DynamoDB prefix list
+Target → Gateway Endpoint ID
+Example Route Table Entry:
+
+Destination                                	Target
+pl-xxxxxxxxxxxx (DynamoDB prefix list)	      vpce-xxxxxxxx (Gateway Endpoint)
+
+
+
+🚀 Step 3: Update IAM Policies (Optional)
+If you want to force all traffic to go through the endpoint, update your IAM policy:
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Deny",
+      "Action": "dynamodb:*",
+      "Resource": "*",
+      "Condition": {
+        "StringNotEquals": {
+          "aws:SourceVpce": "vpce-xxxxxxxxxxxxxxxx"
+        }
+      }
+    }
+  ]
+}
+✅ This denies access to DynamoDB unless the request comes from the VPC Endpoint.
+
+
+
+🚀 Step 4: Test Connectivity
+1️⃣ Launch an EC2 instance in your private subnet
+2️⃣ Connect to the instance using SSH
+3️⃣ Run the following AWS CLI command:
+
+aws dynamodb list-tables --region us-east-1
+✅ If the endpoint is working, you should see a list of tables without needing an internet gateway or NAT! 🎉
 -----------------
 
 A company uses an AWS Batch job to run its end-of-day sales process. The company needs a serverless solution that will invoke a third-party reporting 
