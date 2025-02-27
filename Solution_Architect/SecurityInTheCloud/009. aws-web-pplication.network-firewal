@@ -160,3 +160,18 @@ AWS WAF is a powerful tool for protecting web applications and APIs from common 
 Key components include Web ACLs, rules, IP sets, and regex pattern sets.
 Use cases include protecting applications behind CloudFront, ALB, API Gateway, and AppSync.
 Exam focus: SQL injection, XSS, and integration with AWS services.
+
+
+
+
+---
+
+AWS Network Firewall is a stateful, managed network firewall and intrusion detection and prevention service for your virtual private cloud (VPC) 
+that you created in Amazon Virtual Private Cloud (Amazon VPC). With Network Firewall, you can filter traffic at the perimeter of your VPC. 
+This includes filtering traffic going to and coming from an internet gateway, NAT gateway, or over VPN or AWS Direct Connect.
+Network Firewall uses the open source intrusion prevention system (IPS), Suricata, for stateful inspection. Network Firewall supports Suricata compatible rules.
+
+note:
+
+Take note that you cannot directly integrate the AWS Network Firewall with the Application Load Balancer. There is a straightforward way 
+of integrating an AWS WAF with an ALB but not an AWS Network Firewall with an ALB.
