@@ -1,3 +1,322 @@
+
+
+
+A financial services company plans to migrate its trading application from on-premises Microsoft Windows Server to Amazon Web Services (AWS).
+The solution must ensure high availability across multiple Availability Zones and offer low-latency access to block storage.
+
+Which of the following solutions will fulfill these requirements?
+
+Deploy the trading application on Amazon EC2 Windows Server instances across two Availability Zones. Use Amazon FSx for Windows
+File Server for shared storage.
+Deploy the trading application on Amazon EC2 Windows Server instances across two Availability Zones. Use Amazon Elastic File System 
+(Amazon EFS) to provide shared storage between the instances. Configure Amazon EFS with cross-region replication to sync data across Availability Zones.
+Configure the trading application on Amazon EC2 Windows instances across two Availability Zones. Use Amazon Simple Storage Service 
+(Amazon S3) for storage and configure cross-region replication to sync data between S3 buckets in each Availability Zone.
+Configure the trading application on Amazon EC2 Windows Server instances across two Availability Zones. Use Amazon FSx for NetApp ONTAP
+to create a Multi-AZ file system and access the data via iSCSI protocol.
+
+
+sol:
+Amazon FSx for NetApp ONTAP is a fully managed AWS service that provides high-performance, scalable file storage based on NetApp’s ONTAP file system. 
+It offers versatile storage options, supporting both file (NFS, SMB) and block (iSCSI) protocols, making it compatible with Windows, Linux, and macOS environments.
+
+The option that says: Deploy the trading application on Amazon EC2 Windows Server instances across two Availability Zones. Use Amazon FSx for Windows
+File Server for shared storage is incorrect. Amazon FSx for Windows File Server only provides shared, low-latency file storage for Windows environments. 
+It doesn’t support low-latency access to shared block storage.
+
+ans is netapp ontapp
+
+
+---------
+
+
+A cryptocurrency trading platform is using an API built in AWS Lambda and API Gateway. Due to the recent news and rumors about 
+the upcoming price surge of Bitcoin, Ethereum and other cryptocurrencies, it is expected that the trading platform would have 
+a significant increase in site visitors and new users in the coming days ahead.
+
+In this scenario, how can you protect the backend systems of the platform from traffic spikes?
+
+Move the Lambda function in a VPC.
+Use CloudFront in front of the API Gateway to act as a cache.
+Enable throttling limits and result caching in API Gateway.
+Switch from using AWS Lambda and API Gateway to a more scalable and highly available architecture using EC2 instances, ELB, and Auto Scaling.
+
+
+
+sol:
+
+Using CloudFront in front of the API Gateway to act as a cache is incorrect because CloudFront only speeds up content delivery which provides
+a better latency experience for your users. It does not help much for the backend.
+
+
+✔ Throttling = Limits API requests per second to prevent overload. 🚦
+✔ Caching = Stores API responses to reduce backend work. 📦
+
+ What is Throttling? (Rate Limiting)
+Throttling means controlling the number of requests an API can handle to prevent overload.
+
+🔹 Example:
+You set a limit of 1,000 requests per second for an API.
+If the traffic suddenly spikes to 2,500 requests per second, API Gateway allows a short burst of 2,000 requests per second but blocks anything beyond that.
+The blocked requests get a 429 (Too Many Requests) error.
+API Gateway automatically retries failed requests to smooth out traffic.
+
+✅ Why is Throttling Important?
+Prevents overloading of servers.
+Stops abuse (e.g., bot attacks).
+Ensures fair usage of API resources.
+
+
+----
+A car dealership website hosted in Amazon EC2 stores car listings in an Amazon Aurora database managed by Amazon RDS. Once a vehicle has been sold,
+its data must be removed from the current listings and forwarded to a distributed processing system.
+
+Which of the following options can satisfy the given requirement?
+
+Create a native function or a stored procedure that invokes a Lambda function. Configure the Lambda function to send event notifications to 
+an Amazon SQS queue for the processing system to consume. RIGHT
+Create an RDS event subscription and send the notifications to AWS Lambda. Configure the Lambda function to fanout the event notifications
+to multiple Amazon SQS queues to update the target groups.
+Create an RDS event subscription and send the notifications to AWS Lambda. Configure the Lambda function to fan out the event notifications 
+to multiple Amazon SQS queues to update the processing system.
+Create an RDS event subscription and send the notifications to Amazon SQS. Configure the SQS queues to fan out the event notifications
+to multiple Amazon SNS topics. Process the data using Lambda functions.
+
+sol:
+You can invoke an AWS Lambda function from an Amazon Aurora MySQL-Compatible Edition DB cluster with a native function or a stored procedure.
+This approach can be useful when you want to integrate your database running on Aurora MySQL with other AWS services. For example, 
+you might want to capture data changes whenever a row in a table is modified in your database.
+
+RDS events only provide operational events such as DB instance events, DB parameter group events, 
+DB security group events, and DB snapshot events. What we need in the scenario is to capture data-modifying events (INSERT, DELETE, UPDATE) which 
+can be achieved thru native functions or stored procedures. Hence, the following options are incorrect:
+
+
+
+-----------
+
+
+A company has an automobile sales website that stores its listings in a database on Amazon RDS. When an automobile is sold, the listing needs to be removed from the website and the data must be sent to multiple target systems.
+Which design should a solutions architect recommend?
+
+A. Create an AWS Lambda function triggered when the database on Amazon RDS is updated to send the information to an Amazon Simple Queue Service (Amazon SQS)
+queue for the targets to consume. Most Voted
+B. Create an AWS Lambda function triggered when the database on Amazon RDS is updated to send the information to an Amazon Simple Queue Service (Amazon SQS)
+FIFO queue for the targets to consume.
+C. Subscribe to an RDS event notification and send an Amazon Simple Queue Service (Amazon SQS) queue fanned out to multiple Amazon Simple Notification Service
+(Amazon SNS) topics. Use AWS Lambda functions to update the targets.
+D. Subscribe to an RDS event notification and send an Amazon Simple Notification Service (Amazon SNS) topic fanned out to multiple Amazon Simple Queue Service
+(Amazon SQS) queues. Use AWS Lambda functions to update the targets.
+
+ans: A
+
+
+
+
+A is a good alternative that lacks fanning out which will not be necessary if the visibility timeout is adjusted properly and the targets are not many.
+---------
+An online shopping platform is hosted on an Auto Scaling group of Spot EC2 instances and uses Amazon Aurora PostgreSQL as its database. 
+There is a requirement to optimize your database workloads in your cluster where you have to direct the production traffic to your high-capacity
+instances and point the reporting queries sent by your internal staff to the low-capacity instances.
+
+Which is the most suitable configuration for your application as well as your Aurora database cluster to achieve this requirement?
+
+>Configure your application to use the reader endpoint for both production traffic and reporting queries, which will enable your Aurora database to
+automatically perform load-balancing among all the Aurora Replicas.
+>Do nothing since by default, Aurora will automatically direct the production traffic to your high-capacity instances and the reporting queries
+to your low-capacity instances.
+>In your application, use the instance endpoint of your Aurora database to handle the incoming production traffic and use the cluster endpoint to handle reporting queries.
+>Create a custom endpoint in Aurora based on the specified criteria for the production traffic and another custom endpoint to handle the reporting queries. right
+
+
+
+
+
+
+
+
+-----------
+
+
+A company requires all the data stored in the cloud to be encrypted at rest. To easily integrate this with other AWS services, they must have full 
+control over the encryption of the created keys and also the ability to immediately remove the key material from AWS KMS. The solution should also
+be able to audit the key usage independently of AWS CloudTrail.
+
+Which of the following options will meet this requirement?
+
+Use AWS Key Management Service to create a KMS key in a custom key store and store the non-extractable key material in Amazon S3.
+Use AWS Key Management Service to create a KMS key in a custom key store and store the non-extractable key material in AWS CloudHSM.
+Use AWS Key Management Service to create AWS owned Keys and store the non-extractable key material in AWS CloudHSM.
+Use AWS Key Management Service to create AWS managed keys and store the non-extractable key material in AWS CloudHSM.
+
+
+Since you control your AWS CloudHSM cluster, you have the option to manage the lifecycle of your KMS keys independently of AWS KMS. Here are the criteria
+why you might find a custom key store useful:
+
+You have encryption keys that must be safeguarded within a dedicated hardware security module (HSM) under your direct control, adhering to strict single-tenancy requirements.
+You require the capability to promptly and independently revoke and remove key material from AWS KMS, exercising complete control over the key lifecycle.
+Your compliance obligations mandate independent auditing and monitoring of all key usage activities, beyond the logging provided by AWS KMS and AWS CloudTrail.
+Hence, the correct answer in this scenario is: Use AWS Key Management Service to create a KMS key in a custom key store and store the non-extractable key material in AWS CloudHSM.
+
+
+
+The option that says: Use AWS Key Management Service to create a KMS key in a custom key store and store the non-extractable key material
+in Amazon S3 is incorrect. Amazon S3 is primarily for general storage purposes and does not provide the required level of security and control 
+needed for cryptographic key management. You have to use AWS CloudHSM instead.
+
+The options that says: Use AWS Key Management Service to create AWS owned Keys and store the non-extractable key material in AWS CloudHSM 
+and Use AWS Key Management Service to create AWS managed Keys and store the non-extractable key material in AWS CloudHSM are both incorrect 
+because the scenario primarily requires you to have full control over the encryption of the created key. AWS owned Keys, and AWS managed Keys 
+are managed by AWS. Moreover, these options do not allow you to audit the key usage independently of AWS CloudTrail.
+
+
+------------------
+
+
+An online cryptocurrency exchange platform is hosted in AWS which uses ECS Cluster and RDS in Multi-AZ Deployments configuration. The application 
+is heavily using the RDS instance to process complex read and write database operations. To maintain the reliability, availability, and performance
+of your systems, you have to closely monitor how the different processes or threads on a DB instance use the CPU, including the percentage of the
+CPU bandwidth and total memory consumed by each process.
+
+Which of the following is the most suitable solution to properly monitor your database?
+
+>Create a script that collects and publishes custom metrics to CloudWatch, which tracks the real-time CPU Utilization of the RDS instance, and then 
+set up a custom CloudWatch dashboard to view the metrics.
+>Enable Enhanced Monitoring in RDS. rihgt
+>Use Amazon CloudWatch to monitor the CPU Utilization of your database.
+>Check the CPU% and MEM% metrics which are readily available in the Amazon RDS console that shows the percentage of the CPU bandwidth and total memory consumed by 
+each database process of your RDS instance.
+
+
+
+sol:
+The option that says: Create a script that collects and publishes custom metrics to CloudWatch, which tracks the real-time CPU Utilization of 
+the RDS instance and then set up a custom CloudWatch dashboard to view the metrics is incorrect. Although you can use Amazon CloudWatch Logs
+and CloudWatch dashboard to monitor the CPU Utilization of the database instance, using CloudWatch alone is still not enough to get the specific
+percentage of the CPU bandwidth and total memory consumed by each database processes. The data provided by CloudWatch is not as detailed as compared 
+with the Enhanced Monitoring feature in RDS. Take note as well that you do not have direct access to the instances/servers of your RDS database instance,
+unlike with your EC2 instances where you can install a CloudWatch agent or a custom script to get CPU and memory utilization of your instance.
+
+
+The option that says: Check the CPU% and MEM% metrics which are readily available in the Amazon RDS console that shows the percentage
+of the CPU bandwidth and total memory consumed by each database process of your RDS instance is incorrect because the CPU% and MEM% metrics
+are not readily available in the Amazon RDS console, which is contrary to what is being stated in this option.
+
+
+Using Amazon CloudWatch to monitor the CPU Utilization of your database is incorrect. Although you can use this to monitor the CPU Utilization of
+your database instance, it does not provide the percentage of the CPU bandwidth and total memory consumed by each database process in your RDS instance. 
+Take note that CloudWatch gathers metrics about CPU utilization from the hypervisor for a DB instance while RDS 
+Enhanced Monitoring gathers its metrics from an agent on the instance.
+
+
+
+---------------
+
+
+
+A company has a web application that uses Internet Information Services (IIS) for Windows Server. A file share is used to store the
+application data on the network-attached storage of the company’s on-premises data center. To achieve a highly available system, 
+they plan to migrate the application and file share to AWS.
+
+Which of the following can be used to fulfill this requirement?
+
+Migrate the existing file share configuration to AWS Storage Gateway.
+Migrate the existing file share configuration to Amazon FSx for Windows File Server.
+Migrate the existing file share configuration to Amazon EBS.
+Migrate the existing file share configuration to Amazon EFS.
+
+
+Amazon FSx for Windows File Server provides fully managed Microsoft Windows file servers, backed by a fully native Windows 
+file system. Amazon FSx for Windows File Server has the features, performance, and compatibility to easily lift and shift enterprise applications 
+to the AWS Cloud. It is accessible from Windows, Linux, and macOS compute instances and devices. Thousands of compute instances and devices can access a file system concurrently.
+
+
+In this scenario, you need to migrate your existing file share configuration to the cloud. Among the options given, 
+the best possible answer is Amazon FSx. A file share is a specific folder in your file system, including the folder’s subfolders,
+which you make accessible to your compute instances via the SMB protocol. To migrate file share configurations from your on-premises file system,
+you must migrate your files first to Amazon FSx before migrating your file share configuration.
+
+Hence, the correct answer is: Migrate the existing file share configuration to Amazon FSx for Windows File Server.
+
+The option that says: Migrate the existing file share configuration to AWS Storage Gateway is incorrect because AWS Storage Gateway is primarily
+used to integrate your on-premises network to AWS but not for migrating your applications. Using a file share in Storage Gateway implies that you
+
+
+will still keep your on-premises systems, and not entirely migrate it.The option that says: Migrate the existing file share configuration to Amazon
+EFS is incorrect because it is stated in the scenario that the company is using a file share that runs on a Windows server. Remember that Amazon 
+EFS only supports Linux workloads.
+
+The option that says: Migrate the existing file share configuration to Amazon EBS is incorrect because EBS is primarily used as block storage for
+EC2 instances and not as a shared file system. A file share is a specific folder in a file system that you can access using a server message block (SMB) protocol.
+Amazon EBS does not support SMB protocol.
+
+
+
+
+------------
+
+A solutions architect is in charge of preparing the infrastructure for a serverless application. The application is built from a Docker
+image pulled from an Amazon Elastic Container Registry (ECR) repository. It is compulsory that the application has access to 5 GB of ephemeral storage.
+
+Which action satisfies the requirements?
+
+Deploy the application in a Lambda function with Container image support. Set the function’s storage to 5 GB.
+Deploy the application to an Amazon ECS cluster that uses Fargate tasks. RIGHT
+Deploy the application Amazon ECS cluster with EC2 worker nodes and attach a 5 GB Amazon EBS volume.
+Deploy the application in a Lambda function with Container image support. Attach an Amazon Elastic File System (EFS) volume to the function.
+
+
+
+sol:By default, Fargate tasks are given a minimum of 20 GiB of free ephemeral storage, which meets the storage requirement in the scenario.
+
+
+
+--------
+
+A company wishes to query data that resides in multiple AWS accounts from a central data lake. Each account has its own Amazon S3
+bucket that stores data unique to its business function. Users from different accounts must be granted access to the data lake based on their roles.
+
+Which solution will minimize overhead and costs while meeting the required access patterns?
+
+Use AWS Control Tower to centrally manage each account's S3 buckets.
+Use AWS Lake Formation to consolidate data from multiple accounts into a single account.
+Use Amazon Data Firehose to consolidate data from multiple accounts into a single account.
+Create a scheduled Lambda function for transferring data from multiple accounts to the S3 buckets of a central account
+
+
+
+AWS Lake Formation is a service that makes it easy to set up a secure data lake in days. A data lake is a centralized, curated, and secured
+repository that stores all your data, both in its original form and prepared for analysis. A data lake enables you to break down data silos and 
+combine different types of analytics to gain insights and guide better business decisions.
+
+Amazon S3 forms the storage layer for Lake Formation. If you already use S3, you typically begin by registering existing S3 buckets that contain 
+your data. Lake Formation creates new buckets for the data lake and imports data into them. AWS always stores this data in your account, and only you have direct access to it.
+
+
+----------
+
+A logistics company plans to automate its order management application. The company wants to use SFTP file transfer in uploading business-critical documents.
+Since the files are confidential, the files need to be highly available and must be encrypted at rest. The files must also be automatically deleted a month after they are created.
+
+Which of the following options should be implemented to meet the company requirements with the least operation overhead?
+
+>Create an Amazon Elastic Filesystem (EFS) file system and enable encryption. Configure AWS Transfer for SFTP to securely upload files 
+to the EFS file system. Apply an EFS lifecycle policy to delete files after 30 days.
+>Provision an Amazon EC2 instance and install the SFTP service. Mount an encrypted EFS file system on the EC2 instance to store the uploaded files.
+Add a cron job to delete the files older than a month.
+>Create an Amazon S3 bucket with encryption enabled. Launch an AWS Transfer for SFTP endpoint to securely upload files to the S3 bucket. Configure 
+an S3 lifecycle rule to delete files after a month.>>write
+>Create an Amazon S3 bucket with encryption enabled. Configure AWS Transfer for SFTP to securely upload files to the S3 bucket. Configure the retention
+policy on the SFTP server to delete files after a month.
+
+
+sol:
+The option that says: Create an Amazon Elastic Filesystem (EFS) file system and enable encryption. Configure AWS Transfer for SFTP to securely 
+upload files to the EFS file system. Apply an EFS lifecycle policy to delete files after 30 days is incorrect. This may be possible, 
+however, the EFS lifecycle management doesn’t delete objects. It can only transition files in and out of the “Infrequent Access” tier.
+
+
+-------------
 1. A company collects data for temperature, humidity, and atmospheric pressure in cities across multiple continents. The average volume of data that the 
 company collects from each site daily is 500 GB. Each site has a high-speed Internet connection.
 The company wants to aggregate the data from all these global sites as quickly as possible in a single Amazon S3 bucket. 
