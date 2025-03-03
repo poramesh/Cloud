@@ -1,4 +1,468 @@
+A company currently runs an on-premises stock trading application by using Microsoft Windows Server. The company wants to migrate the application to the AWS Cloud.
 
+The company needs to design a highly available solution that provides low-latency access to block storage across multiple Availability Zones.
+
+Which solution will meet these requirements with the LEAST implementation effort?
+
+A. Configure a Windows Server cluster that spans two Availability Zones on Amazon EC2 instances. Install the application on both cluster nodes.
+Use Amazon FSx for Windows File Server as shared storage between the two cluster nodes.
+B. Configure a Windows Server cluster that spans two Availability Zones on Amazon EC2 instances. Install the application on both cluster nodes.
+Use Amazon Elastic Block Store (Amazon EBS) General Purpose SSD (gp3) volumes as storage attached to the EC2 instances. Set up application-level 
+replication to sync data from one EBS volume in one Availability Zone to another EBS volume in the second Availability Zone.
+C. Deploy the application on Amazon EC2 instances in two Availability Zones. Configure one EC2 instance as active and the second EC2 instance in standby mode.
+Use an Amazon FSx for NetApp ONTAP Multi-AZ file system to access the data by using Internet Small Computer Systems Interface (iSCSI) protocol. Most Voted
+D. Deploy the application on Amazon EC2 instances in two Availability Zones. Configure one EC2 instance as active and the second EC2 instance in standby mode. 
+Use Amazon Elastic Block Store (Amazon EBS) Provisioned IOPS SSD (io2) volumes as storage attached to the EC2 instances. Set up Amazon EBS level replication to sync data from one io2 volume in one Availability Zone to another io2 volume in the second Availability Zone.
+
+
+sol:
+
+Keep in mind: WE NEED LOW LATENCY BLOCK STORAGE.
+
+A - FSx for Windows File Server is not designed for block storage. It is optimized for shared file storage.
+B - God this requires high implementation effort.
+C - FSx for NetApp ONTAP supports block storage (via iSCSI) and provides Multi-AZ fault tolerance out of the box.
+D - EBS io2 volumes with replication across AZs are hard and complex to configure and manage. Even if you think this is acceptable, still it's definitely much harder than option C.
+
+
+--------------
+
+A company is building a cloud-based application on AWS that will handle sensitive customer data. The application uses Amazon RDS for the database, 
+Amazon S3 for object storage, and S3 Event Notifications that invoke AWS Lambda for serverless processing.
+
+The company uses AWS IAM Identity Center to manage user credentials. The development, testing, and operations teams need secure access to Amazon
+RDS and Amazon S3 while ensuring the confidentiality of sensitive customer data. The solution must comply with the principle of least privilege.
+
+Which solution meets these requirements with the LEAST operational overhead?
+
+A. Use IAM roles with least privilege to grant all the teams access. Assign IAM roles to each team with customized IAM policies defining specific
+permission for Amazon RDS and S3 object access based on team responsibilities.
+B. Enable IAM Identity Center with an Identity Center directory. Create and configure permission sets with granular access to Amazon RDS and Amazon S3.
+Assign all the teams to groups that have specific access with the permission sets. Most Voted
+C. Create individual IAM users for each member in all the teams with role-based permissions. Assign the IAM roles with predefined policies for RDS
+and S3 access to each user based on user needs. Implement IAM Access Analyzer for periodic credential evaluation.
+D. Use AWS Organizations to create separate accounts for each team. Implement cross-account IAM roles with least privilege. Grant specific permission 
+for RDS and S3 access based on team roles and responsibilities.
+
+
+
+ans:
+
+IAM Identity Center: This service simplifies user management by centralizing credentials and access control.
+Permission Sets: You can create granular permission sets that align with the principle of least privilege, ensuring that each team has only the access they need.
+Group Assignments: By assigning teams to groups with specific permission sets, you streamline access management and reduce the complexity of individual user permissions.
+This approach minimizes operational overhead while maintaining secure and compliant access to sensitive customer data
+
+Selected Answer: B
+A - Managing and customizing IAM roles for multiple teams can become more and more complex and high-maintenance, especially if team responsibilities evolve.
+B - IAM Identity Center (formerly AWS SSO) allows you to manage/update access for multiple teams from one place.
+C - TOO MUCH WORK.
+D - Cross-account access is harder to manage and introduces additional operational overhead.
+
+
+
+
+
+--------------
+
+A streaming media company is rebuilding its infrastructure to accommodate increasing demand for video content that users consume daily.
+
+The company needs to process terabyte-sized videos to block some content in the videos. Video processing can take up to 20 minutes.
+
+The company needs a solution that will scale with demand and remain cost-effective.
+
+Which solution will meet these requirements?
+
+A. Use AWS Lambda functions to process videos. Store video metadata in Amazon DynamoDB. Store video content in Amazon S3 Intelligent-Tiering.
+B. Use Amazon Elastic Container Service (Amazon ECS) and AWS Fargate to implement microservices to process videos. Store video metadata in Amazon 
+Aurora. Store video content in Amazon S3 Intelligent-Tiering. Most Voted
+C. Use Amazon EC2 instances in an Auto Scaling group behind an Application Load Balancer (ALB) to process videos. Store video content in Amazon S3 Standard. 
+Use Amazon Simple Queue Service (Amazon SQS) for queuing and to decouple processing tasks.
+D. Deploy a containerized video processing application on Amazon Elastic Kubernetes Service (Amazon EKS) on Amazon EC2. Store video metadata in Amazon RDS 
+in a single Availability Zone. Store video content in Amazon S3 Glacier Deep Archive.
+
+
+sol:
+A - Video processing can take up to 20 minutes. So lambda is not suitable here.
+B - Fargate allows running containers without managing EC2 instances, scaling automatically based on demand. Besides, S3 Intelligent-Tiering
+is cost-effective for storing large video files.
+C - I gotta say, the SQS is a really good choice here! It's just that S3 Standard is more expensive than S3 Intelligent-Tiering for large files, 
+and that EC2 (even with Auto Scaling) requires managing the underlying infrastructure.
+D - EKS is more complex to set up but the real issue is that RDS in a single Availability Zone introduces a single point of failure, so scalability 
+and reliability can't be met. Also, S3 Glacier Deep Archive is designed for long-term archival storage with high latency and not suitable for frequently accessed video content.
+
+
+
+
+--------------
+
+
+A medical company wants to perform transformations on a large amount of clinical trial data that comes from several customers. The company must extract
+the data from a relational database that contains the customer data. Then the company will transform the data by using a series of complex rules. 
+The company will load the data to Amazon S3 when the transformations are complete.
+
+All data must be encrypted where it is processed before the company stores the data in Amazon S3. All data must be encrypted by using customer-specific keys.
+
+Which solution will meet these requirements with the LEAST amount of operational effort?
+
+A. Create one AWS Glue job for each customer. Attach a security configuration to each job that uses server-side encryption with Amazon S3 managed keys
+(SSE-S3) to encrypt the data.
+B. Create one Amazon EMR cluster for each customer. Attach a security configuration to each cluster that uses client-side encryption with a custom 
+client-side root key (CSE-Custom) to encrypt the data.
+C. Create one AWS Glue job for each customer. Attach a security configuration to each job that uses client-side encryption with AWS KMS managed keys
+(CSE-KMS) to encrypt the data. Most Voted
+D. Create one Amazon EMR cluster for each customer. Attach a security configuration to each cluster that uses server-side encryption with AWS 
+KMS keys (SSE-KMS) to encrypt the data.
+
+
+sol:
+
+Option C is the best solution because it uses AWS Glue for serverless ETL processing and CSE-KMS for end-to-end encryption using customer-specific keys
+------------------------
+A company hosts its enterprise resource planning (ERP) system in the us-east-1 Region. The system runs on Amazon EC2 instances. Customers 
+use a public API that is hosted on the EC2 instances to exchange information with the ERP system. International customers report slow API response times from their data centers.
+
+Which solution will improve response times for the international customers MOST cost-effectively?
+
+A. Create an AWS Direct Connect connection that has a public virtual interface (VIF) to provide connectivity from each customer's data center
+to us-east-1. Route customer API requests by using a Direct Connect gateway to the ERP system API.
+B. Set up an Amazon CloudFront distribution in front of the API. Configure the CachingOptimized managed cache policy to provide improved cache efficiency.
+C. Set up AWS Global Accelerator. Configure listeners for the necessary ports. Configure endpoint groups for the appropriate Regions to distribute traffic.
+Create an endpoint in the group for the API. Most Voted
+D. Use AWS Site-to-Site VPN to establish dedicated VPN tunnels between Regions and customer networks. Route traffic to the API over the VPN connections.
+
+
+
+
+
+
+ans;:
+ans;:A - Direct Connect requires dedicated connections for each customer, making it expensive and impractical for a public API.
+B - CloudFront improves performance but caching efficiency depends on the API use case. Dynamic & personalized API responses may not benefit significantly from caching. CloudFront is best suited for static content or APIs with predictable responses.
+C - Global Accelerator provides a global static IP address and uses the AWS global network to route traffic optimally, reducing latency for geographically distant users. Unlike CloudFront, it works well in this case because it doesn't rely on caching contents.
+D - VPNs are not ideal for public APIs because they require specific setup for each customer, so high operational overhead.
+   upvoted 2 times
+
+
+-------------
+
+A company is developing an application in the AWS Cloud. The application's HTTP API contains critical information that is published in Amazon API Gateway. 
+The critical information must be accessible from only a limited set of trusted IP addresses that belong to the company's internal network.
+
+Which solution will meet these requirements?
+
+A. Set up an API Gateway private integration to restrict access to a predefined set of IP addresses.
+B. Create a resource policy for the API that denies access to any IP address that is not specifically allowed. Most Voted
+C. Directly deploy the API in a private subnet. Create a network ACL. Set up rules to allow the traffic from specific IP addresses.
+D. Modify the security group that is attached to API Gateway to allow inbound traffic from only the trusted IP addresses.
+
+
+sol:
+B: api gateway allows configure resource policy to restricted IP
+A: private integration-> private api
+C: private subnet -> private api
+D: security group does not support api gateway
+
+---------------
+
+A company is migrating its on-premises Oracle database to an Amazon RDS for Oracle database. The company needs to retain data for 90 
+days to meet regulatory requirements. The company must also be able to restore the database to a specific point in time for up to 14 days.
+
+Which solution will meet these requirements with the LEAST operational overhead?
+
+A. Create Amazon RDS automated backups. Set the retention period to 90 days.
+B. Create an Amazon RDS manual snapshot every day. Delete manual snapshots that are older than 90 days.
+C. Use the Amazon Aurora Clone feature for Oracle to create a point-in-time restore. Delete clones that are older than 90 days.
+D. Create a backup plan that has a retention period of 90 days by using AWS Backup for Amazon RDS
+
+
+
+sol:
+D
+
+A. Create Amazon RDS automated backups. Set the retention period to 90 days.
+🚫 Incorrect – Automated backups in RDS support only up to 35 days of retention. This does not meet the 90-day retention requirement.
+B. Create an Amazon RDS manual snapshot every day. Delete manual snapshots that are older than 90 days.
+🚫 Incorrect – While this meets the 90-day retention, manual snapshots do not support point-in-time recovery (PITR). Also, managing 
+snapshot deletions manually adds operational overhead.
+C. Use the Amazon Aurora Clone feature for Oracle to create a point-in-time restore. Delete clones that are older than 90 days.
+🚫 Incorrect – Aurora Cloning is not available for RDS Oracle and does not replace point-in-time recovery.
+D. Create a backup plan that has a retention period of 90 days by using AWS Backup for Amazon RDS.
+✅ Correct – AWS Backup supports RDS and allows retention policies up to 90 days, meeting the compliance requirement. It also supports 
+point-in-time recovery (PITR) for up to 35 days, covering the 14-day restore requirement without manual intervention.
+
+---------------
+
+A GraphQL API hosted is hosted in an Amazon EKS cluster with Fargate launch type and deployed using AWS SAM. The API is
+connected to an Amazon DynamoDB table with an Amazon DynamoDB Accelerator (DAX) as its data store. Both resources are hosted in the us-east-1 region.
+
+The AWS IAM authenticator for Kubernetes is integrated into the EKS cluster for role-based access control (RBAC) and cluster
+authentication. A solutions architect must improve network security by preventing database calls from traversing the public
+internet. An automated cross-account backup for the DynamoDB table is also required for long-term retention.
+
+Which of the following should the solutions architect implement to meet the requirement?
+
+>Create a DynamoDB gateway endpoint. Associate the endpoint to the appropriate route table. Use AWS Backup to automatically copy 
+the on-demand DynamoDB backups to another AWS account for disaster recovery.
+>Create a DynamoDB interface endpoint. Associate the endpoint to the appropriate route table. Enable Point-in-Time Recovery (PITR) to
+restore the DynamoDB table to a particular point in time on the same or a different AWS account.
+>Create a DynamoDB gateway endpoint. Set up a Network Access Control List (NACL) rule that allows outbound traffic to the 
+dynamodb.us-east-1.amazonaws.com gateway endpoint. Use the built-in on-demand DynamoDB backups for cross-account backup and recovery.
+>Create a DynamoDB interface endpoint. Set up a stateless rule using AWS Network Firewall to control all outbound traffic 
+to only use the dynamodb.us-east-1.amazonaws.com endpoint. Integrate the DynamoDB table with Amazon Timestream to allow point-in-time recovery from a different AWS account.
+
+
+Since DynamoDB tables are public resources, applications within a VPC rely on an Internet Gateway to route traffic to/from Amazon DynamoDB. 
+You can use a Gateway endpoint if you want to keep the traffic between your VPC and Amazon DynamoDB within the Amazon network. This way,
+resources residing in your VPC can use their private IP addresses to access DynamoDB with no exposure to the public internet.
+
+When you create a DynamoDB Gateway endpoint, you specify the VPC where it will be deployed as well as the route table that will be
+associated with the endpoint. The route table will be updated with an Amazon DynamoDB prefix list (list of CIDR blocks) as the destination and the endpoint’s ID as the target.
+
+
+
+DynamoDB on-demand backups are available at no additional cost beyond the normal pricing that’s associated with backup storage size. 
+DynamoDB on-demand backups cannot be copied to a different account or Region. To create backup copies across AWS accounts
+and Regions and for other advanced features, you should use AWS Backup.
+
+With AWS Backup, you can configure backup policies and monitor activity for your AWS resources and on-premises workloads 
+in one place. Using DynamoDB with AWS Backup, you can copy your on-demand backups across AWS accounts and Regions, add cost allocation
+tags to on-demand backups, and transition on-demand backups to cold storage for lower costs. To use these advanced features, you must opt into AWS Backup. 
+Opt-in choices apply to the specific account and AWS Region, so you might have to opt into multiple Regions using the same account.
+
+----------------------
+
+
+A company is implementing a new application on AWS. The company will run the application on multiple Amazon EC2 instances across multiple Availability
+Zones within multiple AWS Regions. The application will be available through the internet. Users will access the application from around the world.
+
+The company wants to ensure that each user who accesses the application is sent to the EC2 instances that are closest to the user’s location.
+
+Which solution will meet these requirements?
+
+A. Implement an Amazon Route 53 geolocation routing policy. Use an internet-facing Application Load Balancer to distribute the traffic across 
+all Availability Zones within the same Region.
+B. Implement an Amazon Route 53 geoproximity routing policy. Use an internet-facing Network Load Balancer to distribute the traffic across all
+Availability Zones within the same Region. Most Voted
+C. Implement an Amazon Route 53 multivalue answer routing policy. Use an internet-facing Application Load Balancer to distribute the traffic
+across all Availability Zones within the same Region.
+D. Implement an Amazon Route 53 weighted routing policy. Use an internet-facing Network Load Balancer to distribute the traffic 
+across all Availability Zones within the same Region.
+
+
+
+sol:
+The main purpose of geolocation policy is to enforce regional restrictions, provide language-specific content, or balance load across 
+regional endpoints. It doesn’t return “closest” records but only relevant (location) records.
+
+
+
+A - "geolocation" is simple and effective, but it might not always direct users to the physically closest Region. It’s
+more about their geographic "label" (country/region).
+B - "geoproximity" is better for ensuring actual closeness but adds a bit more complexity.
+
+Then, I don't think ALB or NLB should be an argument here. NLBs are generally preferred for applications that require high throughput and low latency,
+especially if they are not using HTTP/HTTPS. NLBs operate at Layer 4 (TCP/UDP), so suitable for a wider range of applications than ALBs (Layer 7, HTTP/HTTPS). 
+Even if the application does use HTTP/HTTPS, NLBs can still be used if you don't need the advanced features of an ALB (like content-based routing or host-based routing).
+
+Then again, the question haven't explicitly stated the protocol so oh well, I'm gonna go with B.
+Agree, if the question does not state "web", "ALB", or something "layer 7 specific" we should not assume it
+----------------------
+
+
+A company currently runs an on-premises application that usesASP.NET on Linux machines. The application is resource-intensive and serves customers directly.
+
+The company wants to modernize the application to .NET. The company wants to run the application on containers and to scale based on
+Amazon CloudWatch metrics. The company also wants to reduce the time spent on operational maintenance activities.
+
+Which solution will meet these requirements with the LEAST operational overhead?
+
+A. Use AWS App2Container to containerize the application. Use an AWS CloudFormation template to deploy the application to Amazon Elastic Container Service (Amazon ECS) on AWS Fargate. Most Voted
+B. Use AWS App2Container to containerize the application. Use an AWS CloudFormation template to deploy the application to Amazon Elastic Container Service (Amazon ECS) on Amazon EC2 instances.
+C. Use AWS App Runner to containerize the application. Use App Runner to deploy the application to Amazon Elastic Container Service (Amazon ECS) on AWS Fargate.
+D. Use AWS App Runner to containerize the application. Use App Runner to deploy the application to Amazon Elastic Kubernetes Service (Amazon EKS) on Amazon EC2 instances.
+
+
+
+sol:
+
+The company has a resource-intensive on-premises ASP.NET application running on Linux. Their goals are:
+
+✅ Modernize the application to .NET and run it in containers.
+✅ Auto-scale based on Amazon CloudWatch metrics.
+✅ Reduce operational maintenance overhead.
+
+Key Considerations
+Containerization: The application needs to be converted into a container.
+Scalability: It should scale automatically using CloudWatch metrics.
+Low operational overhead: Prefer managed services like AWS Fargate (serverless for containers) over EC2-based solutions (which require more maintenance).
+
+
+Option C: Use AWS App Runner on ECS Fargate
+
+App Runner is not used for general-purpose container workloads. It’s designed for web applications and APIs with minimal configurations.
+ECS Fargate is a better choice for resource-intensive workloads.
+
+
+
+
+---------------
+
+
+A company wants to create an Amazon EMR cluster that multiple teams will use. The company wants to ensure that each team’s big 
+data workloads can access only the AWS services that each team needs to interact with. The company does not want the workloads 
+to have access to Instance Metadata Service Version 2 (IMDSv2) on the cluster’s underlying EC2 instances.
+
+Which solution will meet these requirements?
+
+A. Configure interface VPC endpoints for each AWS service that the teams need. Use the required interface VPC endpoints to submit the big data workloads.
+B. Create EMR runtime roles. Configure the cluster to use the runtime roles. Use the runtime roles to submit the big data workloads.
+C. Create an EC2 IAM instance profile that has the required permissions for each team. Use the instance profile to submit the big data workloads.
+D. Create an EMR security configuration that has the EnableApplicationScopedIAMRole option set to false. Use the security configuration to submit the big data workloads.
+
+
+
+
+sol:
+
+Solution Breakdown
+✅ Best Answer: Option B - Use EMR Runtime Roles
+✔ EMR runtime roles are IAM roles assigned to specific jobs instead of the entire EC2 instance.
+✔ Ensures each team gets only the permissions they need.
+✔ Prevents workloads from accessing IMDSv2 (since the jobs use separate runtime roles instead of instance profile credentials).
+✔ Enhances security because each workload has fine-grained permissions.
+
+Why the Other Options Are Incorrect?
+❌ Option A: Use Interface VPC Endpoints
+VPC endpoints control network traffic, not IAM permissions.
+This doesn’t ensure per-team access control for AWS services.
+Does not solve the IMDSv2 issue (instance credentials are still accessible).
+❌ Option C: Use an EC2 IAM Instance Profile
+The instance profile is shared across all teams.
+This means all jobs running on the EMR cluster have the same permissions, which is not per-team access control.
+Since instance profiles rely on IMDSv2 for credentials, workloads will still have access to it, violating the company’s requirement.
+❌ Option D: Disable Application Scoped IAM Roles
+ApplicationScopedIAMRole allows fine-grained IAM roles at the application level.
+Disabling it means workloads will use the EC2 instance profile, which defeats the purpose of per-team access control.
+Does not solve the IMDSv2 issue since instance-level credentials will still be used.
+Final Answer: ✅ Option B - Use EMR Runtime Roles
+This approach provides:
+✔ Per-team access control (each team gets only the necessary permissions).
+✔ Security by blocking IMDSv2 (jobs don’t rely on the instance profile).
+✔ Better IAM management for EMR workloads.
+
+----------------
+
+A company currently runs an on-premises application that usesASP.NET on Linux machines. The application is resource-intensive and serves customers directly.
+
+The company wants to modernize the application to .NET. The company wants to run the application on containers and to
+scale based on Amazon CloudWatch metrics. The company also wants to reduce the time spent on operational maintenance activities.
+
+Which solution will meet these requirements with the LEAST operational overhead?
+
+A. Use AWS App2Container to containerize the application. Use an AWS CloudFormation template to deploy the application to Amazon Elastic
+Container Service (Amazon ECS) on AWS Fargate. Most Voted
+B. Use AWS App2Container to containerize the application. Use an AWS CloudFormation template to deploy the application to Amazon Elastic 
+Container Service (Amazon ECS) on Amazon EC2 instances.
+C. Use AWS App Runner to containerize the application. Use App Runner to deploy the application to Amazon Elastic Container Service (Amazon ECS) on AWS Fargate.
+D. Use AWS App Runner to containerize the application. Use App Runner to deploy the application to Amazon Elastic Kubernetes Service (Amazon EKS) on Amazon EC2 instances.
+
+
+
+
+
+
+
+-----------
+A company has deployed its corporate website in a VPC on two Amazon EC2 instances behind an Application Load Balancer (ALB). The EC2 
+instances are deployed in private subnets. The ALB is in a public subnet. A route to an internet gateway exists in the public subnet route table.
+The company has deployed an Amazon CloudFront distribution with the ALB as the origin.
+
+The company's security team recently identified that malicious traffic is accessing the ALB directly. The company must deploy security controls
+to prevent common attack techniques, including cross-site scripting, and to protect against volumetric denials of service.
+
+Which strategy should a solutions architect recommend to meet these requirements?
+
+A. Migrate the ALB to a private subnet. Associate an AWS WAF web ACL with the ALB. Update inbound rules on the ALB security group to allow
+traffic on port 443 only from CloudFront IP addresses.
+B. Associate an AWS WAF web ACL with the CloudFront distribution. Configure an origin access identity (OAI) on the ALB to drop access 
+attempts that do not originate from CloudFront.
+C. Associate an AWS WAF web ACL with the CloudFront distribution. Configure CloudFront to add a custom header to the requests that are sent to
+the ALB. Configure advanced routing on the ALB to only forward requests that include the custom header that is set by CloudFront.
+D. Associate an AWS WAF web ACL with the CloudFront distribution. Configure AWS WAF to add a custom header to the requests that are sent to the ALB.
+Configure advanced routing on the ALB to only forward requests that include the custom header that is set by CloudFront.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-----------
+
+A media company recently launched their newly created web application. Many users tried to visit the website, but they are receiving a 
+503 Service Unavailable Error. The system administrator tracked the EC2 instance status and saw the capacity is reaching its 
+maximum limit and unable to process all the requests. To gain insights from the application’s data, they need to launch a real-time analytics service.
+
+Which of the following allows you to read records in batches?
+
+Create a Kinesis Data Stream and use AWS Lambda to read records from the data stream.
+Create an Amazon S3 bucket to store the captured data and use Amazon Redshift Spectrum to analyze the data.
+Create a Data Firehose and use AWS Lambda to read records from the data stream.
+Create an Amazon S3 bucket to store the captured data and use Amazon Athena to analyze the data
+
+sol:
+
+The option that says: Create a Data Firehose and use AWS Lambda to read records from the data stream is incorrect. Although 
+Amazon Data Firehose captures and loads data in near real-time, AWS Lambda can’t be set as its destination. You can write 
+Lambda functions and integrate it with Data Firehose to request additional, customized processing of the data before it is sent 
+downstream. However, this integration is primarily used for stream processing and not the actual consumption of the data stream.
+You have to use a Kinesis Data Stream in this scenario.
+
+
+
+---------------
+
+An insurance company utilizes SAP HANA for its day-to-day ERP operations. Since they can’t migrate this database due to customer 
+preferences, they need to integrate it with the current AWS workload in the VPC in which they are required to establish a site-to-site VPN connection.
+
+What needs to be configured outside of the VPC for them to have a successful site-to-site VPN connection?
+
+>The main route table in your VPC to route traffic through a NAT instance
+>An Internet-routable IP address (static) of the customer gateway's external interface for the on-premises network
+>An EIP to the Virtual Private Gateway
+>A dedicated NAT instance in a public subnet
+
+
+sol:
+
+By default, instances that you launch into a virtual private cloud (VPC) can’t communicate with your own network. You can enable access
+to your network from your VPC by attaching a virtual private gateway to the VPC, creating a custom route table, updating your security 
+group rules, and creating an AWS managed VPN connection.
+
+Although the term VPN connection is a general term, in the Amazon VPC documentation, a VPN connection refers to the connection between 
+your VPC and your own network. AWS supports Internet Protocol security (IPsec) VPN connections.
+
+A customer gateway is a physical device or software application on your side of the VPN connection.
+
+To create a VPN connection, you must create a customer gateway resource in AWS, which provides information to AWS about your customer
+gateway device. Next, you have to set up an Internet-routable IP address (static) of the customer gateway’s external interface.
+
+The following diagram illustrates single VPN connections. The VPC has an attached virtual private gateway, and your remote network 
+includes a customer gateway, which you must configure to enable the VPN connection. You set up the routing so that any traffic from 
+the VPC bound for your network is routed to the virtual private gateway.
+
+
+---------------------------
 
 
 A financial services company plans to migrate its trading application from on-premises Microsoft Windows Server to Amazon Web Services (AWS).
@@ -28,7 +492,79 @@ ans is netapp ontapp
 
 
 ---------
+An online registration system hosted in an Amazon EKS cluster stores data to a db.t4g.medium Amazon Aurora DB cluster. The database 
+performs well during regular hours but is unable to handle the traffic surge that occurs during flash sales. A solutions architect
+must move the database to Aurora Serverless while minimizing downtime and the impact on the operation of the application.
 
+Which change should be taken to meet the objective?
+
+Add an Aurora Replica to the cluster and set its instance class to Serverless. Failover to the read replica and promote it to primary.
+Take a snapshot of the DB cluster. Use the snapshot to create a new Aurora DB cluster.
+Change the Aurora Instance class to Serverless
+Use AWS Database Migration Service (AWS DMS) to migrate to a new Aurora Serverless database.
+
+
+
+u can set up a DMS task for either one-time migration or ongoing replication. An ongoing replication task keeps 
+your source and target databases in sync. Once set up, the ongoing replication task will continuously apply source changes to the target with minimal latency.
+
+Hence, the correct answer is: Use AWS Database Migration Service (AWS DMS) to migrate data from the existing DB cluster to a new Aurora Serverless database.
+
+The option that says: Change the Aurora Instance class to Serverless is incorrect. Changing the instance class from Provisioned to Serverless is not possible.
+
+The option that says: Take a snapshot of the DB cluster. Use the snapshot to create a new Aurora DB cluster is incorrect. This one involves 
+a long period of downtime since you have to stop the application until the new cluster is created.
+
+The option that says: Add an Aurora Replica to the cluster and set its instance class to Serverless. Failover to the read replica and promote 
+it to primary is incorrect. While this method is valid, the database becomes unavailable for writing for a short period of time during failover.
+
+
+
+
+
+--------------
+
+
+A company has established a dedicated network connection from its on-premises data center to AWS Cloud using AWS Direct Connect (DX). 
+The core network services, such as the Domain Name System (DNS) service and Active Directory services, are all hosted on-premises.
+The company has new AWS accounts that will also require consistent and dedicated access to these network services.
+
+Which of the following can satisfy this requirement with the LEAST amount of operational overhead and in a cost-effective manner?
+
+>Create a new AWS VPN CloudHub. Set up a Virtual Private Network (VPN) connection for additional AWS accounts.
+>Set up a new Direct Connect gateway and integrate it with the existing Direct Connect connection. Configure a VPC peering connection
+between AWS accounts and associate it with Direct Connect gateway.
+>Create a new Direct Connect gateway and integrate it with the existing Direct Connect connection. Set up a Transit Gateway between 
+AWS accounts and associate it with the Direct Connect gateway.
+>Set up another Direct Connect connection for each and every new AWS account that will be added.
+
+ans:
+AWS Transit Gateway provides a hub and spoke design for connecting VPCs and on-premises networks. You can attach all your hybrid 
+connectivity (VPN and Direct Connect connections) to a single Transit Gateway consolidating and controlling your organization’s 
+entire AWS routing configuration in one place. It also controls how traffic is routed among all the connected spoke networks using route tables. 
+This hub and spoke model simplifies management and reduces operational costs because VPCs only connect to the 
+Transit Gateway to gain access to the connected networks.
+
+
+Step-by-Step Breakdown
+✅ 1. You Already Have an Existing Direct Connect (DX) Connection
+Your on-premises data center is already connected to AWS using a DX connection.
+Right now, this DX connection is tied to a single AWS account & VPC.
+✅ 2. Create a Direct Connect Gateway (DXGW) in AWS
+The DX Gateway (DXGW) acts as a middle layer that allows multiple AWS accounts to use the same DX connection.
+It doesn’t replace your existing DX—it extends it to multiple AWS accounts and VPCs.
+✅ 3. Associate the DXGW with Your Existing DX Connection
+Now, the DXGW sits between the on-premises connection and AWS networks.
+It enables other AWS accounts to access the DX connection.
+✅ 4. Create a Transit Gateway (TGW) in the AWS Account
+AWS Transit Gateway (TGW) allows multiple VPCs in different AWS accounts to connect to a central hub.
+It simplifies network management instead of using complex VPC peering.
+✅ 5. Associate the Transit Gateway (TGW) with the DX Gateway (DXGW)
+Now, any VPC connected to the TGW can use Direct Connect without requiring a separate DX connection.
+Multiple AWS accounts can attach their VPCs to this Transit Gateway and share the same DX link.
+
+
+------------
 
 A cryptocurrency trading platform is using an API built in AWS Lambda and API Gateway. Due to the recent news and rumors about 
 the upcoming price surge of Bitcoin, Ethereum and other cryptocurrencies, it is expected that the trading platform would have 
@@ -43,6 +579,8 @@ Switch from using AWS Lambda and API Gateway to a more scalable and highly avail
 
 
 
+
+---------------------
 sol:
 
 Using CloudFront in front of the API Gateway to act as a cache is incorrect because CloudFront only speeds up content delivery which provides
@@ -67,7 +605,8 @@ Stops abuse (e.g., bot attacks).
 Ensures fair usage of API resources.
 
 
-----
+-----------------
+
 A car dealership website hosted in Amazon EC2 stores car listings in an Amazon Aurora database managed by Amazon RDS. Once a vehicle has been sold,
 its data must be removed from the current listings and forwarded to a distributed processing system.
 
@@ -2398,6 +2937,7 @@ Why this isn’t ideal:
 VPN connections are useful but come with higher operational overhead: Managing 30 Site-to-Site VPNs would be complex and time-consuming.
 Scalability becomes difficult as the number of VPCs grows.
 This option would increase costs and add complexity to your network architecture compared to other options.
+
 
 
 
