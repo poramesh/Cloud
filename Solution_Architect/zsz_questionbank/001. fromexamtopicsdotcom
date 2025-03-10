@@ -6549,7 +6549,8 @@ The company must implement a solution to allow the external consultant access to
 
 Which solution will meet these requirements with the MOST operational efficiency?
 
-A. Create a new S3 bucket that is configured to host a public static website. Migrate the operations data to the new S3 bucket. Share the S3 website URL with the external consultant.
+A. Create a new S3 bucket that is configured to host a public static website. Migrate the operations data to the new S3 bucket. Share the S3 website
+URL with the external consultant.
 B. Enable public access to the S3 bucket for 7 days. Remove access to the S3 bucket when the external consultant completes the audit.
 C. Create a new IAM user that has access to the report in the S3 bucket. Provide the access keys to the external consultant. Revoke the access keys after 7 days.
 D. Generate a presigned URL that has the required access to the location of the report on the S3 bucket. Share the presigned URL with the external consultant.
@@ -6824,8 +6825,10 @@ A. Use AWS Control Tower to deploy accounts. Create a networking account that ha
 Use AWS Resource Access Manager (AWS RAM) to share the subnets with the workload accounts. 
 B. Use AWS Organizations to deploy accounts. Create a networking account that has a VPC with private subnets and public subnets.
 Use AWS Resource Access Manager (AWS RAM) to share the subnets with the workload accounts.
-C. Use AWS Control Tower to deploy accounts. Deploy a VPC in each workload account. Configure each VPC to route through an inspection VPC by using a transit gateway attachment.
-D. Use AWS Organizations to deploy accounts. Deploy a VPC in each workload account. Configure each VPC to route through an inspection VPC by using a transit gateway attachment.
+C. Use AWS Control Tower to deploy accounts. Deploy a VPC in each workload account. Configure each VPC to route through an inspection VPC by using a transit 
+gateway attachment.
+D. Use AWS Organizations to deploy accounts. Deploy a VPC in each workload account. Configure each VPC to route through an inspection VPC by using a transit 
+gateway attachment.
 
 
 
@@ -6902,12 +6905,13 @@ patches, backups and of course scaling, which increases administrative overhead 
 A company is designing its production application's disaster recovery (DR) strategy. The application is backed by a MySQL 
 database on an Amazon Aurora cluster in the us-east-1 Region. The company has chosen the us-west-1 Region as its DR Region.
 
-The company's target recovery point objective (RPO) is 5 minutes and the target recovery time objective (RTO) is 20 minutes. The company wants to minimize configuration changes.
+The company's target recovery point objective (RPO) is 5 minutes and the target recovery time objective (RTO) is 20 minutes. The company wants to minimize configuration 
+changes.
 
 Which solution will meet these requirements with the MOST operational efficiency?
 
 A. Create an Aurora read replica in us-west-1 similar in size to the production application's Aurora MySQL cluster writer instance.
-B. Convert the Aurora cluster to an Aurora global database. Configure managed failover.
+B. Convert the Aurora cluster to an Aurora global database. Configure managed failover.>>>>
 C. Create a new Aurora cluster in us-west-1 that has Cross-Region Replication.
 D. Create a new Aurora cluster in us-west-1. Use AWS Database Migration Service (AWS DMS) to sync both clusters.
 
@@ -6932,11 +6936,11 @@ performance of other tenants that were running on the same set of EC2 instances.
 Which combination of steps should a solutions architect take to meet these requirements? (Choose three.)
 
 A. Create an AWS WAF web ACL. Add a rate-based rule statement to the web ACL. Set the action to block.
-B. Create an Amazon API Gateway API. Assign an API key usage plan for each tenant. 
+B. Create an Amazon API Gateway API. Assign an API key usage plan for each tenant. >>>>>>
 C. Create an Amazon API Gateway API. Assign the AWS WAF web ACL to the API Gateway API.
 D. Create an Amazon CloudFront distribution. Assign the AWS WAF web ACL to the CloudFront distribution.
-E. Create a VPC link for HTTP APIs. Set up the ALB as the target. Configure an HTTP proxy private integration that uses the VPC link.
-F. Modify the application's API requests to target the newly created endpoint. 
+E. Create a VPC link for HTTP APIs. Set up the ALB as the target. Configure an HTTP proxy private integration that uses the VPC link.?>>>>>>
+F. Modify the application's API requests to target the newly created endpoint. >>>>>
 
 
 
@@ -6977,7 +6981,8 @@ an AWS Fargate launch type for the on-premises application containers.
 
 
 ans;
-We need to load-balance HTTP traffic hence Application Load Balancer is needed. Because Customer want to use container solution we need to use ECS with Fargate which will lunch cloud applications. To run on-premises applications in containers we need to use ECS Anyware.
+We need to load-balance HTTP traffic hence Application Load Balancer is needed. Because Customer want to use container solution we need to use ECS with Fargate 
+which will lunch cloud applications. To run on-premises applications in containers we need to use ECS Anyware.
 
 
 
